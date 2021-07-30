@@ -96,7 +96,7 @@ A = []
 for idx in range(n_actions):
     for jdx in range(n_actions):
         for kdx in range(n_actions):
-            A.append(list(single_action[idx]) + list(single_action[jdx])+ list(single_action[kdx]))
+            A.append(list(single_action[idx]) + list(single_action[jdx]))#+ list(single_action[kdx]))
 A = np.asarray(A)
 
 def Legible(sprite_list, team, world, gstar_idx, gstar, A, G):
@@ -108,13 +108,12 @@ def Legible(sprite_list, team, world, gstar_idx, gstar, A, G):
     sprite_list.draw(world)
     pygame.display.flip()
     clock.tick(fps)
-    p_aloc = np.ones(len(G))
 
+    p_aloc = np.ones(len(G))
     iter = 1
     while True:
-        print('[*] Iteration: ', iter)
         # hyperparameter for optimization trade-off
-        epsilon = 0.02
+        epsilon = 0.01
         # constrained optimization to find revealing but efficient action
         s = getState(team)
 
@@ -132,8 +131,11 @@ def Legible(sprite_list, team, world, gstar_idx, gstar, A, G):
                 astar = np.copy(a)
                 value = likelihood[gstar_idx]
 
-        if iter < 5:
+        if iter <= 15:
+            # print('Iteration: ', iter)
             p_aloc = np.multiply(p_aloc, bayes(s, astar, A, G))
+            if iter == 15:
+                print('Probability: ',p_aloc/np.sum(p_aloc))
 
         # update for next time step
         updateState(team, s + astar)
@@ -152,7 +154,7 @@ def Legible(sprite_list, team, world, gstar_idx, gstar, A, G):
 
         iter +=1
 
-    return p_aloc
+    return p_aloc/np.sum(p_aloc)
 
 def main():
 
@@ -164,14 +166,14 @@ def main():
     # player = Object((0.1,0.8), [140,0,255], 25)
 
     # define the subtasks and the possible subtask allocations
-    goal1 = Object((1.0, 0.3), [100, 100, 100], 50)
+    goal1 = Object((1.0, 0.4), [100, 100, 100], 50)
     goal2 = Object((1.0, 0.6), [100, 100, 100], 50)
     goal3 = Object((0.5, 1), [100, 100, 100], 50)
-    tau1 = np.asarray(list(goal1.state) +  list(goal1.state) + list(goal1.state))
-    tau2 = np.asarray(list(goal1.state) +  list(goal2.state) + list(goal3.state))
-    tau3 = np.asarray(list(goal2.state) +  list(goal2.state) + list(goal3.state))
-    tau4 = np.asarray(list(goal1.state) +  list(goal3.state) + list(goal1.state))
-    G = [tau1, tau2]#, tau3, tau4]
+    tau1 = np.asarray(list(goal1.state) +  list(goal2.state))# + list(goal1.state))
+    tau2 = np.asarray(list(goal1.state) +  list(goal1.state))# + list(goal3.state))
+    tau3 = np.asarray(list(goal2.state) +  list(goal2.state))# + list(goal3.state))
+    tau4 = np.asarray(list(goal1.state) +  list(goal3.state))# + list(goal1.state))
+    G = [tau1, tau2, tau3, tau4]
 
     # joystick control output
     # action, start, stop = joystick.input()
@@ -188,7 +190,7 @@ def main():
         agent1 = Object((0.1, 0.4), [0, 0, 255], 25)
         agent2 = Object((0.1, 0.6), [0, 255, 0], 25)
         agent3 = Object((0.1, 0.5), [255, 0, 0], 25)
-        team = [agent1, agent2, agent3]#, player]
+        team = [agent1, agent2]#, agent3]#, player]
 
 
         # the game will draw everything in the sprite list
@@ -198,15 +200,15 @@ def main():
         sprite_list.add(goal3)
         sprite_list.add(agent1)
         sprite_list.add(agent2)
-        sprite_list.add(agent3)
+        # sprite_list.add(agent3)
         # sprite_list.add(player)
 
         # pick the desired allocation
         gstar = np.copy(G[gstar_idx])
         P_aloc[gstar_idx] = Legible(sprite_list, team, world, gstar_idx, gstar, A, G)
-        P.append(np.max(P_aloc/np.sum(P_aloc, axis=0)))
 
-    print(P)
+    print(np.max(P_aloc, axis=1))
+
 
 if __name__ == "__main__":
     main()
