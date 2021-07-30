@@ -207,8 +207,9 @@ def main():
         gstar = np.copy(G[gstar_idx])
         P_aloc[gstar_idx] = Legible(sprite_list, team, world, gstar_idx, gstar, A, G)
 
-    print(np.max(P_aloc, axis=1))
-
+    tau_stars = np.max(P_aloc, axis=1)
+    print(tau_stars)
+    print(np.argmax(tau_stars)+1)
 
 if __name__ == "__main__":
     main()
