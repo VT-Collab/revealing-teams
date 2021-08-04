@@ -3,8 +3,6 @@ import sys
 import os
 import numpy as np
 import time
-import itertools
-
 
 # class for the objects on the screen (agents, goals, etc.)
 class Object(pygame.sprite.Sprite):
@@ -72,6 +70,11 @@ def updateState(group, newstate):
         s_idx = [newstate[idx * 2], newstate[idx * 2 + 1]]
         group[idx].update(s_idx)
 
+def resetPos(team):
+    # initialize team
+    for idx, agent in enumerate(team):
+        agent_reset = agent.update(agent.reset())
+
 
 # bayes rule with boltzmann rational
 def bayes(s, a, A, G, beta=20.0):
@@ -103,17 +106,9 @@ for idx in range(n_actions):
             list(single_action[jdx])+ list(single_action[kdx]))
 A = np.asarray(A)
 
-def Legible(sprite_list, team, world, gstar_idx, gstar, A, G):
-    # create game
-    clock = pygame.time.Clock()
-    fps = 20
-    # animate
-    world.fill((255,255,255))
-    sprite_list.draw(world)
-    pygame.display.flip()
-    clock.tick(fps)
-
+def Legible(team, gstar_idx, gstar, A, G):
     # constrained optimization to find revealing but efficient action
+    states = []
     p_aloc = np.ones(len(G))
     iter = 1
     while True:
@@ -136,11 +131,36 @@ def Legible(sprite_list, team, world, gstar_idx, gstar, A, G):
 
         if iter <= 15:
             p_aloc = np.multiply(p_aloc, bayes(s, astar, A, G))
-            if iter == 15:
-                print('Probability: ', p_aloc/np.sum(p_aloc))
+            # if iter == 15:
+            #     print('Probability: ', p_aloc/np.sum(p_aloc))
 
-        # update for next time step
+        # # update for next time step
         updateState(team, s + astar)
+        states.append(s+astar)
+        iter +=1
+
+        # determine when to switch to the next allocation
+        if np.all(abs(s - gstar) < 0.1):
+            print("[*] Done!", '\n')
+            # pygame.quit(); sys.exit()
+            break
+
+    return p_aloc/np.sum(p_aloc)
+
+def animate(sprite_list, team, states):
+    world = pygame.display.set_mode([700,700])
+    # create game
+    clock = pygame.time.Clock()
+    fps = 30
+    # animate
+    world.fill((255,255,255))
+    sprite_list.draw(world)
+    pygame.display.flip()
+    clock.tick(fps)
+
+    for state in states:
+        # update for next time step
+        updateState(team, state)
 
         # animate
         world.fill((255,255,255))
@@ -148,20 +168,10 @@ def Legible(sprite_list, team, world, gstar_idx, gstar, A, G):
         pygame.display.flip()
         clock.tick(fps)
 
-        # determine when to switch to the next allocation
-        if np.all(abs(s - gstar) < 0.1):
-            print("[*] Done!", '\n')
-            # pygame.quit(); sys.exit()
-            break
-        iter +=1
-
-    return p_aloc/np.sum(p_aloc)
-
 def main():
-
     # create game
     pygame.init()
-    world = pygame.display.set_mode([700,700])
+
     # joystick = Joystick()
     # player = Object((0.1,0.8), [140,0,255], 25)
 
@@ -175,23 +185,19 @@ def main():
     goal1 = Object((1.0, 0.4), [100, 100, 100], 50)
     goal2 = Object((1.0, 0.6), [100, 100, 100], 50)
     goal3 = Object((0.5, 1), [100, 100, 100], 50)
-    goals = [list(goal1.state), (goal2.state), (goal3.state)]
 
-    # allocations = list(itertools.combinations_with_replacement(goals,3))
-    # G = []
-    # for aloc in allocations:
-    #   G.append([*aloc[0], *aloc[1], *aloc[2]])
+    # each agent's goal options
+    agent1_goals = [list(agent1.state), list(goal1.state), list(goal2.state), list(goal3.state)]
+    agent2_goals = [list(agent2.state), list(goal1.state), list(goal2.state), list(goal3.state)]
+    agent3_goals = [list(agent3.state), list(goal1.state), list(goal2.state), list(goal3.state)]
 
-    tau1 = np.asarray(list(goal1.state) +  list(goal2.state) + list(goal1.state))
-    tau2 = np.asarray(list(goal1.state) +  list(goal1.state) + list(goal3.state))
-    tau3 = np.asarray(list(goal2.state) +  list(goal2.state) + list(goal3.state))
-    tau4 = np.asarray(list(goal1.state) +  list(goal3.state) + list(goal1.state))
-    tau5 = np.asarray(list(agent1.state) +  list(goal3.state) + list(goal1.state))
-    tau6 = np.asarray(list(goal1.state) +  list(agent2.state) + list(goal1.state))
-    tau7 = np.asarray(list(goal1.state) +  list(goal3.state) + list(agent3.state))
-
-    G = [tau5, tau1, tau2]#, tau3, tau4]
-
+    G = []
+    for goal_a1 in agent1_goals:
+        for goal_a2 in agent2_goals:
+            for goal_a3 in agent3_goals:
+                tau = np.asarray(goal_a1 + goal_a2 + goal_a3)
+                G.append(tau)
+    G = G[-3:]
     # joystick control output
     # action, start, stop = joystick.input()
     # s_p = getState([player])
@@ -207,34 +213,51 @@ def main():
     sprite_list.add(agent3)
 
     # main loop
+    data = np.empty([len(G),3])
+
     P_aloc = np.empty([len(G),len(G)])
     P = []
     for gstar_idx in range(len(G)):
-        # initialize team
-        for idx, agent in enumerate(team):
-            agent_reset = agent.update(agent.reset())
+        resetPos(team)
 
         # pick the desired allocation
         gstar = np.copy(G[gstar_idx])
         print('[*] Allocation: ', gstar_idx+1)
 
-        # compute fairness?!
-        fairness = np.empty([len(G),len(G)])
+        # fairness
+        fairness = np.empty([len(G),len(team)])
         dist = abs(getState(team)- gstar)
         dist_normed = []
         for idx in range(len(dist)):
           if idx % 2 == 0:
             dist_normed.append(np.linalg.norm(dist[idx:idx+2]))
-        print('[*] distance for agents: ', dist_normed)
         fairness[gstar_idx] = dist_normed
 
         # legible motion
-        P_aloc[gstar_idx] = Legible(sprite_list, team, world, gstar_idx, gstar, A, G)
+        P_aloc[gstar_idx] = Legible(team, gstar_idx, gstar, A, G)
 
-    tau_stars = np.max(P_aloc, axis=1)
-    print('Most legible allocation: ', np.argmax(tau_stars)+1)
 
-    print('Most fair allocation: ', np.argmin(np.var(fairness, axis=1))+1)
+        # store data
+        data[gstar_idx,0] = gstar_idx + 1
+        data[gstar_idx,1] = np.max(P_aloc[gstar_idx])
+        data[gstar_idx,2] = np.var(fairness[gstar_idx])
+
+    # legibility score
+    # i.e., most likely alocation for each allocation combination btw agents
+    # legible_scores = np.max(P_aloc, axis=1)
+    # lg_sc_max = np.argmax(legible_scores)
+    # print('Most legible allocation: ', lg_sc_max+1)
+    # print(P_aloc)
+    # print(legible_scores,'\n')
+
+    print(data)
+    # fairness score
+    # best allocation that has min distance variance for all agents
+    # fairness_scores = np.var(fairness, axis=1)
+    # fr_sc_max = np.argmin(fairness_scores)
+    # # print('Most fair allocation: ', fr_sc_max+1)
+    # print(fairness)
+
 
 if __name__ == "__main__":
     main()
