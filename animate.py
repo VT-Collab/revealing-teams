@@ -38,25 +38,6 @@ class Object(pygame.sprite.Sprite):
         self.rect.x = int((self.x * 500) + 100 - self.rect.size[0] / 2)
         self.rect.y = int((self.y * 500) + 100 - self.rect.size[1] / 2)
 
-# class for the player joystick
-class Joystick(object):
-
-    def __init__(self):
-        self.gamepad = pygame.joystick.Joystick(0)
-        self.gamepad.init()
-        self.DEADBAND = 0.1
-
-    def input(self):
-        pygame.event.get()
-        z1 = self.gamepad.get_axis(0)
-        if abs(z1) < self.DEADBAND:
-            z1 = 0.0
-        z2 = self.gamepad.get_axis(1)
-        if abs(z2) < self.DEADBAND:
-            z2 = 0.0
-        start = self.gamepad.get_button(1)
-        stop = self.gamepad.get_button(0)
-        return [z1, z2], start, stop
 
 # returns n x 1 vector containing the agent positions
 def getState(group):
@@ -113,7 +94,7 @@ def Legible(team, gstar_idx, gstar, A, allocations):
     # constrained optimization to find revealing but efficient action
     states = []
     p_aloc = np.ones(len(allocations))
-    iter = 1
+    step = 1
     while True:
         # hyperparameter for optimization trade-off
         epsilon = 0.01
@@ -135,13 +116,18 @@ def Legible(team, gstar_idx, gstar, A, allocations):
         # update for next time step
         updateState(team, s + astar)
         states.append(s+astar)
-        iter +=1
+        step +=1
 
-        # determine when to switch to the next allocation
-        if np.all(abs(s - gstar) < 0.2):
+        # compute only the first 15 steps
+        if step == 10:
             print("[*] Done!", '\n')
-            # pygame.quit(); sys.exit()
             break
+
+        # # determine when to switch to the next allocation
+        # if np.all(abs(s - gstar) < 0.1):
+        #     print("[*] Done!", '\n')
+        #     # pygame.quit(); sys.exit()
+        #     break
 
     return states
 
@@ -168,17 +154,8 @@ def animate(sprite_list, team, states):
 
 
 def main():
-    # import the possible questions we have saved
-    filename1 = "Data/allocations.pkl"
-    allocations = pickle.load(open(filename1, "rb"))
-    filename2 = "Data/scores.pkl"
-    scores = pickle.load(open(filename2, "rb"))
-
     # create game
     pygame.init()
-
-    # joystick = Joystick()
-    # player = Object((0.1,0.8), [140,0,255], 25)
 
     # add as many agents as you want
     agent1 = Object((0.1, 0.4), [0, 0, 255], 25)
@@ -191,11 +168,6 @@ def main():
     goal2 = Object((1.0, 0.6), [100, 100, 100], 50)
     goal3 = Object((0.5, 1), [100, 100, 100], 50)
 
-    # joystick control output
-    # action, start, stop = joystick.input()
-    # s_p = getState([player])
-    # updateState([player], s_p + np.asarray(action)*0.04)
-
     # the game will draw everything in the sprite list
     sprite_list = pygame.sprite.Group()
     sprite_list.add(goal1)
@@ -205,19 +177,45 @@ def main():
     sprite_list.add(agent2)
     sprite_list.add(agent3)
 
+    # import the possible questions we have saved
+    filename1 = "Data/allocations.pkl"
+    allocations = pickle.load(open(filename1, "rb"))
+    filename2 = "Data/scores.pkl"
+    scores = pickle.load(open(filename2, "rb"))
+
+    # sort scores in descending order, ranked by legibility
+    ranked_scores = scores[scores[:, 1].argsort()]
+    ranked_scores = ranked_scores[::-1]
+    print('[*] Ranked based on legibility: ',ranked_scores)
+
+    # remove the case of no moving agents
+    # ranked_scores = ranked_scores[1:,:]
+
+    # # sort based on fairness
+    # ranked_scores = ranked_scores[ranked_scores[:,2].argsort(kind='mergesort')]
+    # print('[*] Ranked based on fairness: ',ranked_scores)
+
+    # slice the first 5
+    # ranked_scores = ranked_scores[25,:]
+
 
     # main loop
-    for gstar_idx in range(len(allocations)):
+    for item in ranked_scores:
         resetPos(team)
 
-        # pick the desired allocation
-        gstar = np.copy(allocations[gstar_idx])
-        print('[*] Allocation: ', gstar_idx+1)
 
-        # legible motion
-        states = Legible(team, gstar_idx, gstar, A, allocations)
-        # aniamte the environment
-        animate(sprite_list, team, states)
+        if True:#item[1] > 0.7 and item[2] < 0.05:
+            gstar_idx = int(item[0]-1)
+
+            # pick the desired allocation
+            gstar = np.copy(allocations[gstar_idx])
+            print('[*] Allocation: ', gstar_idx)
+
+            # legible motion
+            states = Legible(team, gstar_idx, gstar, A, allocations)
+
+            # aniamte the environment
+            animate(sprite_list, team, states)
 
 
 if __name__ == "__main__":
