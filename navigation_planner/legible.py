@@ -10,6 +10,20 @@ import pickle
 
 
 
+# # input is state, goal, beta; output is sampled action
+# def bayes_actor(s, A, g, beta):
+#     P = []
+#     for a in A:
+#         num = np.exp(-beta * np.linalg.norm(g - (s + a)))
+#         P.append(num)
+#     P = np.asarray(P)
+#     P /= sum(P)
+#
+#     #monte carlo
+#     action = np.random.choice(A, p=P)
+#     return action
+
+
 # bayes rule with boltzmann rational
 def bayes(s, a, A, G, beta=20.0):
     P = []
