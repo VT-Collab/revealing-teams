@@ -24,14 +24,13 @@ def bayes(s, a, A, G, beta=20.0):
 
 
 def Legible(team, gstar_idx, gstar, A, G):
-
     # constrained optimization to find revealing but efficient action
     states = []
     p_aloc = np.ones(len(G))
     step = 1
     while True:
         # hyperparameter for optimization trade-off
-        epsilon = 0.02
+        epsilon = 0.03
         s = getState(team)
         Q = {}
         Qmax = -np.Inf
@@ -53,9 +52,9 @@ def Legible(team, gstar_idx, gstar, A, G):
         step +=1
 
         # compute only the first 15 steps
-        if step <= 15:
+        if step <= 20:
             p_aloc = np.multiply(p_aloc, bayes(s, astar, A, G))
-            if step == 15:
+            if step == 20:
                 print("[*] Done!", '\n')
                 break
 

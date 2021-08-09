@@ -1,4 +1,7 @@
-from utils.world import Object, getState, updateState, resetPos
+from utils.world import (
+        Object, getState, updateState,
+        resetPos, envAgents, envGoals, initGroup
+)
 from utils.actions import actionSpace
 from navigation_planner.legible import bayes, Legible
 
@@ -15,40 +18,20 @@ def main():
     # create game
     pygame.init()
     A = actionSpace()
-
-    # add as many agents as you want
-    agent1 = Object((0.1, 0.4), [0, 0, 255], 25)
-    agent2 = Object((0.1, 0.6), [0, 255, 0], 25)
-    agent3 = Object((0.1, 0.5), [255, 0, 0], 25)
-    team = [agent1, agent2, agent3]
-
-    # define the subtasks and the possible subtask allocations
-    goal1 = Object((1.0, 0.4), [100, 100, 100], 50)
-    goal2 = Object((1.0, 0.6), [100, 100, 100], 50)
-    goal3 = Object((0.5, 1), [100, 100, 100], 50)
-
-    # each agent's goal options
-    agent1_goals = [list(goal1.state), list(goal2.state), list(goal3.state)]#, list(agent1.state)]
-    agent2_goals = [list(goal1.state), list(goal2.state), list(goal3.state)]#, list(agent2.state)]
-    agent3_goals = [list(goal1.state), list(goal2.state), list(goal3.state)]#, list(agent3.state)]
-
-    # pool of allocations
-    G = []
-    for goal_a1 in agent1_goals:
-        for goal_a2 in agent2_goals:
-            for goal_a3 in agent3_goals:
-                tau = np.asarray(goal_a1 + goal_a2 + goal_a3)
-                G.append(tau)
+    team = envAgents()
+    goals, agent_goals = envGoals()
 
     # the game will draw everything in the sprite list
     sprite_list = pygame.sprite.Group()
-    sprite_list.add(goal1)
-    sprite_list.add(goal2)
-    sprite_list.add(goal3)
-    sprite_list.add(agent1)
-    sprite_list.add(agent2)
-    sprite_list.add(agent3)
+    initGroup(sprite_list, goals, team)
 
+    # pool of allocations
+    G = []
+    for goal_a1 in agent_goals[0]:
+        for goal_a2 in agent_goals[1]:
+            for goal_a3 in agent_goals[2]:
+                tau = np.asarray(goal_a1 + goal_a2 + goal_a3)
+                G.append(tau)
 
     # main loop
     states_aloc = []
