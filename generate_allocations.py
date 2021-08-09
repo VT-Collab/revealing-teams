@@ -39,7 +39,6 @@ def main():
             for goal_a3 in agent3_goals:
                 tau = np.asarray(goal_a1 + goal_a2 + goal_a3)
                 G.append(tau)
-    # G = G[-3:]
 
     # the game will draw everything in the sprite list
     sprite_list = pygame.sprite.Group()
@@ -52,8 +51,10 @@ def main():
 
 
     # main loop
+    states_aloc = []
     scores = np.empty([len(G),3])
     P_aloc = np.empty([len(G),len(G)])
+
     for gstar_idx in range(len(G)):
         resetPos(team)
 
@@ -71,18 +72,22 @@ def main():
         fairness[gstar_idx] = dist_normed
 
         # legible motion
-        P_aloc[gstar_idx] = Legible(team, gstar_idx, gstar, A, G)
+        P_aloc[gstar_idx], states = Legible(team, gstar_idx, gstar, A, G)
+        states_aloc.append(states)
 
         # index, legibility score, and fairness score of each allocation
         scores[gstar_idx,0] = gstar_idx + 1
         scores[gstar_idx,1] = np.max(P_aloc[gstar_idx])
         scores[gstar_idx,2] = np.var(fairness[gstar_idx])
 
+
     # create save paths and store the data
     savename1 = 'data/allocations.pkl'
     pickle.dump(G, open(savename1, "wb"))
     savename2 = 'data/scores.pkl'
     pickle.dump(scores, open(savename2, "wb"))
+    savename3 = 'data/states.pkl'
+    pickle.dump(states_aloc, open(savename3, "wb"))
 
 
 

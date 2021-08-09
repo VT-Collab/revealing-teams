@@ -1,6 +1,5 @@
 from utils.world import Object, getState, updateState, resetPos
 from utils.actions import actionSpace
-from navigation_planner.legible import bayes, Legible
 
 import pygame
 import sys
@@ -29,6 +28,7 @@ def animate(sprite_list, team, states):
         sprite_list.draw(world)
         pygame.display.flip()
         clock.tick(fps)
+        time.sleep(0.2)
 
 
 def main():
@@ -61,6 +61,8 @@ def main():
     allocations = pickle.load(open(filename1, "rb"))
     filename2 = "data/scores.pkl"
     scores = pickle.load(open(filename2, "rb"))
+    filename3 = "data/states.pkl"
+    states = pickle.load(open(filename3, "rb"))
 
     # sort scores in descending order, ranked by legibility
     ranked_scores = scores[scores[:, 1].argsort()]
@@ -90,11 +92,9 @@ def main():
             gstar = np.copy(allocations[gstar_idx])
             print('[*] Allocation: ', gstar_idx)
 
-            # legible motion
-            states = Legible(team, gstar_idx, gstar, A, allocations)
 
             # aniamte the environment
-            animate(sprite_list, team, states)
+            animate(sprite_list, team, states[gstar_idx])
 
 
 if __name__ == "__main__":

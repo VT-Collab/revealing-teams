@@ -31,7 +31,7 @@ def Legible(team, gstar_idx, gstar, A, G):
     step = 1
     while True:
         # hyperparameter for optimization trade-off
-        epsilon = 0.01
+        epsilon = 0.02
         s = getState(team)
         Q = {}
         Qmax = -np.Inf
@@ -59,4 +59,4 @@ def Legible(team, gstar_idx, gstar, A, G):
                 print("[*] Done!", '\n')
                 break
 
-    return p_aloc/np.sum(p_aloc)
+    return p_aloc/np.sum(p_aloc), states
