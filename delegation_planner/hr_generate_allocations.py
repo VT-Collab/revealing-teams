@@ -71,11 +71,11 @@ def main():
 
 
     # create save paths and store the data
-    savename1 = '../data/human-robots/allocations.pkl'
+    savename1 = "../data/"+mode+"/allocations.pkl"
     pickle.dump(G, open(savename1, "wb"))
-    savename2 = '../data/human-robots/scores.pkl'
+    savename2 = "../data/"+mode+"/scores.pkl"
     pickle.dump(scores, open(savename2, "wb"))
-    savename3 = '../data/human-robots/states.pkl'
+    savename3 = "../data/"+mode+"/states.pkl"
     pickle.dump(states_aloc, open(savename3, "wb"))
 
 
