@@ -6,7 +6,7 @@ from utils.world import (
         resetPos, envAgents, envGoals, initGroup
 )
 from utils.actions import actionSpace
-from navigation_planner.legible import Legible
+from navigation_planner.legible import legibleRobots, humanAgent
 
 import pygame
 import os
@@ -18,8 +18,7 @@ import pickle
 
 def main():
     # define the structure of the team
-    mode = "robots"
-    agent_n = 3
+    mode = sys.argv[1]
     # create game
     pygame.init()
     A = actionSpace()
@@ -31,18 +30,11 @@ def main():
     initGroup(sprite_list, goals, team)
 
     # pool of allocations
-    if agent_n == 3:
-        G = []
-        for goal_a1 in agent_goals[0]:
-            for goal_a2 in agent_goals[1]:
-                for goal_a3 in agent_goals[2]:
-                    tau = np.asarray(goal_a1 + goal_a2 + goal_a3)
-                    G.append(tau)
-    else:
-        G = []
-        for goal_a1 in agent_goals[0]:
-            for goal_a2 in agent_goals[1]:
-                tau = np.asarray(goal_a1 + goal_a2)
+    G = []
+    for goal_a1 in agent_goals[0]:
+        for goal_a2 in agent_goals[1]:
+            for goal_a3 in agent_goals[2]:
+                tau = np.asarray(goal_a1 + goal_a2 + goal_a3)
                 G.append(tau)
 
     G = G[3:6]
@@ -68,9 +60,14 @@ def main():
             dist_normed.append(np.linalg.norm(dist[idx:idx+2]))
         fairness[gstar_idx] = dist_normed
 
-        # legible motion
-        P_aloc[gstar_idx], states = Legible(mode, team, gstar_idx, gstar, A, G)
-        states_aloc.append(states)
+        # legible robot motion
+        P_aloc[gstar_idx], states_r = legibleRobots(mode, team, gstar_idx, gstar, A, G)
+
+        # # human boltzmann model
+        # states_h = humanAgent(team, gstar_idx, gstar, A)
+        #
+        # states_aloc.append(states_h + states_r)
+        states = states_r
 
         # index, legibility score, and fairness score of each allocation
         scores[gstar_idx,0] = gstar_idx + 1
@@ -79,11 +76,11 @@ def main():
 
 
     # create save paths and store the data
-    savename1 = "../data/"+mode+"/allocations_"+str(agent_n)+"-agent.pkl"
+    savename1 = "../data/"+mode+"/allocations.pkl"
     pickle.dump(G, open(savename1, "wb"))
-    savename2 = "../data/"+mode+"/scores_"+str(agent_n)+"-agent.pkl"
+    savename2 = "../data/"+mode+"/scores.pkl"
     pickle.dump(scores, open(savename2, "wb"))
-    savename3 = "../data/"+mode+"/states_"+str(agent_n)+"-agent.pkl"
+    savename3 = "../data/"+mode+"/states.pkl"
     pickle.dump(states_aloc, open(savename3, "wb"))
 
 

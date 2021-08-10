@@ -10,7 +10,7 @@ import pickle
 import random
 
 
-
+# likelihood of human action given state s and allocation g
 # input is state, goal, beta; output is sampled action
 def bayes_actor(s, A, g, beta):
     P = []
@@ -38,15 +38,23 @@ def bayes(s, a, A, G, beta=20.0):
     return P / sum(P)
 
 
-def Legible(mode, team, gstar_idx, gstar, A, G):
+def legibleRobots(mode, team, gstar_idx, gstar, A, G):
     # constrained optimization to find revealing but efficient action
     states = []
-    p_aloc = np.ones(len(G))
     step = 1
+
+    if mode == 'human-robots':
+        # slice robots' action space, task allocation
+        team = team[1:]
+        gstar = gstar[2:]
+        A = A[:,2:]
+        G = list(np.asarray(G)[:,2:])
+
+    p_aloc = np.ones(len(G))
     while True:
-        # robots actions
-        epsilon = 0.02
         s = getState(team)
+
+        epsilon = 0.02
         Q = {}
         Qmax = -np.Inf
         for a in A:
@@ -62,15 +70,6 @@ def Legible(mode, team, gstar_idx, gstar, A, G):
                 astar_r = astar[2:]
                 value = likelihood[gstar_idx]
 
-        if mode == 'human-robots':
-            # human actions
-            s_h = s[:2]
-            A_h = A[:,:2]
-            gstar_h = gstar[:2]
-            beta = 0
-            astar_h = bayes_actor(s_h, A_h, gstar_h, beta)
-            # combine human and robots actions
-            astar = np.concatenate((astar_h,astar_r))
 
         # update for next time step
         updateState(team, s + astar)
@@ -85,3 +84,33 @@ def Legible(mode, team, gstar_idx, gstar, A, G):
                 break
 
     return p_aloc/np.sum(p_aloc), states
+
+
+
+def humanAgent(team, gstar_idx, gstar, A):
+    # constrained optimization to find revealing but efficient action
+    states = []
+    step = 1
+    beta = 0
+
+    # slice human's action space, task allocation
+    A = A[:,:2]
+    gstar = gstar[:2]
+    team = team[:1]
+
+    while True:
+        s = getState(team)
+
+        astar = bayes_actor(s, A, gstar, beta)
+
+        # update for next time step
+        updateState(team, s + astar)
+        states.append(s + astar)
+        step +=1
+
+        # compute only the first 15 steps
+        if step == 25:
+            print("[*] Done!", '\n')
+            break
+
+    return states
