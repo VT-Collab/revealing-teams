@@ -31,7 +31,7 @@ def animate(sprite_list, team, states):
         sprite_list.draw(world)
         pygame.display.flip()
         clock.tick(fps)
-        time.sleep(0.3)
+        time.sleep(0.4)
 
 
 def main():

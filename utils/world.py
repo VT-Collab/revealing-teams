@@ -59,17 +59,17 @@ def resetPos(team):
 
 def envAgents():
     # add as many agents as you want
-    agent1 = Object((0.1, 0.4), [0, 0, 255], 25)
-    agent2 = Object((0.1, 0.6), [0, 255, 0], 25)
-    agent3 = Object((0.1, 0.5), [255, 0, 0], 25)
-    team = [agent1, agent2, agent3]
+    agent_h = Object((0.1, 0.4), [0, 0, 255], 25)
+    agent_r1 = Object((0.1, 0.6), [0, 255, 0], 25)
+    agent_r2 = Object((0.1, 0.5), [255, 0, 0], 25)
+    team = [agent_h, agent_r1, agent_r2]
     return team
 
 def envGoals():
     # define the subtasks and the possible subtask allocations
     goal1 = Object((1.0, 0.2), [100, 100, 100], 50)
     goal2 = Object((1.0, 0.4), [100, 100, 100], 50)
-    goal3 = Object((0.9, 0.9), [100, 100, 100], 50)
+    goal3 = Object((0.4, 0.9), [100, 100, 100], 50)
     goals = [goal1, goal2, goal3]
     # each agent's goal options
     agent1_goal = [list(goal1.state), list(goal2.state), list(goal3.state)]#, list(agent1.state)]

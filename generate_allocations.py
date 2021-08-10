@@ -33,6 +33,8 @@ def main():
                 tau = np.asarray(goal_a1 + goal_a2 + goal_a3)
                 G.append(tau)
 
+    G = G[3:6]
+
     # main loop
     states_aloc = []
     scores = np.empty([len(G),3])
