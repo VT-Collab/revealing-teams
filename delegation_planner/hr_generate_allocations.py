@@ -17,6 +17,8 @@ import pickle
 
 
 def main():
+    # define the structure of the team
+    mode = "human-robots"
     # create game
     pygame.init()
     A = actionSpace()
@@ -59,7 +61,7 @@ def main():
         fairness[gstar_idx] = dist_normed
 
         # legible motion
-        P_aloc[gstar_idx], states = Legible(team, gstar_idx, gstar, A, G)
+        P_aloc[gstar_idx], states = Legible(mode, team, gstar_idx, gstar, A, G)
         states_aloc.append(states)
 
         # index, legibility score, and fairness score of each allocation
@@ -69,11 +71,11 @@ def main():
 
 
     # create save paths and store the data
-    savename1 = '../data/allocations.pkl'
+    savename1 = '../data/human-robots/allocations.pkl'
     pickle.dump(G, open(savename1, "wb"))
-    savename2 = '../data/scores.pkl'
+    savename2 = '../data/human-robots/scores.pkl'
     pickle.dump(scores, open(savename2, "wb"))
-    savename3 = '../data/states.pkl'
+    savename3 = '../data/human-robots/states.pkl'
     pickle.dump(states_aloc, open(savename3, "wb"))
 
 

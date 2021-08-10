@@ -35,6 +35,7 @@ def animate(sprite_list, team, states):
 
 
 def main():
+    mode = sys.argv[1]
     # create game
     pygame.init()
     A = actionSpace()
@@ -46,11 +47,11 @@ def main():
     initGroup(sprite_list, goals, team)
 
     # import the possible questions we have saved
-    filename1 = "data/allocations.pkl"
+    filename1 = "data/"+mode+"/allocations.pkl"
     allocations = pickle.load(open(filename1, "rb"))
-    filename2 = "data/scores.pkl"
+    filename2 = "data/"+mode+"/scores.pkl"
     scores = pickle.load(open(filename2, "rb"))
-    filename3 = "data/states.pkl"
+    filename3 = "data/"+mode+"/states.pkl"
     states = pickle.load(open(filename3, "rb"))
 
     # sort scores in descending order, ranked by legibility

@@ -38,7 +38,7 @@ def bayes(s, a, A, G, beta=20.0):
     return P / sum(P)
 
 
-def Legible(team, gstar_idx, gstar, A, G):
+def Legible(mode, team, gstar_idx, gstar, A, G):
     # constrained optimization to find revealing but efficient action
     states = []
     p_aloc = np.ones(len(G))
@@ -62,15 +62,15 @@ def Legible(team, gstar_idx, gstar, A, G):
                 astar_r = astar[2:]
                 value = likelihood[gstar_idx]
 
-        # human actions
-        s_h = s[:2]
-        A_h = A[:,:2]
-        gstar_h = gstar[:2]
-        beta = 0
-        astar_h = bayes_actor(s_h, A_h, gstar_h, beta)
-
-        # combine human and robots actions
-        astar = np.concatenate((astar_h,astar_r))
+        if mode == 'human-robots':
+            # human actions
+            s_h = s[:2]
+            A_h = A[:,:2]
+            gstar_h = gstar[:2]
+            beta = 0
+            astar_h = bayes_actor(s_h, A_h, gstar_h, beta)
+            # combine human and robots actions
+            astar = np.concatenate((astar_h,astar_r))
 
         # update for next time step
         updateState(team, s + astar)
