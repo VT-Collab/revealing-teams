@@ -1,12 +1,14 @@
+import sys
+sys.path.append('../')
+
 from utils.world import (
         Object, getState, updateState,
         resetPos, envAgents, envGoals, initGroup
 )
 from utils.actions import actionSpace
-from navigation_planner.legible import bayes, Legible
+from navigation_planner.legible import Legible
 
 import pygame
-import sys
 import os
 import numpy as np
 import time
@@ -67,11 +69,11 @@ def main():
 
 
     # create save paths and store the data
-    savename1 = 'data/allocations.pkl'
+    savename1 = '../data/allocations.pkl'
     pickle.dump(G, open(savename1, "wb"))
-    savename2 = 'data/scores.pkl'
+    savename2 = '../data/scores.pkl'
     pickle.dump(scores, open(savename2, "wb"))
-    savename3 = 'data/states.pkl'
+    savename3 = '../data/states.pkl'
     pickle.dump(states_aloc, open(savename3, "wb"))
 
 
