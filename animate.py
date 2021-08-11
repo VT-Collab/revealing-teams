@@ -54,10 +54,11 @@ def main():
     filename3 = "data/"+mode+"/states.pkl"
     states = pickle.load(open(filename3, "rb"))
 
+
     # sort scores in descending order, ranked by legibility
     ranked_scores = scores[scores[:, 1].argsort()]
     ranked_scores = ranked_scores[::-1]
-    print('[*] Ranked based on legibility: ','\n',ranked_scores)
+    # print('[*] Ranked based on legibility: ','\n',ranked_scores)
 
     # remove the case of no moving agents
     # ranked_scores = ranked_scores[1:,:]
@@ -78,8 +79,8 @@ def main():
 
         # pick the desired allocation
         gstar = np.copy(allocations[gstar_idx])
-        print('[*] Allocation: ', gstar_idx)
 
+        print('[*] Allocation: ', gstar_idx)
         # aniamte the environment
         animate(sprite_list, team, states[gstar_idx])
 

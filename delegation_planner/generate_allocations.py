@@ -37,10 +37,10 @@ def main():
                 tau = np.asarray(goal_a1 + goal_a2 + goal_a3)
                 G.append(tau)
 
-    G = G[3:6]
+    G = G[3:5]
 
     # main loop
-    states_aloc = []
+    states = []
     scores = np.empty([len(G),3])
     P_aloc = np.empty([len(G),len(G)])
 
@@ -63,11 +63,12 @@ def main():
         # legible robot motion
         P_aloc[gstar_idx], states_r = legibleRobots(mode, team, gstar_idx, gstar, A, G)
 
-        # # human boltzmann model
-        # states_h = humanAgent(team, gstar_idx, gstar, A)
-        #
-        # states_aloc.append(states_h + states_r)
-        states = states_r
+        if mode == 'human-robots':
+            # human boltzmann model
+            states_h = humanAgent(team, gstar_idx, gstar, A)
+            states.append(states_h + states_r)
+        else:
+            states.append(states_r)
 
         # index, legibility score, and fairness score of each allocation
         scores[gstar_idx,0] = gstar_idx + 1
@@ -81,7 +82,7 @@ def main():
     savename2 = "../data/"+mode+"/scores.pkl"
     pickle.dump(scores, open(savename2, "wb"))
     savename3 = "../data/"+mode+"/states.pkl"
-    pickle.dump(states_aloc, open(savename3, "wb"))
+    pickle.dump(states, open(savename3, "wb"))
 
 
 

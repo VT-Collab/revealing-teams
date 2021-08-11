@@ -53,7 +53,6 @@ def legibleRobots(mode, team, gstar_idx, gstar, A, G):
     p_aloc = np.ones(len(G))
     while True:
         s = getState(team)
-
         epsilon = 0.02
         Q = {}
         Qmax = -np.Inf
@@ -67,9 +66,7 @@ def legibleRobots(mode, team, gstar_idx, gstar, A, G):
             likelihood = bayes(s, a, A, G)
             if likelihood[gstar_idx] > value and Qmax - Q[str(a)] < epsilon:
                 astar = np.copy(a)
-                astar_r = astar[2:]
                 value = likelihood[gstar_idx]
-
 
         # update for next time step
         updateState(team, s + astar)
