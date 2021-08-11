@@ -58,18 +58,11 @@ def main():
     # sort scores in descending order, ranked by legibility
     ranked_scores = scores[scores[:, 1].argsort()]
     ranked_scores = ranked_scores[::-1]
-    # print('[*] Ranked based on legibility: ','\n',ranked_scores)
-
-    # remove the case of no moving agents
-    # ranked_scores = ranked_scores[1:,:]
+    print('[*] Ranked based on legibility: ','\n',ranked_scores)
 
     # # sort based on fairness
     # ranked_scores = ranked_scores[ranked_scores[:,2].argsort(kind='mergesort')]
     # print('[*] Ranked based on fairness: ',ranked_scores)
-
-    # slice the first 5
-    # ranked_scores = ranked_scores[25,:]
-
 
     # main loop
     for item in ranked_scores:
