@@ -42,7 +42,8 @@ def main():
 
     # main loop
     states = []
-    scores = np.empty([len(G),3])
+    scores = np.empty([len(G),4])
+
     P_aloc = np.empty([len(G),len(G)])
 
     for gstar_idx in range(len(G)):
@@ -52,23 +53,27 @@ def main():
         gstar = np.copy(G[gstar_idx])
         print('[*] Allocation: ', gstar_idx+1)
 
-        # fairness
-        fairness = np.empty([len(G),len(team)])
+        # compute distance to goals for each agent
+        Dist = np.empty([len(G),len(team)])
         dist = abs(getState(team)- gstar)
         dist_normed = []
         for idx in range(len(dist)):
           if idx % 2 == 0:
             dist_normed.append(np.linalg.norm(dist[idx:idx+2]))
-        fairness[gstar_idx] = dist_normed
+        Dist[gstar_idx] = dist_normed
 
         # legible robot motion
         P_aloc[gstar_idx], states_r = legibleRobots(mode, team, gstar_idx, gstar, A, G)
         states.append(states_r)
 
-        # index, legibility score, and fairness score of each allocation
+        # index allocations
         scores[gstar_idx,0] = gstar_idx + 1
+        # legibility of allocations
         scores[gstar_idx,1] = np.max(P_aloc[gstar_idx])
-        scores[gstar_idx,2] = np.var(fairness[gstar_idx])
+        # fairness of allocations (i.e., variance of distances to goals)
+        scores[gstar_idx,2] = np.var(Dist[gstar_idx])
+        # ability score of allocations (i.e., human distance to goal)
+        scores[gstar_idx,3] = Dist[gstar_idx][0]
 
 
     if mode == 'human-robots':
