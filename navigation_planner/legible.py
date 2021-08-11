@@ -10,6 +10,8 @@ import pickle
 import random
 
 
+step_max = 30
+
 # likelihood of human action given state s and allocation g
 # input is state, goal, beta; output is sampled action
 def bayes_actor(s, A, g, beta):
@@ -74,9 +76,9 @@ def legibleRobots(mode, team, gstar_idx, gstar, A, G):
         step +=1
 
         # compute only the first 15 steps
-        if step <= 25:
+        if step <= step_max:
             p_aloc = np.multiply(p_aloc, bayes(s, astar, A, G))
-            if step == 25:
+            if step == step_max:
                 print("[*] Done!", '\n')
                 break
 
@@ -104,7 +106,7 @@ def humanAgent(team, gstar_idx, gstar, A, beta = 0):
         step +=1
 
         # compute only the first 15 steps
-        if step == 25:
+        if step == step_max:
             print("[*] Done!", '\n')
             break
 

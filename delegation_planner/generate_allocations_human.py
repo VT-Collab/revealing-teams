@@ -32,24 +32,22 @@ def main():
     G = pickle.load(open(filename, "rb"))
 
     # main loop
-    states = []
-    betas = [0, 20, 100, 800]
-    beta = 800
+    betas = [0, 50, 100, 500, 800]
+    for beta in betas:
+        states = []
+        for gstar_idx in range(len(G)):
+            resetPos(team)
 
-    # for beta in betas:
-    for gstar_idx in range(len(G)):
-        resetPos(team)
+            # pick the desired allocation
+            gstar = np.copy(G[gstar_idx])
+            print('[*] Allocation: ', gstar_idx+1)
 
-        # pick the desired allocation
-        gstar = np.copy(G[gstar_idx])
-        print('[*] Allocation: ', gstar_idx+1)
+            # human boltzmann model
+            states_h = humanAgent(team, gstar_idx, gstar, A, beta)
+            states.append(states_h)
 
-        # human boltzmann model
-        states_h = humanAgent(team, gstar_idx, gstar, A, beta)
-        states.append(states_h)
-
-    savename3 = "../data/human-robots/human_states_"+str(beta)+".pkl"
-    pickle.dump(states, open(savename3, "wb"))
+        savename3 = "../data/human-robots/human_states_"+str(beta)+".pkl"
+        pickle.dump(states, open(savename3, "wb"))
 
 
 

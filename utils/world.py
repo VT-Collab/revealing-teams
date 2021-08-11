@@ -69,7 +69,7 @@ def envGoals():
     # define the subtasks and the possible subtask allocations
     goal1 = Object((1.0, 0.2), [100, 100, 100], 50)
     goal2 = Object((1.0, 0.4), [100, 100, 100], 50)
-    goal3 = Object((0.4, 0.9), [100, 100, 100], 50)
+    goal3 = Object((0.6, 0.9), [100, 100, 100], 50)
     goals = [goal1, goal2, goal3]
     # each agent's goal options
     agent1_goal = [list(goal1.state), list(goal2.state), list(goal3.state)]#, list(agent1.state)]

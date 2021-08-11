@@ -35,6 +35,7 @@ def animate(sprite_list, team, states):
 
 def savedStates(mode, beta):
     if mode == 'human-robots':
+        print("[*]beta: ", beta,'\n')
         filename3 = "data/"+mode+"/human_states_"+str(beta)+".pkl"
         states_h = pickle.load(open(filename3, "rb"))
         filename4 = "data/"+mode+"/robots_states_2agt.pkl"
@@ -44,7 +45,6 @@ def savedStates(mode, beta):
     else:
         filename3 = "data/"+mode+"/robots_states_3agt.pkl"
         states = pickle.load(open(filename3, "rb"))
-
     return states
 
 
@@ -53,7 +53,7 @@ def main():
     mode = sys.argv[1]
 
     # human rationality
-    betas = [0, 20, 100, 800]
+    betas = [0, 50, 100, 500, 800]
 
     # create game
     pygame.init()
@@ -78,7 +78,7 @@ def main():
         # sort scores in descending order, ranked by legibility
         ranked_scores = scores[scores[:, 1].argsort()]
         ranked_scores = ranked_scores[::-1]
-        print('[*] Ranked based on legibility: ','\n',ranked_scores)
+        # print('[*] Ranked based on legibility: ','\n',ranked_scores)
 
         # # sort based on fairness
         # ranked_scores = ranked_scores[ranked_scores[:,2].argsort(kind='mergesort')]
@@ -89,7 +89,7 @@ def main():
             resetPos(team)
             # convert allocation # to python indices
             gstar_idx = int(item[0]-1)
-            print('[*] Allocation: ', gstar_idx)
+            # print('[*] Allocation: ', gstar_idx)
 
             # aniamte the environment
             animate(sprite_list, team, states[gstar_idx])
