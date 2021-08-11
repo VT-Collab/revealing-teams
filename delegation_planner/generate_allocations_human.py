@@ -43,11 +43,8 @@ def main():
 
         # human boltzmann model
         states_h = humanAgent(team, gstar_idx, gstar, A)
+        states.append(states_h)
 
-        # states.append(list(np.concatenate(
-        #     (np.asarray(states_h), np.asarray(states_r)), axis=1)))
-
-    print(states_h)
     savename3 = "../data/human-robots/human_states.pkl"
     pickle.dump(states, open(savename3, "wb"))
 

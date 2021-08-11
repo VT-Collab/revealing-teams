@@ -31,11 +31,13 @@ def animate(sprite_list, team, states):
         sprite_list.draw(world)
         pygame.display.flip()
         clock.tick(fps)
-        time.sleep(0.4)
+        time.sleep(0.2)
 
 
 def main():
+    # define the structure of the team
     mode = sys.argv[1]
+
     # create game
     pygame.init()
     A = actionSpace()
@@ -46,14 +48,22 @@ def main():
     sprite_list = pygame.sprite.Group()
     initGroup(sprite_list, goals, team)
 
-    # import the possible questions we have saved
+    # import saved data
     filename1 = "data/"+mode+"/allocations.pkl"
     allocations = pickle.load(open(filename1, "rb"))
     filename2 = "data/"+mode+"/scores.pkl"
     scores = pickle.load(open(filename2, "rb"))
-    filename3 = "data/"+mode+"/states.pkl"
-    states = pickle.load(open(filename3, "rb"))
 
+    if mode == 'human-robots':
+        filename3 = "data/"+mode+"/human_states.pkl"
+        states_h = pickle.load(open(filename3, "rb"))
+        filename4 = "data/"+mode+"/robots_states_2agt.pkl"
+        states_r = pickle.load(open(filename4, "rb"))
+        states = [list(np.concatenate(
+            (np.vstack(states_h), np.vstack(states_r)), axis=1))]
+    else:
+        filename3 = "data/"+mode+"/robots_states_3agt.pkl"
+        states = pickle.load(open(filename3, "rb"))
 
     # sort scores in descending order, ranked by legibility
     ranked_scores = scores[scores[:, 1].argsort()]
@@ -67,13 +77,10 @@ def main():
     # main loop
     for item in ranked_scores:
         resetPos(team)
-
+        # convert allocation # to python indices
         gstar_idx = int(item[0]-1)
-
-        # pick the desired allocation
-        gstar = np.copy(allocations[gstar_idx])
-
         print('[*] Allocation: ', gstar_idx)
+
         # aniamte the environment
         animate(sprite_list, team, states[gstar_idx])
 
