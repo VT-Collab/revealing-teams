@@ -19,6 +19,7 @@ import pickle
 def main():
     # define the structure of the team
     mode = sys.argv[1]
+
     # create game
     pygame.init()
     A = actionSpace()
@@ -62,16 +63,7 @@ def main():
 
         # legible robot motion
         P_aloc[gstar_idx], states_r = legibleRobots(mode, team, gstar_idx, gstar, A, G)
-
-
-        if mode == 'human-robots':
-            # human boltzmann model
-            states_h = humanAgent(team, gstar_idx, gstar, A)
-            states.append(list(np.concatenate(
-                (np.asarray(states_h), np.asarray(states_r)), axis=1)))
-        else:
-            states.append(states_r)
-
+        states.append(states_r)
 
         # index, legibility score, and fairness score of each allocation
         scores[gstar_idx,0] = gstar_idx + 1
@@ -79,12 +71,17 @@ def main():
         scores[gstar_idx,2] = np.var(fairness[gstar_idx])
 
 
+    if mode == 'human-robots':
+        ext = "_2agt"
+    else:
+        ext = "_3agt"
+
     # create save paths and store the data
     savename1 = "../data/"+mode+"/allocations.pkl"
     pickle.dump(G, open(savename1, "wb"))
     savename2 = "../data/"+mode+"/scores.pkl"
     pickle.dump(scores, open(savename2, "wb"))
-    savename3 = "../data/"+mode+"/states.pkl"
+    savename3 = "../data/"+mode+"/robots_states"+ext+".pkl"
     pickle.dump(states, open(savename3, "wb"))
 
 
