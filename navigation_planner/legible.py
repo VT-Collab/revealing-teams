@@ -83,12 +83,10 @@ def legibleRobots(mode, team, gstar_idx, gstar, A, G):
     return p_aloc/np.sum(p_aloc), states
 
 
-
-def humanAgent(team, gstar_idx, gstar, A):
+def humanAgent(team, gstar_idx, gstar, A, beta = 0):
     # constrained optimization to find revealing but efficient action
     states = []
     step = 1
-    beta = 0
 
     # slice human's action space, task allocation
     A = A[:,:2]

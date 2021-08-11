@@ -38,7 +38,7 @@ def main():
                 tau = np.asarray(goal_a1 + goal_a2 + goal_a3)
                 G.append(tau)
 
-    G = G[3:5]
+    G = [G[8]]
 
     # main loop
     states = []

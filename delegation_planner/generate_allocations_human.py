@@ -33,7 +33,10 @@ def main():
 
     # main loop
     states = []
+    betas = [0, 20, 100, 800]
+    beta = 800
 
+    # for beta in betas:
     for gstar_idx in range(len(G)):
         resetPos(team)
 
@@ -42,10 +45,10 @@ def main():
         print('[*] Allocation: ', gstar_idx+1)
 
         # human boltzmann model
-        states_h = humanAgent(team, gstar_idx, gstar, A)
+        states_h = humanAgent(team, gstar_idx, gstar, A, beta)
         states.append(states_h)
 
-    savename3 = "../data/human-robots/human_states.pkl"
+    savename3 = "../data/human-robots/human_states_"+str(beta)+".pkl"
     pickle.dump(states, open(savename3, "wb"))
 
 
