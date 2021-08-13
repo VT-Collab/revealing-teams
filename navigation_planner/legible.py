@@ -10,7 +10,7 @@ import pickle
 import random
 
 
-step_max = 30
+step_max = 25
 
 # likelihood of human action given state s and allocation g
 # input is state, goal, beta; output is sampled action

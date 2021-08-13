@@ -40,8 +40,10 @@ def savedStates(mode, beta):
         states_h = pickle.load(open(filename3, "rb"))
         filename4 = "data/"+mode+"/robots_states_2agt.pkl"
         states_r = pickle.load(open(filename4, "rb"))
-        states = [list(np.concatenate(
-            (np.vstack(states_h), np.vstack(states_r)), axis=1))]
+        states = []
+        for idx in range(len(states_h)):
+            states.append(list(np.concatenate(
+                (np.vstack(states_h[idx]), np.vstack(states_r[idx])), axis=1)))
     else:
         filename3 = "data/"+mode+"/robots_states_3agt.pkl"
         states = pickle.load(open(filename3, "rb"))
@@ -71,28 +73,28 @@ def main():
     filename2 = "data/"+mode+"/scores.pkl"
     scores = pickle.load(open(filename2, "rb"))
 
-    for beta in betas:
-        # import states saved data
-        states = savedStates(mode, beta)
+    # for beta in betas:
+    # import states saved data
+    beta = 100
+    states = savedStates(mode, beta)
 
-        # sort scores in descending order, ranked by legibility
-        ranked_scores = scores[scores[:, 1].argsort()]
-        ranked_scores = ranked_scores[::-1]
-        # print('[*] Ranked based on legibility: ','\n',ranked_scores)
+    # sort scores in descending order, ranked by legibility
+    ranked_scores = scores[scores[:, 1].argsort()]
+    ranked_scores = ranked_scores[::-1]
+    # print('[*] Ranked based on legibility: ','\n',ranked_scores)
 
-        # # sort based on fairness
-        # ranked_scores = ranked_scores[ranked_scores[:,2].argsort(kind='mergesort')]
-        # print('[*] Ranked based on fairness: ',ranked_scores)
+    # # sort based on fairness
+    # ranked_scores = ranked_scores[ranked_scores[:,2].argsort(kind='mergesort')]
+    # print('[*] Ranked based on fairness: ',ranked_scores)
 
-        # main loop
-        for item in ranked_scores:
-            resetPos(team)
-            # convert allocation # to python indices
-            gstar_idx = int(item[0]-1)
-            # print('[*] Allocation: ', gstar_idx)
-
-            # aniamte the environment
-            animate(sprite_list, team, states[gstar_idx])
+    # main loop
+    for item in ranked_scores:
+        resetPos(team)
+        # convert allocation # to python indices
+        gstar_idx = int(item[0]-1)
+        print('[*] Allocation: ', gstar_idx)
+        # aniamte the environment
+        animate(sprite_list, team, states[gstar_idx])
 
 
 if __name__ == "__main__":
