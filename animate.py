@@ -12,7 +12,7 @@ import time
 import pickle
 
 
-def animate(sprite_list, team, states):
+def animate(sprite_list, team, states, gstar_idx):
     world = pygame.display.set_mode([700,700])
     # create game
     clock = pygame.time.Clock()
@@ -22,7 +22,9 @@ def animate(sprite_list, team, states):
     sprite_list.draw(world)
     pygame.display.flip()
     clock.tick(fps)
-
+    frame = 1
+    pygame.image.save(world, "screenshots/frame_"
+                +str(gstar_idx)+"_0.jpeg")
     for state in states:
         # update for next time step
         updateState(team, state)
@@ -32,6 +34,12 @@ def animate(sprite_list, team, states):
         pygame.display.flip()
         clock.tick(fps)
         time.sleep(0.2)
+        image_name = '{}_{}_{}_{}.png'.format('alloc', str(gstar_idx), 'frame', str(frame))
+        pygame.image.save(world, '{}/{}'.format('screenshots', image_name))
+
+        # pygame.image.save(world, "screenshots/frame_"
+        #             +str(gstar_idx)+"_"+str(frame)+".jpeg")
+        frame += 1
 
 def savedStates(mode, beta):
     if mode == 'human-robots':
@@ -81,7 +89,7 @@ def main():
     # sort scores in descending order, ranked by legibility
     ranked_scores = scores[scores[:, 1].argsort()]
     ranked_scores = ranked_scores[::-1]
-    # print('[*] Ranked based on legibility: ','\n',ranked_scores)
+    print('[*] Ranked based on legibility: ','\n',ranked_scores)
 
     # # sort based on fairness
     # ranked_scores = ranked_scores[ranked_scores[:,2].argsort(kind='mergesort')]
@@ -92,9 +100,9 @@ def main():
         resetPos(team)
         # convert allocation # to python indices
         gstar_idx = int(item[0]-1)
-        print('[*] Allocation: ', gstar_idx)
+        print('[*] Allocation: ', int(item[0]))
         # aniamte the environment
-        animate(sprite_list, team, states[gstar_idx])
+        animate(sprite_list, team, states[gstar_idx], int(item[0]))
 
 
 if __name__ == "__main__":
