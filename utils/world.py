@@ -83,3 +83,10 @@ def initGroup(sprite_list, goals, team):
         sprite_list.add(goal)
     for agent in team:
         sprite_list.add(agent)
+
+
+# def main():
+#     envGoals()
+#
+# if __name__ == '__main__':
+    main()

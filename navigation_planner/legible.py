@@ -75,7 +75,6 @@ def legibleRobots(mode, team, gstar_idx, gstar, A, G):
         states.append(s+astar)
         step +=1
 
-        # compute only the first 15 steps
         if step <= step_max:
             p_aloc = np.multiply(p_aloc, bayes(s, astar, A, G))
             if step == step_max:
