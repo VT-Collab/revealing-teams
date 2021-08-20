@@ -13,7 +13,7 @@ import pickle
 
 
 def animate(sprite_list, team, states, gstar_idx):
-    world = pygame.display.set_mode([700,700])
+    world = pygame.display.set_mode([680,650])
     # create game
     clock = pygame.time.Clock()
     fps = 10
@@ -36,9 +36,6 @@ def animate(sprite_list, team, states, gstar_idx):
         time.sleep(0.2)
         image_name = '{}_{}_{}_{}.png'.format('alloc', str(gstar_idx), 'frame', str(frame))
         pygame.image.save(world, '{}/{}'.format('screenshots', image_name))
-
-        # pygame.image.save(world, "screenshots/frame_"
-        #             +str(gstar_idx)+"_"+str(frame)+".jpeg")
         frame += 1
 
 def savedStates(mode, beta):

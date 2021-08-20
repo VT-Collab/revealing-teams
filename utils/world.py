@@ -8,14 +8,27 @@ import time
 # class for the objects on the screen (agents, goals, etc.)
 class Object(pygame.sprite.Sprite):
 
-    def __init__(self, position, color, size):
+    def __init__(self, position, color, size, type):
 
         # create square sprite
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((size, size))
-        self.image.fill(color)
+        self.image = pygame.Surface((size, size), pygame.SRCALPHA)
         self.rect = self.image.get_rect()
-        # self.reset()
+
+        if type == 'agent':
+            self.image.fill(color)
+        elif type == 'goal1':
+            radius = size // 2
+            pygame.draw.circle(self.image, color, (radius, radius), radius)
+        elif type == 'goal2':
+            radius = size // 2
+            h = int(np.sqrt(size**2-(size/2)**2))
+            pygame.draw.polygon(self.image, color, [(h, radius), (radius, radius),
+                    (radius, h)])
+        else:
+            pygame.draw.rect(self.image, color,
+            (position[0], 5*position[1], 5*size, size))
+
 
         # initial conditions
         self.start_x = position[0]
@@ -59,17 +72,17 @@ def resetPos(team):
 
 def envAgents():
     # add as many agents as you want
-    agent_h = Object((0.1, 0.4), [0, 0, 255], 25)
-    agent_r1 = Object((0.1, 0.6), [0, 255, 0], 25)
-    agent_r2 = Object((0.1, 0.5), [255, 0, 0], 25)
+    agent_h = Object((0.1, 0.3), [0, 0, 255], 25, 'agent')
+    agent_r1 = Object((0.1, 0.4), [0, 255, 0], 25, 'agent')
+    agent_r2 = Object((0.1, 0.5), [255, 0, 0], 25, 'agent')
     team = [agent_h, agent_r1, agent_r2]
-    return team
+    return team 
 
 def envGoals():
     # define the subtasks and the possible subtask allocations
-    goal1 = Object((1.0, 0.2), [100, 100, 100], 50)
-    goal2 = Object((1.0, 0.4), [100, 100, 100], 50)
-    goal3 = Object((0.6, 0.9), [100, 100, 100], 50)
+    goal1 = Object((1.0, 0.1), [255, 153, 0], 50, 'goal1')
+    goal2 = Object((1.0, 0.3), [255, 153, 0], 150, 'goal2')
+    goal3 = Object((0.6, 0.8), [255, 153, 0], 50, 'goal3')
     goals = [goal1, goal2, goal3]
     # each agent's goal options
     agent1_goal = [list(goal1.state), list(goal2.state), list(goal3.state)]#, list(agent1.state)]
@@ -89,4 +102,4 @@ def initGroup(sprite_list, goals, team):
 #     envGoals()
 #
 # if __name__ == '__main__':
-    main()
+    # main()
