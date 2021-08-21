@@ -6,7 +6,7 @@ import os
 
 
 for alloc in range(27):
-    n_frames = [4, 8, 12, 16]
+    n_frames = [5,10,15]
     for i in n_frames:
         # Create the frames
         frames = []
