@@ -54,7 +54,6 @@ def envGoals(env):
     goal3 = list(env.world.objects['Lettuce'][0].location)
     # goal3 = list(env.world.objects['Cutboard'][0].location)
     # pos_d = list(env.world.objects['Delivery'][0].location)
-
     G = combination(goal1, goal2, goal3, agent1_loc, agent2_loc, agent3_loc, folder)
     return G
 
@@ -164,7 +163,7 @@ def main():
         scores[gstar_idx,3] = Dist[gstar_idx][0]
 
         # sort scores in descending order, ranked by legibility
-        ranked_scores = scores[scores[:, 1].argsort()]
+        ranked_scores = scores[scores[:, 2].argsort()]
         ranked_scores = ranked_scores[::-1]
 
     print('[*] Ranked based on legibility: ','\n',ranked_scores)
