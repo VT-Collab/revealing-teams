@@ -45,7 +45,7 @@ def plot_join(join_grid, join_oc, response_n, case):
     plt.bar(X_axis - 0.2, want_legible[0], 0.4, label = 'preferred fairness')
     plt.bar(X_axis + 0.2, want_illegible[0], 0.4, label = 'preferred unfairness')
     plt.xticks(X_axis, X)
-    plt.ylabel("Number of Participants")
+    plt.ylabel("Number of Tasks")
     plt.title(case)
     plt.legend()
 
@@ -60,7 +60,7 @@ def plot_join_avg(join_grid, join_oc, response_n):
     plt.bar(X_axis - 0.2, want_legible, 0.4, label = 'legible')
     plt.bar(X_axis + 0.2, want_illegible, 0.4, label = 'illegible')
     plt.xticks(X_axis, X)
-    plt.ylabel("Number of Participants")
+    plt.ylabel("Number of Tasks")
     plt.legend()
 
 
