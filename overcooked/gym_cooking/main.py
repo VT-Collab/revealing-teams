@@ -28,7 +28,8 @@ def actionSpace():
     for idx in range(n_actions):
         for jdx in range(n_actions):
             for kdx in range(n_actions):
-                A.append(list(single_action[idx]) + list(single_action[jdx]) + list(single_action[kdx]))
+                A.append(list(single_action[idx]) + list(single_action[jdx])
+                + list(single_action[kdx]))
     A = np.asarray(A)
     return A
 

@@ -61,6 +61,8 @@ def main():
 
             time.sleep(0.1)
             game.on_render()
+        image_name = '{}_{}_{}_{}.png'.format('alloc', str(idx+1), 'frame', str(step+1))
+        pygame.image.save(game.screen, '{}/{}'.format('screenshots/'+folder, image_name))
 
 
 
