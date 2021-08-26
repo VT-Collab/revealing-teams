@@ -1,0 +1,16 @@
+setup.py
+gym_cooking/__init__.py
+gym_cooking/animate.py
+gym_cooking/main.py
+gym_cooking/record_allocation.py
+gym_cooking.egg-info/PKG-INFO
+gym_cooking.egg-info/SOURCES.txt
+gym_cooking.egg-info/dependency_links.txt
+gym_cooking.egg-info/requires.txt
+gym_cooking.egg-info/top_level.txt
+gym_cooking/envs/__init__.py
+gym_cooking/envs/overcooked_environment.py
+gym_cooking/recipe_planner/__init__.py
+gym_cooking/recipe_planner/recipe.py
+gym_cooking/recipe_planner/stripsworld.py
+gym_cooking/recipe_planner/utils.py
