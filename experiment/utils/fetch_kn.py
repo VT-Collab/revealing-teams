@@ -3,6 +3,7 @@ import kinpy as kp
 import rospy
 import torch
 
+from power_msgs.srv import BreakerCommand
 from sensor_msgs.msg import (
       JointState
 )
@@ -29,7 +30,6 @@ class JointStateListener(object):
         self.state = state
 
 
-
 class FetchRobot:
 
     def __init__(self):
@@ -39,3 +39,11 @@ class FetchRobot:
 
         pose = self.chain.forward_kinematics(q)
         return pose
+
+
+def reset_breaker():
+    rospy.wait_for_service('/arm_breaker')
+    reset_arm_breaker = rospy.ServiceProxy('/arm_breaker', BreakerCommand)
+    reset_arm_breaker(False)
+    reset_arm_breaker(True)
+    rospy.sleep(0.2)

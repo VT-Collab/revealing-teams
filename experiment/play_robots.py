@@ -183,8 +183,8 @@ class Joystick(object):
         A_pressed = self.gamepad.get_button(0)
         return A_pressed
 
-def robotAtion(goal, cur_pos, rate):
-    robot_error = (goal - cur_pos) *rate
+def robotAtion(goal, cur_pos, action_scale):
+    robot_error = (goal - cur_pos)*action_scale
     robot_action = [robot_error[0], robot_error[0], robot_error[0], 0, 0, 0]
     return robot_action
 
@@ -200,7 +200,6 @@ def main():
 
     print('[*] Connecting to Panda...')
     PORT_robot = 8080
-    action_scale = 0.1
     conn = connect2robot(PORT_robot)
 
     interface = Joystick()
