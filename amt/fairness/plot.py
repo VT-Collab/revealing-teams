@@ -66,7 +66,7 @@ def plot_join_avg(join_grid, join_oc, response_n):
 
 
 # import the data
-df_grid, df_oc = importData('AMT.xls', 53, 'A:H')
+df_grid, df_oc = importData('AMT.xlsx', 51, 'A:H')
 df_ref_grid, df_ref_oc = importData('Survey_Qs_fairness.xlsx', 2, 'A:J')
 
 
