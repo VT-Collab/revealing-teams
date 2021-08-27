@@ -97,6 +97,7 @@ class TrajectoryClient(object):
 '''-----------Fetch-----------'''
 
 
+
 '''-----------Panda-----------'''
 def connect2robot(PORT):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

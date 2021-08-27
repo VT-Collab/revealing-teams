@@ -3,9 +3,10 @@ import kinpy as kp
 import rospy
 import pygame
 from utils.fetch_kn import *
-from play_robots import readState, joint2pose, connect2robot
 import sys
 import pickle
+
+from play_robots import readState, joint2pose, connect2robot
 
 from sensor_msgs.msg import (
       JointState
@@ -21,9 +22,9 @@ class Joystick(object):
 
     def input(self):
         pygame.event.get()
-        stop = self.gamepad.get_button(7)
-        save = self.gamepad.get_button(0)
-        return stop, save
+        start_pressed = self.gamepad.get_button(7)
+        A_pressued = self.gamepad.get_button(0)
+        return start_pressed, A_pressued
 
 def robotPos(robot, name):
     if name == 'fetch':
@@ -34,7 +35,7 @@ def robotPos(robot, name):
         return fetch_xyz
     elif name == 'panda':
         # Panda's current end-effector position
-        state_panda = readState(conn)
+        state_panda = readState(robot)
         panda_xyz = joint2pose(state_panda["q"])
         return panda_xyz
 
@@ -58,25 +59,23 @@ def main():
         print('Type the robot name!')
 
     pos = []
+    savename_number = 'data/' + robot + '_' + block + ".pkl"
 
     while True:
-
         if robot == 'fetch':
             robot_xyz = robotPos(fetch_robot, robot)
+            reset_breaker()
+            print("ready for a recording!")
         elif robot == 'panda':
             robot_xyz = robotPos(conn, robot)
-
-        savename_number = 'data/' + robot + '_' + block + ".pkl"
-        reset_breaker()
-        print("ready for a recording!")
+            print(robot_xyz)
 
         while True:
-
-            stop, save = joystick.input()
-            if stop:
+            start_pressed, A_pressued = joystick.input()
+            if start_pressed:
                 pickle.dump(pos, open(savename_number, "wb"))
                 return True
-            if save:
+            if A_pressued:
                 pos.append(robot_xyz)
                 print("[*] Position Recorded!")
                 break
