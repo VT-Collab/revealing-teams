@@ -6,7 +6,8 @@ import pygame
 import sys
 import rospy
 import actionlib
-
+import kinpy as kp
+from utils.fetch_kn import *
 
 from control_msgs.msg import (
     FollowJointTrajectoryAction,
@@ -27,14 +28,13 @@ from geometry_msgs.msg import(
 )
 
 
-HOME_POSITION = [0.14367080900648516, -1.0402462503531962, -3.257483552703506, -1.7801367945199174, 0.0789840881388051, -0.8353921099200822, -0.00945298474171628]
+HOME_POSITION = [0.14367080900648516, -1.0402462503531962, -3.257483552703506,
+-1.7801367945199174, 0.0789840881388051, -0.8353921099200822, -0.00945298474171628]
 HOMING_TIME = 4.0
+STEP_TIME = 0.1
 
-STEP_SIZE_L = 0.2
-STEP_SIZE_A = np.pi / 4
-STEP_TIME = 0.01
-DEADBAND = 0.1
 
+'''-----------Fetch-----------'''
 class TrajectoryClient(object):
 
     def __init__(self):
@@ -94,35 +94,10 @@ class TrajectoryClient(object):
         waypoint = GripperCommandGoal
         waypoint.command = command
         self.gripper.send_goal(waypoint)
+'''-----------Fetch-----------'''
 
 
-class JointStateListener(object):
-
-  def __init__(self):
-    self.position = [0]*7
-    rospy.Subscriber("/joint_states", JointState, self.recorder)
-
-  def recorder(self, msg):
-    currtime = msg.header.stamp
-    position = msg.position
-    if len(position) > 10:
-        self.position = position[6:13]
-
-
-class Joystick(object):
-
-    def __init__(self):
-        pygame.init()
-        self.gamepad = pygame.joystick.Joystick(0)
-        self.gamepad.init()
-        self.deadband = 0.1
-
-    def input(self):
-        pygame.event.get()
-        A_pressed = self.gamepad.get_button(0)
-        return A_pressed
-
-
+'''-----------Panda-----------'''
 def connect2robot(PORT):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -173,7 +148,6 @@ def xdot2qdot(xdot, state):
     J_pinv = np.linalg.pinv(state["J"])
     return np.matmul(J_pinv, np.asarray(xdot))
 
-
 def joint2pose(q):
     def RotX(q):
         return np.array([[1, 0, 0, 0], [0, np.cos(q), -np.sin(q), 0], [0, np.sin(q), np.cos(q), 0], [0, 0, 0, 1]])
@@ -192,49 +166,70 @@ def joint2pose(q):
     H7 = np.dot(TransX(np.pi/2, 0.088, 0, 0), RotZ(q[6]))
     H_panda_hand = TransZ(-np.pi/4, 0, 0, 0.2105)
     H = np.linalg.multi_dot([H1, H2, H3, H4, H5, H6, H7, H_panda_hand])
-    #print(H)
-    #print(H[:,3][:3])
     return H[:,3][:3]
+'''-----------Panda-----------'''
+
+
+class Joystick(object):
+
+    def __init__(self):
+        pygame.init()
+        self.gamepad = pygame.joystick.Joystick(0)
+        self.gamepad.init()
+        self.deadband = 0.1
+
+    def input(self):
+        pygame.event.get()
+        A_pressed = self.gamepad.get_button(0)
+        return A_pressed
+
+def robotAtion(goal, cur_pos, rate):
+    robot_error = (goal - cur_pos) *rate
+    robot_action = [robot_error[0], robot_error[0], robot_error[0], 0, 0, 0]
+    return robot_action
+
 
 def main():
 
-    PORT_robot = 8080
-    action_scale = 0.1
-
     print('[*] Connecting to Fetch...')
-
     rospy.init_node("endeffector_teleop")
+    fetch_robot = FetchRobot()
     mover = TrajectoryClient()
     listener = JointStateListener()
+    # mover.open_gripper()
 
     print('[*] Connecting to Panda...')
-
+    PORT_robot = 8080
+    action_scale = 0.1
     conn = connect2robot(PORT_robot)
+
     interface = Joystick()
 
-    print('[*] Ready for a teleoperation...')
-
-    run = False
+    # mover.send_joint(HOME_POSITION, HOMING_TIME)
 
     while True:
 
+        # Panda's current end-effector position
         state_panda = readState(conn)
-        state_fetch = list(listener.position)
+        panda_xyz = joint2pose(state_panda["q"])
 
+        # Fetch's current end-effector position
+        pose = fetch_robot.dirkin(listener.state)
+        fetch_xyz = np.asarray(pose["gripper_link"].pos)
+
+        # some sort of command to use later
         A_pressed = interface.input()
         if A_pressed:
             print("[*] Running now!")
-            print(state_panda, state_fetch)
+            # print(state_panda, state_fetch)
 
-        if run:
-            mover.open_gripper()
-            mover.send_joint(HOME_POSITION, HOMING_TIME)
+        # compute Fetch's distance to goal
+        action_fetch = robotAtion(np.asarray([0.65, 0.1, 0.25]), fetch_xyz, 0.5)
+        action_panda = robotAtion(np.asarray([0.5, 0.2, 0]), panda_xyz, 0.5)
 
-        action_panda = [0] * 6
-        action_fetch = [0] * 6
-        send2robot(conn, xdot2qdot(action_panda, state_panda))
+        # send action commands to the team
         mover.send(action_fetch, STEP_TIME)
-
+        send2robot(conn, xdot2qdot(action_panda, state_panda))
 
 if __name__ == "__main__":
     try:
