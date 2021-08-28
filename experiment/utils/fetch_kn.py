@@ -23,7 +23,6 @@ class JointStateListener(object):
     if len(position) > 10:
         self.position[0] = position[2]
         self.position[1:] = position[6:]
-        # print(self.position)
         state = {}
         for idx in range(len(name)):
             state[name[idx]] = position[idx]
@@ -36,7 +35,6 @@ class FetchRobot:
         self.chain = kp.build_chain_from_urdf((open("fetch.urdf")).read())
 
     def dirkin(self, q):
-
         pose = self.chain.forward_kinematics(q)
         return pose
 
@@ -46,4 +44,4 @@ def reset_breaker():
     reset_arm_breaker = rospy.ServiceProxy('/arm_breaker', BreakerCommand)
     reset_arm_breaker(False)
     reset_arm_breaker(True)
-    rospy.sleep(0.2)
+    rospy.sleep(0.1)
