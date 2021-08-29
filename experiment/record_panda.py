@@ -40,6 +40,8 @@ def main():
 
     while True:
 
+        state = readState(conn)
+        robot_xyz = joint2pose(state["q"].tolist())
         A_pressed, B_pressed, Start_pressed = interface.input()
         if Start_pressed:
             pickle.dump(positions, open(savename_number, "wb"))
@@ -50,8 +52,6 @@ def main():
             last_time = time.time()
             print("---- ready for inputs!")
         if B_pressed and record:
-            state = readState(conn)
-            robot_xyz = joint2pose(state["q"].tolist())
             curr_time = time.time()
             if curr_time - last_time >= sample_time:
                 print(robot_xyz)

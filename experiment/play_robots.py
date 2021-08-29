@@ -24,7 +24,7 @@ traj_file1 = open('data/fetch_1.pkl', 'rb')
 trajectory1 = pickle.load(traj_file1)
 
 
-traj_file2 = open('data/panda_1.pkl', 'rb')
+traj_file2 = open('data/panda_2.pkl', 'rb')
 trajectory2 = pickle.load(traj_file2)
 
 # for goal_n, goal in enumerate(trajectory2):
