@@ -7,7 +7,7 @@ import pickle
 import time
 
 from utils.fetch_kn import *
-# from utils.panda_demo import *
+from utils.panda_demo import *
 from teleop import TrajectoryClient
 
 from sensor_msgs.msg import (
@@ -35,25 +35,25 @@ class Joystick(object):
 
 def main():
     interface = Joystick()
+    positions = []
 
     robot = sys.argv[1]
     block = sys.argv[2]
 
+    rospy.init_node("endeffector_teleop")
+
     if robot == 'fetch':
         home_xyz = np.array([1.128, 0, 0.786])
         print('[*] Connecting to Fetch...')
-        rospy.init_node("endeffector_teleop")
         mover = TrajectoryClient()
         fetch_robot = FetchRobot()
         listener = JointStateListener()
         mover.open_gripper()
         mover.send_joint(HOME_POSITION, HOMING_TIME)
         print('[*] Home position...')
-        positions = [home_xyz]
         reset_breaker()
 
     elif robot == 'panda':
-        positions = []
         print('connected to panda')
 
 

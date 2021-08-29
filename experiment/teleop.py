@@ -7,6 +7,8 @@ import sys
 import rospy
 import actionlib
 import kinpy as kp
+from threading import Thread
+
 
 from utils.fetch_kn import *
 from control_msgs.msg import (
@@ -172,70 +174,76 @@ def joint2pose(q):
 '''-----------Panda-----------'''
 
 
-class Joystick(object):
-
-    def __init__(self):
-        pygame.init()
-        self.gamepad = pygame.joystick.Joystick(0)
-        self.gamepad.init()
-        self.deadband = 0.1
-
-    def input(self):
-        pygame.event.get()
-        A_pressed = self.gamepad.get_button(0)
-        return A_pressed
-
 def robotAtion(goal, cur_pos, action_scale):
     robot_error = (goal - cur_pos)*action_scale
     robot_action = [robot_error[0], robot_error[1], robot_error[2], 0, 0, 0]
     return robot_action, np.linalg.norm(robot_error)
 
+def fetchThread(goal, listener, fetch_robot, mover):
+    while True:
+        # Fetch's current end-effector position
+        pose = fetch_robot.dirkin(listener.state)
+        fetch_xyz = np.asarray(pose["gripper_link"].pos)
+        action_scale_fetch = 0.5
+        # compute robot actions
+        action_fetch, error_fetch = robotAtion(goal, fetch_xyz, action_scale_fetch)
+        if 0.01 <= error_fetch < 0.02:
+            action_scale_fetch = 0.3
+        elif error_fetch < 0.01:
+            break
+        # mover.close_gripper()
+        # send action commands to the team
+        mover.send(action_fetch, STEP_TIME)
+        time.sleep(0.01)
 
-def main(fetch_goal):
-# def main():
+
+def pandaThread(goal, conn):
+    while True:
+        # Panda's current end-effector position
+        state_panda = readState(conn)
+        panda_xyz = joint2pose(state_panda["q"])
+        action_scale_panda = 1
+        # compute robot actions
+        action_panda, error_panda = robotAtion(goal, panda_xyz, action_scale_panda)
+        # if 0.01 <= error_panda < 0.2:
+        #     action_scale_panda = 0.2
+        if error_panda < 0.01:
+            break
+        # send action commands to the team
+        send2robot(conn, xdot2qdot(action_panda, state_panda))
+        time.sleep(0.01)
+
+
+def main(trajectory1, trajectory2):
 
     print('[*] Connecting to Fetch...')
     rospy.init_node("endeffector_teleop")
     fetch_robot = FetchRobot()
     mover = TrajectoryClient()
     listener = JointStateListener()
+    mover.send_joint(HOME_POSITION, HOMING_TIME)
     # mover.open_gripper()
 
-    # print('[*] Connecting to Panda...')
-    # PORT_robot = 8080
-    # conn = connect2robot(PORT_robot)
+    print('[*] Connecting to Panda...')
+    PORT_robot = 8080
+    conn = connect2robot(PORT_robot)
 
-    interface = Joystick()
-    # mover.send_joint(HOME_POSITION, HOMING_TIME)
 
-    while True:
+    for idx in range(len(trajectory2)):
+        print('goal: ',idx)
 
-        # Panda's current end-effector position
-        # state_panda = readState(conn)
-        # panda_xyz = joint2pose(state_panda["q"])
+        t1 = Thread(target = fetchThread, args=(trajectory1[idx],
+                                listener, fetch_robot, mover,))
 
-        # Fetch's current end-effector position
-        pose = fetch_robot.dirkin(listener.state)
-        fetch_xyz = np.asarray(pose["gripper_link"].pos)
+        t2 = Thread(target = pandaThread, args= (trajectory2[idx], conn,))
 
-        # some sort of command to use later
-        A_pressed = interface.input()
-        if A_pressed:
-            print("[*] Running now!")
-            # print(state_panda, state_fetch)
+        t1.start()
+        time.sleep(0.01)
+        t2.start()
 
-        # compute robot actions
-        action_fetch, error_fetch = robotAtion(fetch_goal, fetch_xyz, 0.5)
-        # action_panda = robotAtion(np.asarray([0.5, 0.2, 0]), panda_xyz, 0.5)
+        t1.join()
+        t2.join()
 
-        if error_fetch < 0.02:
-            action_fetch = [0] * 6
-            break
-            # mover.close_gripper()
-
-        # send action commands to the team
-        mover.send(action_fetch, STEP_TIME)
-        # send2robot(conn, xdot2qdot(action_panda, state_panda))
 
 if __name__ == "__main__":
     try:
