@@ -30,9 +30,9 @@ from geometry_msgs.msg import(
 )
 
 
-fetch_home = [0.35, 0.6937427520751953, -1.2402234077453613,
-        3.0553064346313477, -0.9848155975341797, -3.136991024017334,
-        1.8170002698898315, -0.11811652034521103]
+fetch_home = [0.37, 0.15263128280639648, -1.2490439414978027,
+            3.0549232959747314, -0.49547576904296875, 3.1063108444213867,
+            2.279879093170166, 1.6206507682800293]
 fetch_home_t = 4.0
 fetch_step_t = 0.2
 
@@ -181,20 +181,17 @@ def robotAtion(goal, cur_pos, action_scale):
     robot_action = [robot_error[0], robot_error[1], robot_error[2], 0, 0, 0]
     return robot_action, np.linalg.norm(robot_error)
 
-def fetchThread(idx, goal, listener, fetch_robot, mover):
+def fetchThread(idx, goal, listener, fetch_robot, mover, action_scale_fetch = 0.4):
     while True:
         # current end-effector position
         pose = fetch_robot.dirkin(listener.state)
         fetch_xyz = np.asarray(pose["gripper_link"].pos)
-        action_scale_fetch = 0.5
         # compute robot actions
         action_fetch, error_fetch = robotAtion(goal, fetch_xyz, action_scale_fetch)
-        if idx != 1:
-            dist = 0.01
-        else:
-            dist = 0.1
-        if 0.01 <= error_fetch < 0.02:
-            action_scale_fetch = 0.3
+        print(error_fetch)
+        dist = 1e-7
+        if dist <= error_fetch < 0.03:
+            action_scale_fetch = action_scale_fetch*(error_fetch)
         elif error_fetch < dist:
             break
         # mover.close_gripper()
@@ -210,9 +207,9 @@ def pandaThread(idx, goal, conn, action_scale_panda=0.5):
         panda_xyz = joint2pose(state_panda["q"])
         # compute robot actions
         action_panda, error_panda = robotAtion(goal, panda_xyz, action_scale_panda)
-        dist = 0.01
+        dist = 0.00001
         if error_panda < 0.02:
-            action_scale_panda = 0.5*(error_panda)
+            action_scale_panda = action_scale_panda*(error_panda)
         if error_panda < dist:
             break
         # send action commands to the robot
@@ -233,24 +230,24 @@ def main(trajectory1, trajectory2):
 
     print('[*] Connecting to Panda...')
     PORT_robot = 8080
-    conn = connect2robot(PORT_robot)
-    panda_home_xyz = joint2pose(panda_home)
-    pandaThread(0, panda_home_xyz, conn)
+    # conn = connect2robot(PORT_robot)
+    # panda_home_xyz = joint2pose(panda_home)
+    # pandaThread(0, panda_home_xyz, conn)
 
 
     for idx in range(len(trajectory2)):
         print('Goal: ',idx)
 
-        # t1 = Thread(target = fetchThread, args=(idx, trajectory1[idx],
-        #                         listener, fetch_robot, mover,))
-        t2 = Thread(target = pandaThread, args= (idx, trajectory2[idx], conn,))
+        t1 = Thread(target = fetchThread, args=(idx, trajectory1[idx],
+                                listener, fetch_robot, mover,))
+        # t2 = Thread(target = pandaThread, args= (idx, trajectory2[idx], conn,))
 
-        # t1.start()
+        t1.start()
         # time.sleep(0.01)
-        t2.start()
+        # t2.start()
 
-        # t1.join()
-        t2.join()
+        t1.join()
+        # t2.join()
 
 
 if __name__ == "__main__":
