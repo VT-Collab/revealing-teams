@@ -20,11 +20,11 @@ from sensor_msgs.msg import (
 # traj_file = open('data/'+robot+'_'+block+'.pkl', 'rb')
 # trajectory = pickle.load(traj_file)
 
-traj_file1 = open('data/fetch_1.pkl', 'rb')
+traj_file1 = open('data/fetch_2.pkl', 'rb')
 trajectory1 = pickle.load(traj_file1)
 
 
-traj_file2 = open('data/panda_2.pkl', 'rb')
+traj_file2 = open('data/panda_1.pkl', 'rb')
 trajectory2 = pickle.load(traj_file2)
 
 # for goal_n, goal in enumerate(trajectory2):

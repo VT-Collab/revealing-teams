@@ -161,7 +161,6 @@ def main():
 
         axes, buttons, stop = joystick.getInput()
         if stop:
-            print(positions)
             pickle.dump(positions, open(savename_number, "wb"))
             print("[*] Data Saved!")
             return True

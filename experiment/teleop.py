@@ -244,15 +244,15 @@ def main(trajectory1, trajectory2):
         waypoint = idx+1
         print('waypoint: ',waypoint)
 
-        # t1 = Thread(target = fetchThread, args=(waypoint, trajectory1[idx],
-        #                         listener, fetch_robot, mover,))
+        t1 = Thread(target = fetchThread, args=(waypoint, trajectory1[idx],
+                                listener, fetch_robot, mover,))
         t2 = Thread(target = pandaThread, args= (waypoint, trajectory2[idx], conn,))
 
-        # t1.start()
+        t1.start()
         # time.sleep(0.01)
         t2.start()
 
-        # t1.join()
+        t1.join()
         t2.join()
 
 

@@ -1,7 +1,6 @@
 import numpy as np
 import kinpy as kp
 import rospy
-import torch
 
 from power_msgs.srv import BreakerCommand
 from sensor_msgs.msg import (
