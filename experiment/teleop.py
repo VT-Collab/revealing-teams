@@ -11,6 +11,8 @@ from threading import Thread
 
 
 from utils.fetch_kn import *
+from utils.panda_home import main as panda_return
+
 from control_msgs.msg import (
     FollowJointTrajectoryAction,
     FollowJointTrajectoryGoal,
@@ -30,14 +32,11 @@ from geometry_msgs.msg import(
 )
 
 
-fetch_home = [0.37, 0.15263128280639648, -1.2490439414978027,
+fetch_home = [0.38, 0.15263128280639648, -1.2490439414978027,
             3.0549232959747314, -0.49547576904296875, 3.1063108444213867,
             2.279879093170166, 1.6206507682800293]
 fetch_home_t = 5.0
 
-
-panda_home = [1.720000e-04, -7.853450e-01,  1.950000e-04, -2.356711e+00,
-        3.260000e-04,  1.571298e+00,  7.857880e-01]
 
 '''-----------Fetch-----------'''
 class TrajectoryClient(object):
@@ -112,6 +111,18 @@ def connect2robot(PORT):
     conn, addr = s.accept()
     return conn
 
+def connect2gripper(PORT):
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    s.bind(('172.16.0.3', PORT))
+    s.listen(10)
+    conn, addr = s.accept()
+    return conn
+
+def send2gripper(conn, arg):
+    send_msg = arg
+    conn.send(send_msg.encode())
+
 def send2robot(conn, qdot, limit=1.0):
     qdot = np.asarray(qdot)
     scale = np.linalg.norm(qdot)
@@ -176,51 +187,51 @@ def joint2pose(q):
 '''-----------Panda-----------'''
 
 
-def robotAtion(goal, cur_pos, action_scale=1):
-    robot_error = (goal - cur_pos)*action_scale
+def robotAtion(goal, cur_pos, action_scale):
+    robot_error = (goal - cur_pos)/action_scale
     robot_action = [robot_error[0], robot_error[1], robot_error[2], 0, 0, 0]
-    return robot_action, np.linalg.norm(robot_error)
+    return robot_action
 
 
-def fetchThread(waypoint, goal, listener, fetch_robot, mover, action_scale_fetch = 1.0):
+def fetchThread(waypoint, goal, listener, fetch_robot, mover, action_scale_fetch = 1.5):
+
     while True:
         fetch_step_t = 0.1
         # current end-effector position
         pose = fetch_robot.dirkin(listener.state)
         fetch_xyz = np.asarray(pose["gripper_link"].pos)
         # compute robot actions
-        action_fetch, error_fetch = robotAtion(goal, fetch_xyz, action_scale_fetch)
-        dist = 0.0
-        if dist < error_fetch < 0.01:
-            action_scale_fetch = action_scale_fetch*(0.02*error_fetch)
-        elif error_fetch == dist:
+        action_fetch = robotAtion(goal, fetch_xyz, action_scale_fetch)
+        dist = np.linalg.norm(goal-fetch_xyz)
+        if dist < 0.002:
+            if waypoint == 3:
+                mover.close_gripper()
+                time.sleep(2)
+            elif waypoint == 6:
+                mover.open_gripper()
             break
-        # mover.close_gripper()
         # send commands to the robot
         mover.send(action_fetch, fetch_step_t)
-        # time.sleep(0.1)
 
 
-def pandaThread(waypoint, goal, conn, action_scale_panda=1.0):
-    if waypoint <= 4:
-        limit = 0.2
-    else:
-        limit = 1.5
+def pandaThread(waypoint, goal, conn, conn_gripper, action_scale_panda=1.5):
+
     while True:
         # current end-effector position
         state_panda = readState(conn)
         panda_xyz = joint2pose(state_panda["q"])
         # compute robot actions
-        action_panda, error_panda = robotAtion(goal, panda_xyz, action_scale_panda)
-        dist = 0.0
-        if dist < error_panda < 0.01:
-            action_scale_panda = action_scale_panda*(0.02*error_panda)
-        if error_panda == dist:
+        action_panda = robotAtion(goal, panda_xyz, action_scale_panda)
+        dist = np.linalg.norm(goal-panda_xyz)
+        if dist < 0.005:
+            if waypoint == 3:
+                send2gripper(conn_gripper, 'c')
+                time.sleep(2)
+            elif waypoint == 6:
+                send2gripper(conn_gripper, 'o')
             break
         # send action commands to the robot
-        send2robot(conn, xdot2qdot(action_panda, state_panda), limit)
-        # time.sleep(0.5)
-
+        send2robot(conn, xdot2qdot(action_panda, state_panda))
 
 
 def main(trajectory1, trajectory2):
@@ -230,15 +241,20 @@ def main(trajectory1, trajectory2):
     fetch_robot = FetchRobot()
     mover = TrajectoryClient()
     listener = JointStateListener()
-    mover.send_joint(fetch_home, fetch_home_t)
     # mover.open_gripper()
 
     print('[*] Connecting to Panda...')
     PORT_robot = 8080
+    PORT_gripper = 8081
     conn = connect2robot(PORT_robot)
-    panda_home_xyz = joint2pose(panda_home)
-    # pandaThread(0, panda_home_xyz, conn)
 
+    print('[*] Connecting to Panda gripper...')
+    conn_gripper = connect2gripper(PORT_gripper)
+    send2gripper(conn_gripper, 'o')
+
+    # send robots to home
+    mover.send_joint(fetch_home, fetch_home_t)
+    panda_return(conn)
 
     for idx in range(len(trajectory2)):
         waypoint = idx+1
@@ -246,7 +262,7 @@ def main(trajectory1, trajectory2):
 
         t1 = Thread(target = fetchThread, args=(waypoint, trajectory1[idx],
                                 listener, fetch_robot, mover,))
-        t2 = Thread(target = pandaThread, args= (waypoint, trajectory2[idx], conn,))
+        t2 = Thread(target = pandaThread, args= (waypoint, trajectory2[idx], conn, conn_gripper))
 
         t1.start()
         # time.sleep(0.01)

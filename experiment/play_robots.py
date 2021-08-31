@@ -13,18 +13,18 @@ from sensor_msgs.msg import (
       JointState
 )
 
-
-# robot = sys.argv[1]
-# block = sys.argv[2]
+task = sys.argv[1]
+n = sys.argv[2]
+m = sys.argv[3]
 #
 # traj_file = open('data/'+robot+'_'+block+'.pkl', 'rb')
 # trajectory = pickle.load(traj_file)
 
-traj_file1 = open('data/fetch_2.pkl', 'rb')
+traj_file1 = open('data/'+task+'/fetch_'+n+'.pkl', 'rb')
 trajectory1 = pickle.load(traj_file1)
 
 
-traj_file2 = open('data/panda_1.pkl', 'rb')
+traj_file2 = open('data/'+task+'/panda_'+m+'.pkl', 'rb')
 trajectory2 = pickle.load(traj_file2)
 
 # for goal_n, goal in enumerate(trajectory2):

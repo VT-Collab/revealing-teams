@@ -49,6 +49,19 @@ def listen2robot(conn):
     state["tau"] = state_vector[14:21]
     return state
 
+def xdot2qdot(xdot, state):
+    J_pinv = np.linalg.pinv(state["J"])
+    return J_pinv @ np.asarray(xdot)
+
+def send2robot(conn, qdot, limit=1.0):
+    qdot = np.asarray(qdot)
+    scale = np.linalg.norm(qdot)
+    if scale > limit:
+        qdot = np.asarray([qdot[i] * limit / scale for i in range(7)])
+    send_msg = np.array2string(qdot, precision=5, separator=',', suppress_small=True)[1:-1]
+    send_msg = "s," + send_msg + ","
+    conn.send(send_msg.encode())
+
 def readState(conn):
     while True:
         state = listen2robot(conn)
@@ -75,7 +88,3 @@ def joint2pose(q):
     H_panda_hand = TransZ(-np.pi/4, 0, 0, 0.2105)
     H = np.linalg.multi_dot([H1, H2, H3, H4, H5, H6, H7, H_panda_hand])
     return H[:,3][:3]
-
-PORT = 8080
-print('[*] Connecting to low-level controller...')
-conn = connect2robot(PORT)

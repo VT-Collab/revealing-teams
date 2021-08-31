@@ -29,7 +29,7 @@ from geometry_msgs.msg import(
 )
 
 
-HOME_POSITION = [0.37, 0.15263128280639648, -1.2490439414978027,
+HOME_POSITION = [0.38, 0.15263128280639648, -1.2490439414978027,
             3.0549232959747314, -0.49547576904296875, 3.1063108444213867,
             2.279879093170166, 1.6206507682800293]
 HOMING_TIME = 4.0
@@ -141,7 +141,9 @@ class JoystickControl(object):
 
 
 def main():
-    block = sys.argv[1]
+    task = sys.argv[1]
+    block = sys.argv[2]
+
     rospy.init_node("endeffector_teleop")
     mover = TrajectoryClient()
     fetch_robot = FetchRobot()
@@ -150,11 +152,12 @@ def main():
     mover.open_gripper()
     mover.send_joint(HOME_POSITION, HOMING_TIME)
 
-    savename_number = 'data/fetch_' + block + ".pkl"
+    savename_number = 'data/'+task+'/fetch_' + block + ".pkl"
     start_time = time.time()
     last_time = 0.0
     sample_time = 0.1
     record = False
+    count = 0
     positions = []
 
     while not rospy.is_shutdown():
@@ -176,7 +179,8 @@ def main():
             if curr_time - last_time > sample_time:
                 print(robot_xyz)
                 positions.append(robot_xyz)
-                print("---- position Recorded!",'\n')
+                count += 1
+                print("---- position Recorded: ", count,'\n')
                 last_time = curr_time
                 record = False
             continue

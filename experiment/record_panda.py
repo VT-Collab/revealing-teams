@@ -29,13 +29,18 @@ class Joystick(object):
 
 def main():
     interface = Joystick()
-    block = sys.argv[1]
+    task = sys.argv[1]
+    block = sys.argv[2]
 
+    PORT = 8080
+    print('[*] Connecting to low-level controller...')
+    conn = connect2robot(PORT)
     print('[*] Connected to Panda')
-    savename_number = 'data/panda_' + block + ".pkl"
+    savename_number = 'data/'+task+'/panda_' + block + ".pkl"
     last_time = 0.0
     sample_time = 0.2
     record = False
+    count = 0
     positions = []
 
     while True:
@@ -56,7 +61,8 @@ def main():
             if curr_time - last_time >= sample_time:
                 print(robot_xyz)
                 positions.append(robot_xyz)
-                print("---- position Recorded!",'\n')
+                count += 1
+                print("---- position Recorded: ", count,'\n')
                 last_time = curr_time
                 record = False
 
