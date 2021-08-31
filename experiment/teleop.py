@@ -223,7 +223,7 @@ def pandaThread(waypoint, goal, conn, conn_gripper, action_scale_panda=1.5):
         # compute robot actions
         action_panda = robotAtion(goal, panda_xyz, action_scale_panda)
         dist = np.linalg.norm(goal-panda_xyz)
-        if dist < 0.005:
+        if dist < 0.003:
             if waypoint == 3:
                 send2gripper(conn_gripper, 'c')
                 time.sleep(2)
@@ -245,12 +245,13 @@ def main(trajectory1, trajectory2):
 
     print('[*] Connecting to Panda...')
     PORT_robot = 8080
-    PORT_gripper = 8081
     conn = connect2robot(PORT_robot)
 
     print('[*] Connecting to Panda gripper...')
+    PORT_gripper = 8081
     conn_gripper = connect2gripper(PORT_gripper)
-    send2gripper(conn_gripper, 'o')
+    # send2gripper(conn_gripper, 'o')
+
 
     # send robots to home
     mover.send_joint(fetch_home, fetch_home_t)
