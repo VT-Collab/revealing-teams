@@ -7,7 +7,7 @@ import sys
 import rospy
 import actionlib
 import kinpy as kp
-from threading import Thread
+import threading
 
 
 from utils.fetch_kn import *
@@ -187,14 +187,31 @@ def joint2pose(q):
 '''-----------Panda-----------'''
 
 
+class Joystick(object):
+
+    def __init__(self):
+        pygame.init()
+        self.gamepad = pygame.joystick.Joystick(0)
+        self.gamepad.init()
+
+    def input(self):
+        pygame.event.get()
+        A_pressed = self.gamepad.get_button(0)
+        B_pressed = self.gamepad.get_button(1)
+        Start_pressed = self.gamepad.get_button(7)
+        return A_pressed, B_pressed
+
+
 def robotAtion(goal, cur_pos, action_scale):
     robot_error = (goal - cur_pos)/action_scale
     robot_action = [robot_error[0], robot_error[1], robot_error[2], 0, 0, 0]
     return robot_action
 
 
-def fetchThread(waypoint, goal, listener, fetch_robot, mover, action_scale_fetch = 1.5):
 
+def fetchThread(interface, waypoint, goal, listener, fetch_robot, mover, action_scale_fetch = 1.5):
+
+    pause = False
     while True:
         fetch_step_t = 0.1
         # current end-effector position
@@ -210,12 +227,31 @@ def fetchThread(waypoint, goal, listener, fetch_robot, mover, action_scale_fetch
             elif waypoint == 6:
                 mover.open_gripper()
             break
+
+        # pause and resume the robot
+        last_time = 0.0
+        sample_time = 0.5
+        A_pressed, B_pressed = interface.input()
+        if A_pressed and not pause:
+            pause = True
+            last_time = time.time()
+            # print('Task paused!')
+        if pause:
+            action_fetch = [0]*6
+        if B_pressed and pause:
+            curr_time = time.time()
+            if curr_time - last_time >= sample_time:
+                last_time = curr_time
+                pause = False
+                # print("Task continues!",'\n')
+
         # send commands to the robot
         mover.send(action_fetch, fetch_step_t)
 
 
-def pandaThread(waypoint, goal, conn, conn_gripper, action_scale_panda=1.5):
+def pandaThread(interface, waypoint, goal, conn, conn_gripper, action_scale_panda=1.5):
 
+    pause = False
     while True:
         # current end-effector position
         state_panda = readState(conn)
@@ -230,11 +266,30 @@ def pandaThread(waypoint, goal, conn, conn_gripper, action_scale_panda=1.5):
             elif waypoint == 6:
                 send2gripper(conn_gripper, 'o')
             break
+
+        # pause and resume the robot
+        last_time = 0.0
+        sample_time = 0.5
+        A_pressed, B_pressed = interface.input()
+        if A_pressed and not pause:
+            pause = True
+            last_time = time.time()
+            print('Task paused!')
+        if pause:
+            action_panda = [0]*6
+        if B_pressed and pause:
+            curr_time = time.time()
+            if curr_time - last_time >= sample_time:
+                last_time = curr_time
+                pause = False
+                print("Task continues!",'\n')
+
         # send action commands to the robot
         send2robot(conn, xdot2qdot(action_panda, state_panda))
 
 
 def main(trajectory1, trajectory2):
+    interface = Joystick()
 
     print('[*] Connecting to Fetch...')
     rospy.init_node("endeffector_teleop")
@@ -261,16 +316,17 @@ def main(trajectory1, trajectory2):
         waypoint = idx+1
         print('waypoint: ',waypoint)
 
-        t1 = Thread(target = fetchThread, args=(waypoint, trajectory1[idx],
-                                listener, fetch_robot, mover,))
-        t2 = Thread(target = pandaThread, args= (waypoint, trajectory2[idx], conn, conn_gripper))
+        t1 = threading.Thread(target = fetchThread,
+                args=(interface, waypoint, trajectory1[idx],listener, fetch_robot, mover,))
+        t2 = threading.Thread(target = pandaThread,
+                args= (interface, waypoint, trajectory2[idx], conn, conn_gripper))
 
         t1.start()
-        # time.sleep(0.01)
         t2.start()
 
         t1.join()
         t2.join()
+
 
 
 if __name__ == "__main__":
