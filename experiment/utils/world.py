@@ -5,11 +5,11 @@ import pickle
 
 
 
-
 def savedGoals(task, robot, goal_n):
-    filename = "../data/"+task+"/"+robot+"_"+goal_n+".pkl"
+    filename = "data/"+task+"/"+robot+"_"+goal_n+".pkl"
     waypoints = pickle.load(open(filename, "rb"))
     return waypoints
+
 
 def location(point, robot):
     if robot == 'panda':
@@ -33,7 +33,9 @@ def envAgents():
     # add as many agents as you want
     panda_loc = location(panda_p0, 'panda')
     fetch_loc = location(fetch_p0, 'fetch')
-    return panda_loc, fetch_loc
+    team_loc = [panda_loc, fetch_loc]
+    return team_loc
+
 
 def envGoals():
     # import Panda's recorded positions
@@ -50,6 +52,7 @@ def envGoals():
     fetch_goals = [list(goal1), list(goal2), list(goal3)]
     agent_goals = [panda_goals, fetch_goals]
     return goals, agent_goals
+
 
 def allocations():
     # define the subtasks and the possible subtask allocations
@@ -69,5 +72,11 @@ def allocations():
     return G
 
 
-
-allocations()
+# sets the location of the agents
+def updateState(team_loc, astar):
+    s = []
+    for idx in range(len(team_loc)):
+        action_idx = [astar[idx*3], astar[idx*3 + 1], astar[idx*3 + 2]]
+        s_idx = team_loc[idx] + action_idx
+        s += list(s_idx)
+    return s
