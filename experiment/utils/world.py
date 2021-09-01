@@ -33,7 +33,8 @@ def envAgents(task):
     # add as many agents as you want
     panda_loc = location(task, panda_p0, 'panda')
     fetch_loc = location(task, fetch_p0, 'fetch')
-    team_loc = [panda_loc, panda_loc]
+    # team_loc = [panda_loc, fetch_loc]
+    team_loc = [panda_loc, -panda_loc]
     return team_loc
 
 

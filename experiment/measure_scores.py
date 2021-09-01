@@ -27,7 +27,7 @@ def legibleRobots(team_loc, gstar_idx, gstar, A, G_ls):
     states = []
     step = 1
     p_aloc = np.ones(len(G_ls))
-    step_max = 15
+    step_max = 20
 
     while True:
         print(step)

@@ -21,7 +21,7 @@ for task in ['task1', 'task2']:
     ranked_scores = scores[scores[:, 1].argsort()]
 
     # sort based on fairness
-    ranked_scores = ranked_scores[ranked_scores[:,2].argsort(kind='mergesort')]
+    # ranked_scores = ranked_scores[ranked_scores[:,2].argsort(kind='mergesort')]
 
     ranked_scores = ranked_scores[::-1]
 
@@ -30,5 +30,5 @@ for task in ['task1', 'task2']:
         print(ranked_scores[i,0])
 
         # print('[*] Ranked based on fairness: ','\n',ranked_scores[i,0])
-    print(ranked_scores[:,2:3])
+    print(ranked_scores[:,1])
     print('\n')
