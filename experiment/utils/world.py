@@ -10,32 +10,31 @@ def savedGoals(task, robot, goal_n):
     waypoints = pickle.load(open(filename, "rb"))
     return waypoints
 
-
-def location(task, ref_robot, object):
-    # initial end-effector positions
-    fetch_p0 = np.array([0.51211858, 0.21932284, 1.02747358])
-    panda_p0 = np.array([ 3.10175333e-01, -4.84159689e-06,  4.87596777e-01])
-    # let's set the global reference at Panda
-    # this function finds the distance from Panda
-    if ref_robot == 'panda':
-        obj_xyz = savedGoals(task, 'panda', object)
-        position = obj_xyz[-1] - panda_p0
-        print(position)
-        x
-    if ref_robot == 'fetch':
-        # compute the fetch's home position from object 1
-        fetch_to_obj1 = savedGoals(task, 'fetch', object)
-        obj1_pos = fetch_to_obj1[2]
-    return position
+def transform(p, back_to_fetch=False):
+    location = np.concatenate((p,np.array([1])), axis=0)
+    # compute the distance between fetch and panda
+    panda_to_obj1 = savedGoals('task1', 'panda', '1')
+    fetch_to_obj1 = savedGoals('task1', 'fetch', '1')
+    dx = panda_to_obj1[2][0]+fetch_to_obj1[2][0]
+    dy = fetch_to_obj1[2][1]-panda_to_obj1[2][1]
+    if back_to_fetch:
+        dz = fetch_to_obj1[2][2]
+    else:
+        dz = -fetch_to_obj1[2][2]
+    # transformation matrix (rotation Z axis + translation)
+    T = np.array([[np.cos(np.pi),-np.sin(np.pi),0,dx],
+                [np.sin(np.pi),np.cos(np.pi),0,dy],
+                [0,0,1,dz],
+                [0,0,0,1]])
+    p_prime = np.matmul(T,location)
+    return p_prime[:3]
 
 
 def envAgents(task):
-
-    # add as many agents as you want
-    panda_loc = location(task, 'panda')
-    fetch_loc = location(task, 'fetch')
-    # team_loc = [panda_loc, fetch_loc]
-    team_loc = [panda_loc, -panda_loc]
+    # initial end-effector positions
+    panda_p0 = np.array([ 3.10175333e-01, -4.84159689e-06,  4.87596777e-01])
+    fetch_p0 = np.array([0.51211858, 0.21932284, 1.02747358])
+    team_loc = [panda_p0, transform(fetch_p0)]
     return team_loc
 
 
@@ -44,10 +43,10 @@ def envGoals(task):
     panda_to_obj1 = savedGoals(task, 'panda', '1')
     panda_to_obj2 = savedGoals(task, 'panda', '2')
     panda_to_obj3 = savedGoals(task, 'panda', '3')
-    # compute the location of each goal wrt object 1
-    goal1 = location(task, panda_to_obj1[2], 'panda')
-    goal2 = location(task, panda_to_obj2[2], 'panda')
-    goal3 = location(task, panda_to_obj3[2], 'panda')
+    # the location of each goal from panda
+    goal1 = panda_to_obj1[2]
+    goal2 = panda_to_obj2[2]
+    goal3 = panda_to_obj3[2]
     goals = [goal1, goal2, goal3]
     # each agent's goal options
     panda_goals = [list(goal1), list(goal2), list(goal3)]
@@ -72,7 +71,6 @@ def allocations(task):
     del G['panda1 , fetch1']
     del G['panda2 , fetch2']
     del G['panda3 , fetch3']
-
     return G, G_ls
 
 

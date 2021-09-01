@@ -161,7 +161,6 @@ def main():
     positions = []
 
     while not rospy.is_shutdown():
-
         axes, buttons, stop = joystick.getInput()
         if stop:
             pickle.dump(positions, open(savename_number, "wb"))
