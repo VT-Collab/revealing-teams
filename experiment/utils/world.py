@@ -11,28 +11,29 @@ def savedGoals(task, robot, goal_n):
     return waypoints
 
 
-def location(task, point, robot):
-    if robot == 'panda':
-        # let's set the global reference at object 1 based on Panda recorded positions
-        # we use this to find the distance from
-        # object 1 to Panda's home, object 2, and object 3
-        panda_to_obj1 = savedGoals(task, 'panda', '1')
-        obj1_pos = panda_to_obj1[2]
-    if robot == 'fetch':
+def location(task, ref_robot, object):
+    # initial end-effector positions
+    fetch_p0 = np.array([0.51211858, 0.21932284, 1.02747358])
+    panda_p0 = np.array([ 3.10175333e-01, -4.84159689e-06,  4.87596777e-01])
+    # let's set the global reference at Panda
+    # this function finds the distance from Panda
+    if ref_robot == 'panda':
+        obj_xyz = savedGoals(task, 'panda', object)
+        position = obj_xyz[-1] - panda_p0
+        print(position)
+        x
+    if ref_robot == 'fetch':
         # compute the fetch's home position from object 1
-        fetch_to_obj1 = savedGoals(task, 'fetch', '1')
+        fetch_to_obj1 = savedGoals(task, 'fetch', object)
         obj1_pos = fetch_to_obj1[2]
-    position = point - obj1_pos
     return position
 
 
 def envAgents(task):
-    # initial end-effector positions
-    fetch_p0 = [0.51211858, 0.21932284, 1.02747358]
-    panda_p0 = [ 3.10175333e-01, -4.84159689e-06,  4.87596777e-01]
+
     # add as many agents as you want
-    panda_loc = location(task, panda_p0, 'panda')
-    fetch_loc = location(task, fetch_p0, 'fetch')
+    panda_loc = location(task, 'panda')
+    fetch_loc = location(task, 'fetch')
     # team_loc = [panda_loc, fetch_loc]
     team_loc = [panda_loc, -panda_loc]
     return team_loc
