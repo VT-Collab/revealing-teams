@@ -62,13 +62,14 @@ def allocations(task):
     for idx, goal_a1 in enumerate(agent_goals[0]):
         for idy, goal_a2 in enumerate(agent_goals[1]):
             tau = np.asarray(goal_a1 + goal_a2)
-            alloc_name = 'panda' + str(idx+1) + ',fetch' + str(idy+1)
+            alloc_name = 'panda' + str(idx+1) + ' , fetch' + str(idy+1)
             G[alloc_name] = tau
-            G_ls.append(tau)
+            if idx != idy:
+                G_ls.append(tau)
     # remove same-goal allocations: don't want robots bump to each other
-    del G['panda1,fetch1']
-    del G['panda2,fetch2']
-    del G['panda3,fetch3']
+    del G['panda1 , fetch1']
+    del G['panda2 , fetch2']
+    del G['panda3 , fetch3']
 
     return G, G_ls
 
