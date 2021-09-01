@@ -56,20 +56,21 @@ def envGoals(task):
 
 def allocations(task):
     # define the subtasks and the possible subtask allocations
-    G = []
+    G = {}
+    G_ls = []
     goals, agent_goals = envGoals(task)
-    for goal_a1 in agent_goals[0]:
-        for goal_a2 in agent_goals[1]:
+    for idx, goal_a1 in enumerate(agent_goals[0]):
+        for idy, goal_a2 in enumerate(agent_goals[1]):
             tau = np.asarray(goal_a1 + goal_a2)
-            G.append(tau)
+            alloc_name = 'panda' + str(idx+1) + ',fetch' + str(idy+1)
+            G[alloc_name] = tau
+            G_ls.append(tau)
     # remove same-goal allocations: don't want robots bump to each other
-    match = []
-    for g in G:
-        if np.all(g[:3] == g[3:]):
-            match.append(g)
-    for item in match:
-        G = [x for x in G if not (x==item).all()]
-    return G
+    del G['panda1,fetch1']
+    del G['panda2,fetch2']
+    del G['panda3,fetch3']
+
+    return G, G_ls
 
 
 # sets the location of the agents

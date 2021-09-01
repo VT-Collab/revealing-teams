@@ -9,9 +9,9 @@ from utils.world import envAgents, envGoals, allocations, updateState
 
 
 # bayes rule with boltzmann rational
-def bayes(s, a, A, G, beta=20.0):
+def bayes(s, a, A, G_ls, beta=20.0):
     P = []
-    for g in G:
+    for g in G_ls:
         num = np.exp(-beta * np.linalg.norm(g - (s + a)))
         den = 0
         for ap in A:
@@ -21,12 +21,12 @@ def bayes(s, a, A, G, beta=20.0):
     return P / sum(P)
 
 
-def legibleRobots(team_loc, gstar_idx, gstar, A, G):
+def legibleRobots(team_loc, gstar_idx, gstar, A, G_ls):
     # constrained optimization to find revealing but efficient action
     s = list(team_loc[0]) + list(team_loc[1])
     states = []
     step = 1
-    p_aloc = np.ones(len(G))
+    p_aloc = np.ones(len(G_ls))
     step_max = 20
 
     while True:
@@ -40,7 +40,7 @@ def legibleRobots(team_loc, gstar_idx, gstar, A, G):
         value = -np.Inf
         astar = None
         for a in A:
-            likelihood = bayes(s, a, A, G)
+            likelihood = bayes(s, a, A, G_ls)
             if likelihood[gstar_idx] > value and Qmax - Q[str(a)] < epsilon:
                 astar = np.copy(a)
                 value = likelihood[gstar_idx]
@@ -51,7 +51,7 @@ def legibleRobots(team_loc, gstar_idx, gstar, A, G):
         step +=1
 
         # if step <= step_max:
-        p_aloc = np.multiply(p_aloc, bayes(s, astar, A, G))
+        p_aloc = np.multiply(p_aloc, bayes(s, astar, A, G_ls))
         if step == step_max:
             print("[*] Done!", '\n')
             break
@@ -63,23 +63,23 @@ def main():
     task = sys.argv[1]
     team_loc = envAgents(task)
     goals, agent_goals = envGoals(task)
-    G = allocations(task)
+    G, G_ls = allocations(task)
     A = actionSpace()
 
     # main loop
     states = []
     scores = np.empty([len(G),4])
     P_aloc = np.empty([len(G),len(G)])
-
-    for gstar_idx in range(len(G)):
+    gstar_idx = 0
+    for key, positions in G.items():
         # pick the desired allocation
-        gstar = np.copy(G[gstar_idx])
-        print('[*] Allocation: ', gstar_idx+1)
+        gstar = np.copy(G[key])
+        print('[*] Allocation ', gstar_idx+1,':', key)
 
         # compute distance to goals for each agent
         Dist = np.empty([len(G),len(team_loc)])
         s0 = list(team_loc[0]) + list(team_loc[1])
-        dist = abs(s0- gstar)
+        dist = abs(s0-gstar)
         dist_normed = []
         for idx in range(len(dist)):
           if idx % 3 == 0:
@@ -87,7 +87,7 @@ def main():
         Dist[gstar_idx] = dist_normed
 
         # legible robot motion
-        P_aloc[gstar_idx], states_r = legibleRobots(team_loc, gstar_idx, gstar, A, G)
+        P_aloc[gstar_idx], states_r = legibleRobots(team_loc, gstar_idx, gstar, A, G_ls)
         states.append(states_r)
 
         # index allocations
@@ -99,7 +99,8 @@ def main():
         # ability score of allocations (i.e., human distance to goal)
         scores[gstar_idx,3] = Dist[gstar_idx][0]
 
-    print(scores)
+        gstar_idx += 1
+
     # create save paths and store the data
     savename1 = "data/"+task+"/allocations.pkl"
     pickle.dump(G, open(savename1, "wb"))
