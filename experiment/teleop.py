@@ -11,7 +11,7 @@ import threading
 
 
 from utils.fetch_kn import *
-from utils.panda_home import main as panda_return
+from utils.panda_home import main as send_panda_home
 
 from control_msgs.msg import (
     FollowJointTrajectoryAction,
@@ -208,7 +208,6 @@ def robotAtion(goal, cur_pos, action_scale):
     return robot_action
 
 
-
 def fetchThread(interface, waypoint, goal, listener, fetch_robot, mover, action_scale_fetch = 1.5):
 
     pause = False
@@ -310,7 +309,7 @@ def main(trajectory1, trajectory2):
 
     # send robots to home
     mover.send_joint(fetch_home, fetch_home_t)
-    panda_return(conn)
+    send_panda_home(conn)
 
     for idx in range(len(trajectory2)):
         waypoint = idx+1
