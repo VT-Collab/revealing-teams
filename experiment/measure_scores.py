@@ -68,7 +68,7 @@ def main():
 
     # main loop
     states = []
-    scores = np.empty([len(G),4])
+    scores = np.empty([len(G),4], dtype=object)
     P_aloc = np.empty([len(G),len(G)])
     gstar_idx = 0
     for key, positions in G.items():
@@ -91,7 +91,7 @@ def main():
         states.append(states_r)
 
         # index allocations
-        scores[gstar_idx,0] = gstar_idx + 1
+        scores[gstar_idx,0] = key
         # legibility of allocations
         scores[gstar_idx,1] = np.max(P_aloc[gstar_idx])
         # fairness of allocations (i.e., variance of distances to goals)
