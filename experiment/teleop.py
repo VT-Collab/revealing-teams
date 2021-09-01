@@ -199,7 +199,7 @@ class Joystick(object):
         A_pressed = self.gamepad.get_button(0)
         B_pressed = self.gamepad.get_button(1)
         Start_pressed = self.gamepad.get_button(7)
-        return A_pressed, B_pressed
+        return A_pressed, Start_pressed
 
 
 def robotAtion(goal, cur_pos, action_scale):
@@ -230,14 +230,14 @@ def fetchThread(interface, waypoint, goal, listener, fetch_robot, mover, action_
         # pause and resume the robot
         last_time = 0.0
         sample_time = 0.5
-        A_pressed, B_pressed = interface.input()
+        A_pressed, Start_pressed = interface.input()
         if A_pressed and not pause:
             pause = True
             last_time = time.time()
             # print('Task paused!')
         if pause:
             action_fetch = [0]*6
-        if B_pressed and pause:
+        if Start_pressed and pause:
             curr_time = time.time()
             if curr_time - last_time >= sample_time:
                 last_time = curr_time
@@ -269,19 +269,19 @@ def pandaThread(interface, waypoint, goal, conn, conn_gripper, action_scale_pand
         # pause and resume the robot
         last_time = 0.0
         sample_time = 0.5
-        A_pressed, B_pressed = interface.input()
+        A_pressed, Start_pressed = interface.input()
         if A_pressed and not pause:
             pause = True
             last_time = time.time()
             print('Task paused!')
         if pause:
             action_panda = [0]*6
-        if B_pressed and pause:
+        if Start_pressed and pause:
             curr_time = time.time()
             if curr_time - last_time >= sample_time:
                 last_time = curr_time
                 pause = False
-                print("Task continues!",'\n')
+                print("Task continues!")
 
         # send action commands to the robot
         send2robot(conn, xdot2qdot(action_panda, state_panda))
@@ -312,6 +312,7 @@ def main(trajectory1, trajectory2):
     send_panda_home(conn)
 
     for idx in range(len(trajectory2)):
+        print('\n')
         waypoint = idx+1
         print('waypoint: ',waypoint)
 

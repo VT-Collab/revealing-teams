@@ -27,9 +27,10 @@ def legibleRobots(team_loc, gstar_idx, gstar, A, G_ls):
     states = []
     step = 1
     p_aloc = np.ones(len(G_ls))
-    step_max = 20
+    step_max = 15
 
     while True:
+        print(step)
         epsilon = 0.02
         Q = {}
         Qmax = -np.Inf
@@ -50,11 +51,11 @@ def legibleRobots(team_loc, gstar_idx, gstar, A, G_ls):
         states.append(s)
         step +=1
 
-        # if step <= step_max:
-        p_aloc = np.multiply(p_aloc, bayes(s, astar, A, G_ls))
-        if step == step_max:
-            print("[*] Done!", '\n')
-            break
+        if step <= step_max:
+            p_aloc = np.multiply(p_aloc, bayes(s, astar, A, G_ls))
+            if step == step_max:
+                print("[*] Done!", '\n')
+                break
 
     return p_aloc/np.sum(p_aloc), states
 
