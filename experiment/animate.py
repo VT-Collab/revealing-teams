@@ -49,7 +49,6 @@ def savedStates(task):
     states = pickle.load(open(filename3, "rb"))
     return states
 
-
 def main():
     # pick which task to simulate
     task = sys.argv[1]
