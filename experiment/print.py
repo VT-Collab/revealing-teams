@@ -5,18 +5,16 @@ import pickle
 import sys
 
 from utils.world import *
+from utils.robot_actions import actionSpace
 
+# def savedGoals(task, data):
+#     filename = 'data/'+task+'/'+data+'.pkl'
+#     # filename = 'data/'+task+'/scores.pkl'
+#     waypoints = pickle.load(open(filename, "rb"))
+#     return waypoints
 
-def savedGoals(task, data):
-    filename = 'data/'+task+'/'+data+'.pkl'
-    # filename = 'data/'+task+'/scores.pkl'
-    waypoints = pickle.load(open(filename, "rb"))
-    return waypoints
-
-
-
-states = savedGoals('task2', 'robots_states')
-print(states)
+A = actionSpace()
+print(A)
 
 
 # for task in ['task1', 'task2']:
