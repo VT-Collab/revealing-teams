@@ -81,7 +81,7 @@ def envAgents():
     fetch_p0 = transform(np.array([0.71579027, 0.19279565, 0.74217811]))
     # add as many agents as you want
     agent_r1 = Object(coord(panda_p0[0], panda_p0[1]), [0, 0, 255], 25, 'agent')
-    agent_r2 = Object(coord(fetch_p0[0], fetch_p0[1]), [255, 0, 0], 25, 'agent')
+    agent_r2 = Object(coord(float(fetch_p0[0]), float(fetch_p0[1])), [255, 0, 0], 25, 'agent')
     team = [agent_r1, agent_r2]
     return team
 
@@ -100,6 +100,24 @@ def envGoals(task):
     agent2_goal = [list(goal1.state), list(goal2.state), list(goal3.state)]
     agent_goals = [agent1_goal, agent2_goal]
     return goals, agent_goals
+
+def allocations(task):
+    # define the subtasks and the possible subtask allocations
+    G = {}
+    G_ls = []
+    goals, agent_goals = envGoals(task)
+    for idx, goal_a1 in enumerate(agent_goals[0]):
+        for idy, goal_a2 in enumerate(agent_goals[1]):
+            tau = np.asarray(goal_a1 + goal_a2)
+            alloc_name = 'panda' + str(idx+1) + ' , fetch' + str(idy+1)
+            G[alloc_name] = tau
+            if idx != idy:
+                G_ls.append(tau)
+    # remove same-goal allocations: don't want robots bump to each other
+    del G['panda1 , fetch1']
+    del G['panda2 , fetch2']
+    del G['panda3 , fetch3']
+    return G, G_ls
 
 def initGroup(sprite_list, goals, team):
     for goal in goals:

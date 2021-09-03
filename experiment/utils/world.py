@@ -30,7 +30,7 @@ def transform(p, back_to_fetch=False):
     return p_prime[:3]
 
 
-def envAgents(task):
+def envAgents():
     # initial end-effector positions
     panda_p0 = np.array([0.38204478, 0.01169821, 0.24424794])
     fetch_p0 = np.array([0.71579027, 0.19279565, 0.74217811])
@@ -78,7 +78,7 @@ def allocations(task):
 def updateState(team_loc, astar):
     s = []
     for idx in range(len(team_loc)):
-        action_idx = [astar[idx*3], astar[idx*3 + 1], astar[idx*3 + 2]]
+        action_idx = [astar[idx*2], astar[idx*2 + 1]]
         s_idx = team_loc[idx] + action_idx
         s += list(s_idx)
     return s

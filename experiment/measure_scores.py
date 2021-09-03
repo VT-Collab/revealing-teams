@@ -5,13 +5,13 @@ import pickle
 import sys
 
 from utils.robot_actions import actionSpace
-from utils.world import envAgents, envGoals, allocations, updateState
+from utils.grid_world import *
 
 
 # bayes rule with boltzmann rational
-def bayes(s, a, A, G_ls, beta=20.0):
+def bayes(s, a, A, G, beta=20.0):
     P = []
-    for g in G_ls:
+    for g in G:
         num = np.exp(-beta * np.linalg.norm(g - (s + a)))
         den = 0
         for ap in A:
@@ -21,16 +21,15 @@ def bayes(s, a, A, G_ls, beta=20.0):
     return P / sum(P)
 
 
-def legibleRobots(team_loc, gstar_idx, gstar, A, G_ls):
+def legibleRobots(team, gstar_idx, gstar, A, G):
     # constrained optimization to find revealing but efficient action
-    s = list(team_loc[0][:2]) + list(team_loc[1][:2])
     states = []
+    step_max = 5
     step = 1
-    p_aloc = np.ones(len(G_ls))
-    step_max = 20
-
+    p_aloc = np.ones(len(G))
     while True:
         print(step)
+        s = getState(team)
         epsilon = 0.02
         Q = {}
         Qmax = -np.Inf
@@ -41,28 +40,28 @@ def legibleRobots(team_loc, gstar_idx, gstar, A, G_ls):
         value = -np.Inf
         astar = None
         for a in A:
-            likelihood = bayes(s, a, A, G_ls)
+            likelihood = bayes(s, a, A, G)
             if likelihood[gstar_idx] > value and Qmax - Q[str(a)] < epsilon:
                 astar = np.copy(a)
                 value = likelihood[gstar_idx]
 
         # update for next time step
-        s = updateState(team_loc, astar)
-        states.append(s)
+        updateState(team, s + astar)
+        states.append(s+astar)
         step +=1
 
-        # if step <= step_max:
-        p_aloc = np.multiply(p_aloc, bayes(s, astar, A, G_ls))
-        if step == step_max:
-            print("[*] Done!", '\n')
-            break
+        if step <= step_max:
+            p_aloc = np.multiply(p_aloc, bayes(s, astar, A, G))
+            if step == step_max:
+                print("[*] Done!", '\n')
+                break
 
     return p_aloc/np.sum(p_aloc), states
 
 
 def main():
     task = sys.argv[1]
-    team_loc = envAgents(task)
+    team_loc = envAgents()
     goals, agent_goals = envGoals(task)
     G, G_ls = allocations(task)
     A = actionSpace()
@@ -80,7 +79,7 @@ def main():
 
         # compute distance to goals for each agent
         Dist = np.empty([len(G),len(team_loc)])
-        s0 = list(team_loc[0][:2]) + list(team_loc[1][:2])
+        s0 = list(team_loc[0].state) + list(team_loc[1].state)
         dist = abs(s0-gstar)
         dist_normed = []
         for idx in range(len(dist)):
