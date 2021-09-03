@@ -87,7 +87,7 @@ def main():
             dist_normed.append(np.linalg.norm(dist[idx:idx+2]))
         Dist[gstar_idx] = dist_normed
 
-        # legible robot motion
+        # legible robot motion f
         P_aloc[gstar_idx], states_r = legibleRobots(team_loc, gstar_idx, gstar, A, G_ls)
         states.append(states_r)
 
