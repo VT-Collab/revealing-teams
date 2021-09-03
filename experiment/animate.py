@@ -3,7 +3,6 @@ from utils.grid_world import (
         resetPos, envAgents, envGoals, initGroup
 )
 from utils.robot_actions import actionSpace
-from utils.grid_world import coord
 
 import pygame
 import sys
@@ -27,10 +26,6 @@ def animate(sprite_list, team, states, gstar_idx):
     image_name = '{}_{}_{}_{}.png'.format('alloc', str(gstar_idx), 'frame', '0')
     # pygame.image.save(world, '{}/{}'.format('screenshots', image_name))
     for state in states:
-        state.remove(state[2])
-        state.remove(state[-1])
-        state = list(coord(state[0],state[1]))+ list(coord(state[2],state[3]))
-
         # print(state)
         # update for next time step
         updateState(team, state)

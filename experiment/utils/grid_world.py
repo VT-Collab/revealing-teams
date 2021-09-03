@@ -71,7 +71,7 @@ def resetPos(team):
     for idx, agent in enumerate(team):
         agent_reset = agent.update(agent.reset())
 
-def coord(x,y):
+def transformToPygame(x,y):
     "Convert world coordinates to pixel coordinates."
     return (x-0.2, -y+0.5)
 
@@ -80,8 +80,8 @@ def envAgents():
     panda_p0 = np.array([0.38204478, 0.01169821, 0.24424794])
     fetch_p0 = transform(np.array([0.71579027, 0.19279565, 0.74217811]))
     # add as many agents as you want
-    agent_r1 = Object(coord(panda_p0[0], panda_p0[1]), [0, 0, 255], 25, 'agent')
-    agent_r2 = Object(coord(float(fetch_p0[0]), float(fetch_p0[1])), [255, 0, 0], 25, 'agent')
+    agent_r1 = Object(transformToPygame(panda_p0[0], panda_p0[1]), [0, 0, 255], 25, 'agent')
+    agent_r2 = Object(transformToPygame(float(fetch_p0[0]), float(fetch_p0[1])), [255, 0, 0], 25, 'agent')
     team = [agent_r1, agent_r2]
     return team
 
@@ -91,15 +91,19 @@ def envGoals(task):
     panda_to_obj2 = savedGoals(task, 'panda', '2')
     panda_to_obj3 = savedGoals(task, 'panda', '3')
     # define the subtasks and the possible subtask allocations
-    goal1 = Object(coord(panda_to_obj1[1][0], panda_to_obj1[1][1]), [255, 153, 0], 50, 'goal1')
-    goal2 = Object(coord(panda_to_obj2[1][0], panda_to_obj2[1][1]), [255, 153, 0], 150, 'goal2')
-    goal3 = Object(coord(panda_to_obj3[1][0], panda_to_obj3[1][1]), [255, 153, 0], 50, 'goal3')
+    goal1 = Object(transformToPygame(panda_to_obj1[1][0], panda_to_obj1[1][1]),
+                    [255, 153, 0], 50, 'goal1')
+    goal2 = Object(transformToPygame(panda_to_obj2[1][0], panda_to_obj2[1][1]),
+                    [255, 153, 0], 150, 'goal2')
+    goal3 = Object(transformToPygame(panda_to_obj3[1][0], panda_to_obj3[1][1]),
+                    [255, 153, 0], 50, 'goal3')
     goals = [goal1, goal2, goal3]
     # each agent's goal options
     agent1_goal = [list(goal1.state), list(goal2.state), list(goal3.state)]
     agent2_goal = [list(goal1.state), list(goal2.state), list(goal3.state)]
     agent_goals = [agent1_goal, agent2_goal]
     return goals, agent_goals
+
 
 def allocations(task):
     # define the subtasks and the possible subtask allocations

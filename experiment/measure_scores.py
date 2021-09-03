@@ -53,6 +53,7 @@ def legibleRobots(team, gstar_idx, gstar, A, G):
         # if step <= step_max:
         p_aloc = np.multiply(p_aloc, bayes(s, astar, A, G))
         if step == step_max:
+        # if np.linalg.norm(gstar - s) < 0.002:
             print("[*] Done!", '\n')
             break
 
