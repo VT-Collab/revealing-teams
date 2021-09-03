@@ -23,7 +23,7 @@ def bayes(s, a, A, G_ls, beta=20.0):
 
 def legibleRobots(team_loc, gstar_idx, gstar, A, G_ls):
     # constrained optimization to find revealing but efficient action
-    s = list(team_loc[0]) + list(team_loc[1])
+    s = list(team_loc[0][:2]) + list(team_loc[1][:2])
     states = []
     step = 1
     p_aloc = np.ones(len(G_ls))
@@ -72,6 +72,7 @@ def main():
     scores = np.empty([len(G),4], dtype=object)
     P_aloc = np.empty([len(G),len(G)])
     gstar_idx = 0
+
     for key, positions in G.items():
         # pick the desired allocation
         gstar = np.copy(G[key])
@@ -79,12 +80,12 @@ def main():
 
         # compute distance to goals for each agent
         Dist = np.empty([len(G),len(team_loc)])
-        s0 = list(team_loc[0]) + list(team_loc[1])
+        s0 = list(team_loc[0][:2]) + list(team_loc[1][:2])
         dist = abs(s0-gstar)
         dist_normed = []
         for idx in range(len(dist)):
-          if idx % 3 == 0:
-            dist_normed.append(np.linalg.norm(dist[idx:idx+3]))
+          if idx % 2 == 0:
+            dist_normed.append(np.linalg.norm(dist[idx:idx+2]))
         Dist[gstar_idx] = dist_normed
 
         # legible robot motion

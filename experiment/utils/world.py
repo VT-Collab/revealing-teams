@@ -32,8 +32,8 @@ def transform(p, back_to_fetch=False):
 
 def envAgents(task):
     # initial end-effector positions
-    panda_p0 = np.array([ 3.10175333e-01, -4.84159689e-06,  4.87596777e-01])
-    fetch_p0 = np.array([0.51211858, 0.21932284, 1.02747358])
+    panda_p0 = np.array([0.38204478, 0.01169821, 0.24424794])
+    fetch_p0 = np.array([0.71579027, 0.19279565, 0.74217811])
     team_loc = [panda_p0, transform(fetch_p0)]
     return team_loc
 
@@ -44,9 +44,9 @@ def envGoals(task):
     panda_to_obj2 = savedGoals(task, 'panda', '2')
     panda_to_obj3 = savedGoals(task, 'panda', '3')
     # the location of each goal from panda
-    goal1 = panda_to_obj1[2]
-    goal2 = panda_to_obj2[2]
-    goal3 = panda_to_obj3[2]
+    goal1 = panda_to_obj1[1][:2]
+    goal2 = panda_to_obj2[1][:2]
+    goal3 = panda_to_obj3[1][:2]
     goals = [goal1, goal2, goal3]
     # each agent's goal options
     panda_goals = [list(goal1), list(goal2), list(goal3)]

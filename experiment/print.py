@@ -4,29 +4,45 @@ import time
 import pickle
 import sys
 import socket
+import matplotlib.pyplot as plt
+
 
 from utils.world import *
 from utils.robot_actions import actionSpace
 from utils.panda_home import main
+from utils.grid_world import *
+
+
+envGoals('task1')
+
+
+
+
+
+
+
+
+
+
+
+# # plot robot actions
+# A = actionSpace()
+# for a in A:
+#     x1 = a[0]
+#     y1 = a[1]
+#     x2 = a[2]
+#     y2 = a[3]
+#     plt.scatter(x1,y1)
+#     plt.scatter(x2,y2)
+# plt.show()
+
+
 
 # def savedGoals(task, data):
 #     filename = 'data/'+task+'/'+data+'.pkl'
 #     # filename = 'data/'+task+'/scores.pkl'
 #     waypoints = pickle.load(open(filename, "rb"))
 #     return waypoints
-def connect2robot(PORT):
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    s.bind(('172.16.0.3', PORT))
-    s.listen(10)
-    conn, addr = s.accept()
-    return conn
-
-print('[*] Connecting to Panda...')
-PORT_robot = 8080
-conn = connect2robot(PORT_robot)
-main(conn)
-
 
 
 # for task in ['task1', 'task2']:
