@@ -50,11 +50,11 @@ def legibleRobots(team, gstar_idx, gstar, A, G):
         states.append(s+astar)
         step +=1
 
-        if step <= step_max:
-            p_aloc = np.multiply(p_aloc, bayes(s, astar, A, G))
-            if step == step_max:
-                print("[*] Done!", '\n')
-                break
+        # if step <= step_max:
+        p_aloc = np.multiply(p_aloc, bayes(s, astar, A, G))
+        if step == step_max:
+            print("[*] Done!", '\n')
+            break
 
     return p_aloc/np.sum(p_aloc), states
 
