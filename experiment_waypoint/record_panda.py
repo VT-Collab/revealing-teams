@@ -7,7 +7,7 @@ import pickle
 import time
 
 from utils.panda_demo import *
-from utils.panda_home import main as send_panda_home
+
 from sensor_msgs.msg import (
       JointState
 )
@@ -36,7 +36,6 @@ def main():
     print('[*] Connecting to low-level controller...')
     conn = connect2robot(PORT)
     print('[*] Connected to Panda')
-    # send_panda_home(conn)
     savename_number = 'data/'+task+'/panda_' + block + ".pkl"
     last_time = 0.0
     sample_time = 0.2

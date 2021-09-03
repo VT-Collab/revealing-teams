@@ -3,30 +3,18 @@ import random
 import time
 import pickle
 import sys
-import socket
 
 from utils.world import *
 from utils.robot_actions import actionSpace
-from utils.panda_home import main
 
 # def savedGoals(task, data):
 #     filename = 'data/'+task+'/'+data+'.pkl'
 #     # filename = 'data/'+task+'/scores.pkl'
 #     waypoints = pickle.load(open(filename, "rb"))
 #     return waypoints
-def connect2robot(PORT):
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    s.bind(('172.16.0.3', PORT))
-    s.listen(10)
-    conn, addr = s.accept()
-    return conn
 
-print('[*] Connecting to Panda...')
-PORT_robot = 8080
-conn = connect2robot(PORT_robot)
-main(conn)
-
+A = actionSpace()
+print(A)
 
 
 # for task in ['task1', 'task2']:

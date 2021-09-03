@@ -15,7 +15,7 @@ import utils.panda_demo as utils
     run ./collab/velocity_control
 """
 
-home1 = np.asarray([1.859800e-02, -4.097640e-01,  1.386300e-02, -2.745454e+00, 2.011000e-03,  2.363305e+00, -7.419260e-01]) # Original Home
+home1 = np.asarray([0.000297636, -0.785294, -0.000218009, -2.3567, 0.000397658, 1.57042, -0.785205]) # Original Home
 
 def return_home(conn, home):
     print('[*] Returning to Home!')
