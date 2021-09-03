@@ -9,28 +9,13 @@ from utils.world import savedGoals, transform
 # class for the objects on the screen (agents, goals, etc.)
 class Object(pygame.sprite.Sprite):
 
-    def __init__(self, position, color, size, type):
+    def __init__(self, position, color, size):
 
         # create square sprite
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.Surface((size, size), pygame.SRCALPHA)
         self.rect = self.image.get_rect()
-
-        if type == 'agent':
-            self.image.fill(color)
-        elif type == 'goal1':
-            radius = size // 2
-            pygame.draw.circle(self.image, color, (radius, radius), radius)
-        elif type == 'goal2':
-            radius = size // 2
-            h = int(np.sqrt(size**2-(size/2)**2))
-            pygame.draw.polygon(self.image, color, [(h, radius), (radius, radius),
-                    (radius, h)])
-        else:
-            pygame.draw.rect(self.image, color,
-            (position[0], 5*position[1], 5*size, size))
-
-
+        self.image.fill(color)
         # initial conditions
         self.start_x = position[0]
         self.start_y = position[1]
@@ -80,8 +65,8 @@ def envAgents():
     panda_p0 = np.array([0.38204478, 0.01169821, 0.24424794])
     fetch_p0 = transform(np.array([0.71579027, 0.19279565, 0.74217811]))
     # add as many agents as you want
-    agent_r1 = Object(transformToPygame(panda_p0[0], panda_p0[1]), [0, 0, 255], 25, 'agent')
-    agent_r2 = Object(transformToPygame(float(fetch_p0[0]), float(fetch_p0[1])), [255, 0, 0], 25, 'agent')
+    agent_r1 = Object(transformToPygame(panda_p0[0], panda_p0[1]), [0, 0, 255], 25)
+    agent_r2 = Object(transformToPygame(float(fetch_p0[0]), float(fetch_p0[1])), [255, 0, 0], 25)
     team = [agent_r1, agent_r2]
     return team
 
@@ -92,11 +77,11 @@ def envGoals(task):
     panda_to_obj3 = savedGoals(task, 'panda', '3')
     # define the subtasks and the possible subtask allocations
     goal1 = Object(transformToPygame(panda_to_obj1[1][0], panda_to_obj1[1][1]),
-                    [255, 153, 0], 50, 'goal1')
+                    [255, 153, 0], 50)
     goal2 = Object(transformToPygame(panda_to_obj2[1][0], panda_to_obj2[1][1]),
-                    [255, 153, 0], 150, 'goal2')
+                    [255, 153, 0], 50)
     goal3 = Object(transformToPygame(panda_to_obj3[1][0], panda_to_obj3[1][1]),
-                    [255, 153, 0], 50, 'goal3')
+                    [255, 153, 0], 50)
     goals = [goal1, goal2, goal3]
     # each agent's goal options
     agent1_goal = [list(goal1.state), list(goal2.state), list(goal3.state)]

@@ -24,13 +24,13 @@ def bayes(s, a, A, G, beta=20.0):
 def legibleRobots(team, gstar_idx, gstar, A, G):
     # constrained optimization to find revealing but efficient action
     states = []
-    step_max = 5
     step = 1
+    step_max = 45
     p_aloc = np.ones(len(G))
     while True:
         print(step)
         s = getState(team)
-        epsilon = 0.02
+        epsilon = 0.005
         Q = {}
         Qmax = -np.Inf
         for a in A:
@@ -45,27 +45,36 @@ def legibleRobots(team, gstar_idx, gstar, A, G):
                 astar = np.copy(a)
                 value = likelihood[gstar_idx]
 
+        threshold = 0.02
+        if np.linalg.norm(gstar[:2] - s[:2]) < threshold:
+            astar[:2] = [0,0]
+        elif np.linalg.norm(gstar[2:] - s[2:]) < threshold:
+            astar[2:] = [0,0]
+
         # update for next time step
         updateState(team, s + astar)
         states.append(s+astar)
         step +=1
 
-        # if step <= step_max:
-        p_aloc = np.multiply(p_aloc, bayes(s, astar, A, G))
-        if step == step_max:
-        # if np.linalg.norm(gstar - s) < 0.002:
-            print("[*] Done!", '\n')
-            break
+        if step <= step_max:
+            p_aloc = np.multiply(p_aloc, bayes(s, astar, A, G))
+            if step == step_max:
+                print("[*] Done!", '\n')
+                break
 
     return p_aloc/np.sum(p_aloc), states
 
 
 def main():
     task = sys.argv[1]
-    team_loc = envAgents()
+    team = envAgents()
     goals, agent_goals = envGoals(task)
     G, G_ls = allocations(task)
     A = actionSpace()
+
+    # the game will draw everything in the sprite list
+    sprite_list = pygame.sprite.Group()
+    initGroup(sprite_list, goals, team)
 
     # main loop
     states = []
@@ -74,14 +83,14 @@ def main():
     gstar_idx = 0
 
     for key, positions in G.items():
+        resetPos(team)
         # pick the desired allocation
         gstar = np.copy(G[key])
         print('[*] Allocation ', gstar_idx+1,':', key)
 
         # compute distance to goals for each agent
-        Dist = np.empty([len(G),len(team_loc)])
-        s0 = list(team_loc[0].state) + list(team_loc[1].state)
-        dist = abs(s0-gstar)
+        Dist = np.empty([len(G),len(team)])
+        dist = abs(getState(team)- gstar)
         dist_normed = []
         for idx in range(len(dist)):
           if idx % 2 == 0:
@@ -89,7 +98,7 @@ def main():
         Dist[gstar_idx] = dist_normed
 
         # legible robot motion f
-        P_aloc[gstar_idx], states_r = legibleRobots(team_loc, gstar_idx, gstar, A, G_ls)
+        P_aloc[gstar_idx], states_r = legibleRobots(team, gstar_idx, gstar, A, G_ls)
         states.append(states_r)
 
         # index allocations

@@ -26,7 +26,6 @@ def animate(sprite_list, team, states, gstar_idx):
     image_name = '{}_{}_{}_{}.png'.format('alloc', str(gstar_idx), 'frame', '0')
     # pygame.image.save(world, '{}/{}'.format('screenshots', image_name))
     for state in states:
-        # print(state)
         # update for next time step
         updateState(team, state)
         # animate
@@ -65,7 +64,7 @@ def main():
     scores = pickle.load(open(filename2, "rb"))
 
     # import states saved data
-    states = savedStates('task1')
+    states = savedStates(task)
 
     # sort scores in descending order, ranked by legibility
     ranked_scores = scores[scores[:, 1].argsort()]
@@ -82,7 +81,6 @@ def main():
         print('[*] Allocation: ', gstar_idx)
         # aniamte the environment
         animate(sprite_list, team, states[gstar_idx], gstar_idx)
-
 
 if __name__ == "__main__":
     main()

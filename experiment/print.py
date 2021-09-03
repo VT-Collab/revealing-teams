@@ -13,35 +13,20 @@ from utils.panda_home import main
 # from utils.grid_world import *
 
 
-def transform(p, back_to_fetch=False):
-    location = np.concatenate((p,np.array([1])), axis=0)
-    # compute the distance between fetch and panda
-    dx = 10
-    dy = 1
-    dz = 0
-    # transformation matrix (rotation Z axis + translation)
-    T = np.array([[np.cos(np.pi),-np.sin(np.pi),0,dx],
-                [np.sin(np.pi),np.cos(np.pi),0,dy],
-                [0,0,1,dz],
-                [0,0,0,1]])
-    p_prime = np.matmul(T,location)
-    return p_prime[:3]
+panda_to_obj1 = savedGoals('task1', 'panda', '1')
+fetch_to_obj1 = savedGoals('task1', 'fetch', '1')
 
+print('Obj1 from Panda:',panda_to_obj1[1])
+print()
+print('Obj1 from Fetch:',fetch_to_obj1[1])
+print()
+x = transform(fetch_to_obj1[1])
+print('Transformed Obj1 from Fetch:',x)
+print()
 
-print(transform(np.array([1,2,0])))
-
-
-# # initial end-effector positions
-# panda_p0 = np.array([0.38204478, 0.01169821, 0.24424794])
-#
-# fetch_p0 = transform(np.array([0.71579027, 0.19279565, 0.74217811]))
-#
-# print([0.71579027, 0.19279565, 0.74217811])
-#
-# print(fetch_p0)
-
-
-
+y = transform(x, back_to_fetch=True)
+print('Back transformed Obj1 from Fetch:',y)
+print()
 
 
 

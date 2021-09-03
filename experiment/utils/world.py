@@ -16,16 +16,11 @@ def transform(p, back_to_fetch=False):
     panda_to_obj1 = savedGoals('task1', 'panda', '1')
     fetch_to_obj1 = savedGoals('task1', 'fetch', '1')
     dx = panda_to_obj1[1][0]+fetch_to_obj1[1][0]
-    print(dx)
-    x
     dy = fetch_to_obj1[1][1]-abs(panda_to_obj1[1][1])
     if back_to_fetch:
-        dz = fetch_to_obj1[1][2]
+        dz = fetch_to_obj1[1][2]-panda_to_obj1[1][2]
     else:
-        dz = -fetch_to_obj1[1][2]
-    # dx =
-    # dy =
-    # dz =
+        dz = panda_to_obj1[1][2]-fetch_to_obj1[1][2]
     # transformation matrix (rotation Z axis + translation)
     T = np.array([[np.cos(np.pi),-np.sin(np.pi),0,dx],
                 [np.sin(np.pi),np.cos(np.pi),0,dy],
