@@ -68,11 +68,11 @@ def main():
 
     # sort scores in descending order, ranked by legibility
     ranked_scores = scores[scores[:, 1].argsort()]
-    # print('[*] Ranked based on legibility: ','\n',ranked_scores)
+    ranked_scores = ranked_scores[::-1]
+    print('[*] Ranked based on legibility: ','\n',ranked_scores)
 
     # # sort based on fairness
-    ranked_scores = ranked_scores[ranked_scores[:,2].argsort(kind='mergesort')]
-    # ranked_scores = ranked_scores[::-1]
+    # ranked_scores = ranked_scores[ranked_scores[:,2].argsort(kind='mergesort')]
     # print('[*] Ranked based on fairness: ','\n',ranked_scores)
 
     # main loop

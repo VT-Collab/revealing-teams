@@ -45,11 +45,11 @@ def legibleRobots(team, gstar_idx, gstar, A, G):
                 astar = np.copy(a)
                 value = likelihood[gstar_idx]
 
-        threshold = 0.001
-        if np.linalg.norm(gstar[:2] - s[:2]) < threshold:
-            astar[:2] = [0,0]
-        elif np.linalg.norm(gstar[2:] - s[2:]) < threshold:
-            astar[2:] = [0,0]
+        # threshold = 0.001
+        # if np.linalg.norm(gstar[:2] - s[:2]) < threshold:
+        #     astar[:2] = [0,0]
+        # elif np.linalg.norm(gstar[2:] - s[2:]) < threshold:
+        #     astar[2:] = [0,0]
 
         # update for next time step
         updateState(team, s + astar)
