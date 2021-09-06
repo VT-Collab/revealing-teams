@@ -70,7 +70,7 @@ class TrajectoryClient(object):
         xdot.header.stamp = rospy.Time.now()
         xdot.header.frame_id = "shoulder_pan_joint"
         self.publisher.publish(xdot)
-        rospy.sleep(time)
+        # rospy.sleep(time)
 
     def send_joint(self, position, time):
         waypoint = JointTrajectoryPoint()
@@ -317,23 +317,23 @@ def main(trajectory_panda, trajectory_fetch):
     # send_panda_home(conn)
 
     for idx in range(len(trajectory_panda)):
-        # if (idx != 0) & (idx % 5 == 0):
-        print('\n')
-        print('waypoint: ',idx+1)
+        if (idx != 0) & (idx % 10 == 0):
+            print('\n')
+            print('waypoint: ',idx+1)
 
-        # t_panda = threading.Thread(target = pandaThread,
-        #         args= (interface, waypoint, trajectory_panda[idx], conn, conn_gripper))
-        # t_panda = threading.Thread(target = pandaThread,
-        #         args= (interface, trajectory_panda[idx], trajectory_panda[-1], conn))
+            # t_panda = threading.Thread(target = pandaThread,
+            #         args= (interface, waypoint, trajectory_panda[idx], conn, conn_gripper))
+            # t_panda = threading.Thread(target = pandaThread,
+            #         args= (interface, trajectory_panda[idx], trajectory_panda[-1], conn))
 
-        t_fetch = threading.Thread(target = fetchThread,
-                args=(interface, trajectory_fetch[idx], trajectory_fetch[-1], listener, fetch_robot, mover,))
+            t_fetch = threading.Thread(target = fetchThread,
+                    args=(interface, trajectory_fetch[idx], trajectory_fetch[-1], listener, fetch_robot, mover,))
 
-        # t_panda.start()
-        t_fetch.start()
+            # t_panda.start()
+            t_fetch.start()
 
-        # t_panda.join()
-        t_fetch.join()
+            # t_panda.join()
+            t_fetch.join()
 
 
 
