@@ -3,8 +3,8 @@ import sys
 import os
 import numpy as np
 import time
+import pickle
 
-from utils.world import savedGoals, transform
 
 # class for the objects on the screen (agents, goals, etc.)
 class Object(pygame.sprite.Sprite):
@@ -36,7 +36,6 @@ class Object(pygame.sprite.Sprite):
         self.rect.x = int((self.x * 500) + 100 - self.rect.size[0] / 2)
         self.rect.y = int((self.y * 500) + 100 - self.rect.size[1] / 2)
 
-
 # returns n x 1 vector containing the agent positions
 def getState(group):
     s = []
@@ -55,6 +54,30 @@ def resetPos(team):
     # initialize team
     for idx, agent in enumerate(team):
         agent_reset = agent.update(agent.reset())
+
+def savedGoals(task, robot, goal_n):
+    filename = "data/"+task+"/"+robot+"_"+goal_n+".pkl"
+    waypoints = pickle.load(open(filename, "rb"))
+    return waypoints
+
+def transform(p, back_to_fetch=False):
+    location = np.concatenate((p,np.array([1])), axis=0)
+    # compute the distance between fetch and panda
+    panda_to_obj1 = savedGoals('task1', 'panda', '1')
+    fetch_to_obj1 = savedGoals('task1', 'fetch', '1')
+    dx = panda_to_obj1[1][0]+fetch_to_obj1[1][0]
+    dy = fetch_to_obj1[1][1]-abs(panda_to_obj1[1][1])
+    if back_to_fetch:
+        dz = fetch_to_obj1[1][2]-panda_to_obj1[1][2]
+    else:
+        dz = panda_to_obj1[1][2]-fetch_to_obj1[1][2]
+    # transformation matrix (rotation Z axis + translation)
+    T = np.array([[np.cos(np.pi),-np.sin(np.pi),0,dx],
+                [np.sin(np.pi),np.cos(np.pi),0,dy],
+                [0,0,1,dz],
+                [0,0,0,1]])
+    p_prime = np.matmul(T,location)
+    return p_prime[:3]
 
 def transformToPygame(x,y):
     "Convert world coordinates to pixel coordinates."

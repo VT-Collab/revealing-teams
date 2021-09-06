@@ -46,8 +46,6 @@ ranked_scores = ranked_scores[::-1]
 #     x
 
 
-
-
 # initial end-effector height
 positions_panda = savedData(task, 'panda_1')
 h0_panda = positions_panda[0][2]
@@ -56,20 +54,14 @@ h0_fetch = positions_fetch[0][2]
 
 trajectory_panda = []
 trajectory_fetch = []
+
 for idx in range(len(states[0])):
+
     tuple_panda = transformFromPygame(states[0][idx][0],states[0][idx][1])
     trajectory_panda.append(list(tuple_panda)+[h0_panda])
+    
     tuple_fetch = transformFromPygame(states[0][idx][2],states[0][idx][3])
     trajectory_fetch.append(list(tuple_fetch)+[h0_fetch])
-print(trajectory_panda)
-print(trajectory_panda[-1])
-x
-# for goal_n, goal in enumerate(trajectory2):
-#     print(goal_n)
-#     tele(goal, 'panda')
-#
-# for goal_n, goal in enumerate(trajectory1):
-#     print(goal)
-#     tele(goal_n, goal, 'fetch')
+
 
 tele(trajectory_panda, trajectory_fetch)
