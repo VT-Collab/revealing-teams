@@ -30,16 +30,16 @@ print()
 
 
 
-# # plot robot actions
-# A = actionSpace()
-# for a in A:
-#     x1 = a[0]
-#     y1 = a[1]
-#     x2 = a[2]
-#     y2 = a[3]
-#     plt.scatter(x1,y1)
-#     plt.scatter(x2,y2)
-# plt.show()
+# plot robot actions
+A = actionSpace()
+for a in A:
+    x1 = a[0]
+    y1 = a[1]
+    x2 = a[2]
+    y2 = a[3]
+    plt.scatter(x1,y1)
+    plt.scatter(x2,y2)
+plt.show()
 
 
 

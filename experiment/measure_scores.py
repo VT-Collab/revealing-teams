@@ -25,12 +25,12 @@ def legibleRobots(team, gstar_idx, gstar, A, G):
     # constrained optimization to find revealing but efficient action
     states = []
     step = 1
-    step_max = 45
+    step_max = 55
     p_aloc = np.ones(len(G))
     while True:
-        print(step)
+        print('---Step: ',step)
         s = getState(team)
-        epsilon = 0.005
+        epsilon = 0.001
         Q = {}
         Qmax = -np.Inf
         for a in A:
@@ -45,7 +45,7 @@ def legibleRobots(team, gstar_idx, gstar, A, G):
                 astar = np.copy(a)
                 value = likelihood[gstar_idx]
 
-        threshold = 0.02
+        threshold = 0.001
         if np.linalg.norm(gstar[:2] - s[:2]) < threshold:
             astar[:2] = [0,0]
         elif np.linalg.norm(gstar[2:] - s[2:]) < threshold:
