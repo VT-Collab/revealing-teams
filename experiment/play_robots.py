@@ -8,7 +8,7 @@ import time
 
 # from teleop import main as play
 from teleop import main as tele
-from utils.grid_world import transformFromPygame
+from utils.grid_world import *
 
 from sensor_msgs.msg import (
       JointState
@@ -57,11 +57,12 @@ trajectory_fetch = []
 
 for idx in range(len(states[0])):
 
-    tuple_panda = transformFromPygame(states[0][idx][0],states[0][idx][1])
-    trajectory_panda.append(list(tuple_panda)+[h0_panda])
-    
-    tuple_fetch = transformFromPygame(states[0][idx][2],states[0][idx][3])
-    trajectory_fetch.append(list(tuple_fetch)+[h0_fetch])
+    pos_panda = transformFromPygame(states[0][idx][0],states[0][idx][1])
+    trajectory_panda.append(list(pos_panda)+[h0_panda])
 
+    pos_fetch = transformFromPygame(states[0][idx][2],states[0][idx][3])
+    h0_fetch_tfmd = transform(np.array([0,0,h0_fetch]))[-1]
+    pos_fetch_tfmd = transform(list(pos_fetch)+[h0_fetch_tfmd], back_to_fetch=True)
+    trajectory_fetch.append(pos_fetch_tfmd)
 
 tele(trajectory_panda, trajectory_fetch)

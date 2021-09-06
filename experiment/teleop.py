@@ -203,8 +203,8 @@ class Joystick(object):
 
 
 def robotAtion(waypoint, cur_pos, action_scale, goal):
-    # robot_error = (waypoint - cur_pos)*(goal - curr_pos)/action_scale
-    robot_error = (waypoint - cur_pos)/action_scale
+    robot_error = (waypoint - cur_pos)
+    # robot_error = (waypoint - cur_pos)/action_scale
     robot_action = [robot_error[0], robot_error[1], robot_error[2], 0, 0, 0]
     return robot_action
 
@@ -221,11 +221,11 @@ def fetchThread(interface, waypoint, goal, listener, fetch_robot, mover, action_
         action_fetch = robotAtion(waypoint, fetch_xyz, action_scale_fetch, goal)
         dist = np.linalg.norm(waypoint-fetch_xyz)
         if dist < 0.002:
-            if waypoint == 3:
-                mover.close_gripper()
-                time.sleep(2)
-            elif waypoint == 6:
-                mover.open_gripper()
+            # if waypoint == 3:
+            #     mover.close_gripper()
+            #     time.sleep(2)
+            # elif waypoint == 6:
+            #     mover.open_gripper()
             break
 
         # pause and resume the robot
@@ -317,6 +317,7 @@ def main(trajectory_panda, trajectory_fetch):
     # send_panda_home(conn)
 
     for idx in range(len(trajectory_panda)):
+        # if (idx != 0) & (idx % 5 == 0):
         print('\n')
         print('waypoint: ',idx+1)
 
