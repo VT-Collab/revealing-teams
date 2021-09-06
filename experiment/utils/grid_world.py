@@ -74,7 +74,7 @@ def envAgents():
     team = [agent_r1, agent_r2]
     return team
 
-def envGoals(task):
+def envGoals(task, team):
     # import Panda's recorded positions
     panda_to_obj1 = savedGoals(task, 'panda', '1')
     panda_to_obj2 = savedGoals(task, 'panda', '2')
@@ -88,8 +88,8 @@ def envGoals(task):
                     [255, 153, 0], 50)
     goals = [goal1, goal2, goal3]
     # each agent's goal options
-    agent1_goal = [list(goal1.state), list(goal2.state), list(goal3.state)]
-    agent2_goal = [list(goal1.state), list(goal2.state), list(goal3.state)]
+    agent1_goal = [list(team[0].state), list(goal1.state), list(goal2.state), list(goal3.state)]
+    agent2_goal = [list(team[1].state), list(goal1.state), list(goal2.state), list(goal3.state)]
     agent_goals = [agent1_goal, agent2_goal]
     return goals, agent_goals
 
@@ -98,18 +98,19 @@ def allocations(task):
     # define the subtasks and the possible subtask allocations
     G = {}
     G_ls = []
-    goals, agent_goals = envGoals(task)
+    goals, agent_goals = envGoals(task, envAgents())
     for idx, goal_a1 in enumerate(agent_goals[0]):
         for idy, goal_a2 in enumerate(agent_goals[1]):
             tau = np.asarray(goal_a1 + goal_a2)
-            alloc_name = 'panda' + str(idx+1) + ' , fetch' + str(idy+1)
+            alloc_name = 'panda' + str(idx) + ' - fetch' + str(idy)
             G[alloc_name] = tau
             if idx != idy:
                 G_ls.append(tau)
     # remove same-goal allocations: don't want robots bump to each other
-    del G['panda1 , fetch1']
-    del G['panda2 , fetch2']
-    del G['panda3 , fetch3']
+    del G['panda0 - fetch0']
+    del G['panda1 - fetch1']
+    del G['panda2 - fetch2']
+    del G['panda3 - fetch3']
     return G, G_ls
 
 def initGroup(sprite_list, goals, team):

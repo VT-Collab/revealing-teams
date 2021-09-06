@@ -51,7 +51,7 @@ def main():
     pygame.init()
     A = actionSpace()
     team = envAgents()
-    goals,_ = envGoals(task)
+    goals,_ = envGoals(task, team)
 
     # the game will draw everything in the sprite list
     sprite_list = pygame.sprite.Group()

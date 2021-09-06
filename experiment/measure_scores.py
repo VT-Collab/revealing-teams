@@ -9,9 +9,9 @@ from utils.grid_world import *
 
 
 # bayes rule with boltzmann rational
-def bayes(s, a, A, G, beta=20.0):
+def bayes(s, a, A, G_ls, beta=20.0):
     P = []
-    for g in G:
+    for g in G_ls:
         num = np.exp(-beta * np.linalg.norm(g - (s + a)))
         den = 0
         for ap in A:
@@ -21,12 +21,12 @@ def bayes(s, a, A, G, beta=20.0):
     return P / sum(P)
 
 
-def legibleRobots(team, gstar_idx, gstar, A, G):
+def legibleRobots(team, gstar_idx, gstar, A, G_ls):
     # constrained optimization to find revealing but efficient action
     states = []
     step = 1
     step_max = 55
-    p_aloc = np.ones(len(G))
+    p_aloc = np.ones(len(G_ls))
     while True:
         print('---Step: ',step)
         s = getState(team)
@@ -40,16 +40,16 @@ def legibleRobots(team, gstar_idx, gstar, A, G):
         value = -np.Inf
         astar = None
         for a in A:
-            likelihood = bayes(s, a, A, G)
+            likelihood = bayes(s, a, A, G_ls)
             if likelihood[gstar_idx] > value and Qmax - Q[str(a)] < epsilon:
                 astar = np.copy(a)
                 value = likelihood[gstar_idx]
 
-        # threshold = 0.001
-        # if np.linalg.norm(gstar[:2] - s[:2]) < threshold:
-        #     astar[:2] = [0,0]
-        # elif np.linalg.norm(gstar[2:] - s[2:]) < threshold:
-        #     astar[2:] = [0,0]
+        threshold = 0.001
+        if np.linalg.norm(gstar[:2] - s[:2]) < threshold:
+            astar[:2] = [0,0]
+        elif np.linalg.norm(gstar[2:] - s[2:]) < threshold:
+            astar[2:] = [0,0]
 
         # update for next time step
         updateState(team, s + astar)
@@ -57,18 +57,17 @@ def legibleRobots(team, gstar_idx, gstar, A, G):
         step +=1
 
         if step <= step_max:
-            p_aloc = np.multiply(p_aloc, bayes(s, astar, A, G))
+            p_aloc = np.multiply(p_aloc, bayes(s, astar, A, G_ls))
             if step == step_max:
                 print("[*] Done!", '\n')
                 break
-
     return p_aloc/np.sum(p_aloc), states
 
 
 def main():
     task = sys.argv[1]
     team = envAgents()
-    goals, agent_goals = envGoals(task)
+    goals, agent_goals = envGoals(task, team)
     G, G_ls = allocations(task)
     A = actionSpace()
 
