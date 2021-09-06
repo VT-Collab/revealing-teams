@@ -35,7 +35,8 @@ trajectory2 = pickle.load(traj_file2)
 # for goal_n, goal in enumerate(trajectory1):
 #     print(goal)
 #     tele(goal_n, goal, 'fetch')
-
+print(trajectory1)
+x
 tele(trajectory1, trajectory2)
 
 

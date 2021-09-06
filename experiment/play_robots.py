@@ -8,26 +8,62 @@ import time
 
 # from teleop import main as play
 from teleop import main as tele
+from utils.grid_world import transformFromPygame
 
 from sensor_msgs.msg import (
       JointState
 )
 
 task = sys.argv[1]
-n = sys.argv[2]
-m = sys.argv[3]
-#
 
 
-# task = 'task1'
-# m = '1'
+def savedData(task, file):
+    filename = "data/"+task+"/"+file+".pkl"
+    data = pickle.load(open(filename, "rb"))
+    return data
 
-traj_file1 = open('data/'+task+'/fetch_'+n+'.pkl', 'rb')
-trajectory1 = pickle.load(traj_file1)
+# import score and allocation saved data
+allocations = savedData(task,'allocations')
+scores = savedData(task,'scores')
 
-traj_file2 = open('data/'+task+'/panda_'+m+'.pkl', 'rb')
-trajectory2 = pickle.load(traj_file2)
+# import states saved data
+states = savedData(task,'robots_states')
 
+
+# sort scores in descending order, ranked by legibility
+ranked_scores = scores[scores[:, 1].argsort()]
+ranked_scores = ranked_scores[::-1]
+# print('[*] Ranked based on legibility: ','\n',ranked_scores)
+
+# # sort based on fairness
+# ranked_scores = ranked_scores[ranked_scores[:,2].argsort(kind='mergesort')]
+# print('[*] Ranked based on fairness: ','\n',ranked_scores)
+
+# # main loop
+# for gstar_idx, item in enumerate(ranked_scores):
+#     print('[*] Allocation: ', gstar_idx)
+#     print(states[gstar_idx])
+#     x
+
+
+
+
+# initial end-effector height
+positions_panda = savedData(task, 'panda_1')
+h0_panda = positions_panda[0][2]
+positions_fetch = savedData(task, 'fetch_1')
+h0_fetch = positions_fetch[0][2]
+
+trajectory_panda = []
+trajectory_fetch = []
+for idx in range(len(states[0])):
+    tuple_panda = transformFromPygame(states[0][idx][0],states[0][idx][1])
+    trajectory_panda.append(list(tuple_panda)+[h0_panda])
+    tuple_fetch = transformFromPygame(states[0][idx][2],states[0][idx][3])
+    trajectory_fetch.append(list(tuple_fetch)+[h0_fetch])
+print(trajectory_panda)
+print(trajectory_panda[-1])
+x
 # for goal_n, goal in enumerate(trajectory2):
 #     print(goal_n)
 #     tele(goal, 'panda')
@@ -36,16 +72,4 @@ trajectory2 = pickle.load(traj_file2)
 #     print(goal)
 #     tele(goal_n, goal, 'fetch')
 
-tele(trajectory1, trajectory2)
-
-
-
-
-# filename3 = "data/task1/robots_states.pkl"
-# states = pickle.load(open(filename3, "rb"))
-#
-# trajectory2 = []
-# for state in states[0]:
-#     trajectory2.append(np.array(state[:3]))
-#
-# tele(trajectory2, trajectory2)
+tele(trajectory_panda, trajectory_fetch)

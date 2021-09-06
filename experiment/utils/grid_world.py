@@ -60,6 +60,10 @@ def transformToPygame(x,y):
     "Convert world coordinates to pixel coordinates."
     return (x-0.2, -y+0.5)
 
+def transformFromPygame(x,y):
+    "Convert world coordinates to pixel coordinates."
+    return (x+0.2, 0.5-y)
+
 def envAgents():
     # initial end-effector positions
     panda_p0 = np.array([0.38204478, 0.01169821, 0.24424794])

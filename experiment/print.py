@@ -13,42 +13,47 @@ from utils.panda_home import main
 # from utils.grid_world import *
 
 
-panda_to_obj1 = savedGoals('task1', 'panda', '1')
-fetch_to_obj1 = savedGoals('task1', 'fetch', '1')
+# panda_to_obj1 = savedGoals('task1', 'panda', '1')
+# fetch_to_obj1 = savedGoals('task1', 'fetch', '1')
+#
+# print('Obj1 from Panda:',panda_to_obj1[1])
+# print()
+# print('Obj1 from Fetch:',fetch_to_obj1[1])
+# print()
+# x = transform(fetch_to_obj1[1])
+# print('Transformed Obj1 from Fetch:',x)
+# print()
+#
+# y = transform(x, back_to_fetch=True)
+# print('Back transformed Obj1 from Fetch:',y)
+# print()
+#
+#
+#
+# # plot robot actions
+# A = actionSpace()
+# for a in A:
+#     x1 = a[0]
+#     y1 = a[1]
+#     x2 = a[2]
+#     y2 = a[3]
+#     plt.scatter(x1,y1)
+#     plt.scatter(x2,y2)
+# plt.show()
 
-print('Obj1 from Panda:',panda_to_obj1[1])
-print()
-print('Obj1 from Fetch:',fetch_to_obj1[1])
-print()
-x = transform(fetch_to_obj1[1])
-print('Transformed Obj1 from Fetch:',x)
-print()
-
-y = transform(x, back_to_fetch=True)
-print('Back transformed Obj1 from Fetch:',y)
-print()
 
 
+def savedGoals(task, data):
+    filename = 'data/'+task+'/'+data+'.pkl'
+    # filename = 'data/'+task+'/scores.pkl'
+    waypoints = pickle.load(open(filename, "rb"))
+    return waypoints
 
-# plot robot actions
-A = actionSpace()
-for a in A:
-    x1 = a[0]
-    y1 = a[1]
-    x2 = a[2]
-    y2 = a[3]
-    plt.scatter(x1,y1)
-    plt.scatter(x2,y2)
-plt.show()
+waypoint = savedGoals('task1', 'panda_1')
+print(waypoint[0])
 
-
-
-# def savedGoals(task, data):
-#     filename = 'data/'+task+'/'+data+'.pkl'
-#     # filename = 'data/'+task+'/scores.pkl'
-#     waypoints = pickle.load(open(filename, "rb"))
-#     return waypoints
-
+waypoint = savedGoals('task1', 'fetch_1')
+print(waypoint[0])
 
 # for task in ['task1', 'task2']:
 #     scores = savedGoals('task2', 'panda', '1')
