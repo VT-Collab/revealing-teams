@@ -317,7 +317,7 @@ def main(trajectory_panda, trajectory_fetch):
     # send_panda_home(conn)
 
     for idx in range(len(trajectory_panda)):
-        if (idx != 0) & (idx % 10 == 0):
+        if (idx != 0) & (idx % 9 == 0):
             print('\n')
             print('waypoint: ',idx+1)
 
