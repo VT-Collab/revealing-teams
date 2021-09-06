@@ -52,15 +52,17 @@ h0_panda = positions_panda[0][2]
 positions_fetch = savedData(task, 'fetch_1')
 h0_fetch = positions_fetch[0][2]
 
+
+# for gstar in states:
+gstar = states[10]
 trajectory_panda = []
 trajectory_fetch = []
-
-for idx in range(len(states[0])):
-
-    pos_panda = transformFromPygame(states[0][idx][0],states[0][idx][1])
+for idx in range(len(gstar)):
+    pos_panda = transformFromPygame(gstar[idx][0],gstar[idx][1])
     trajectory_panda.append(list(pos_panda)+[h0_panda])
 
-    pos_fetch = transformFromPygame(states[0][idx][2],states[0][idx][3])
+
+    pos_fetch = transformFromPygame(gstar[idx][2],gstar[idx][3])
     h0_fetch_tfmd = transform(np.array([0,0,h0_fetch]))[-1]
     pos_fetch_tfmd = transform(list(pos_fetch)+[h0_fetch_tfmd], back_to_fetch=True)
     trajectory_fetch.append(pos_fetch_tfmd)

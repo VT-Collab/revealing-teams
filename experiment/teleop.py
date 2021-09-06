@@ -203,13 +203,13 @@ class Joystick(object):
 
 
 def robotAtion(waypoint, cur_pos, action_scale, goal):
-    robot_error = (waypoint - cur_pos)
-    # robot_error = (waypoint - cur_pos)/action_scale
+    # robot_error = (waypoint - cur_pos)
+    robot_error = (waypoint - cur_pos)/action_scale
     robot_action = [robot_error[0], robot_error[1], robot_error[2], 0, 0, 0]
     return robot_action
 
 
-def fetchThread(interface, waypoint, goal, listener, fetch_robot, mover, action_scale_fetch = 1.5):
+def fetchThread(interface, waypoint, goal, listener, fetch_robot, mover, action_scale_fetch = 0.8):
 
     pause = False
     while True:
@@ -302,9 +302,9 @@ def main(trajectory_panda, trajectory_fetch):
     listener = JointStateListener()
     # mover.open_gripper()
 
-    # print('[*] Connecting to Panda...')
-    # PORT_robot = 8080
-    # conn = connect2robot(PORT_robot)
+    print('[*] Connecting to Panda...')
+    PORT_robot = 8080
+    conn = connect2robot(PORT_robot)
 
     # print('[*] Connecting to Panda gripper...')
     # PORT_gripper = 8081
@@ -314,26 +314,25 @@ def main(trajectory_panda, trajectory_fetch):
 
     # send robots to home
     mover.send_joint(fetch_home, fetch_home_t)
-    # send_panda_home(conn)
+    send_panda_home(conn)
 
     for idx in range(len(trajectory_panda)):
-        if (idx != 0) & (idx % 9 == 0):
-            print('\n')
-            print('waypoint: ',idx+1)
+        # if idx in [5,10,15,20,25,30,35,40,53]:
+        print('waypoint: ',idx+1)
 
-            # t_panda = threading.Thread(target = pandaThread,
-            #         args= (interface, waypoint, trajectory_panda[idx], conn, conn_gripper))
-            # t_panda = threading.Thread(target = pandaThread,
-            #         args= (interface, trajectory_panda[idx], trajectory_panda[-1], conn))
+        # t_panda = threading.Thread(target = pandaThread,
+        #         args= (interface, waypoint, trajectory_panda[idx], conn, conn_gripper))
+        t_panda = threading.Thread(target = pandaThread,
+                args= (interface, trajectory_panda[idx], trajectory_panda[-1], conn))
 
-            t_fetch = threading.Thread(target = fetchThread,
-                    args=(interface, trajectory_fetch[idx], trajectory_fetch[-1], listener, fetch_robot, mover,))
+        # t_fetch = threading.Thread(target = fetchThread,
+        #         args=(interface, trajectory_fetch[idx], trajectory_fetch[-1], listener, fetch_robot, mover,))
 
-            # t_panda.start()
-            t_fetch.start()
+        t_panda.start()
+        # t_fetch.start()
 
-            # t_panda.join()
-            t_fetch.join()
+        t_panda.join()
+        # t_fetch.join()
 
 
 
