@@ -127,13 +127,18 @@ def allocations(task):
             tau = np.asarray(goal_a1 + goal_a2)
             alloc_name = 'panda' + str(idx) + ' - fetch' + str(idy)
             G[alloc_name] = tau
-            if idx != idy:
-                G_ls.append(tau)
-    # remove same-goal allocations: don't want robots bump to each other
+    # remove same-goal or some no-play allocations:
+    # don't want robots bump to each other
     del G['panda0 - fetch0']
+    del G['panda1 - fetch0']
+    del G['panda3 - fetch0']
+    del G['panda0 - fetch2']
+    del G['panda0 - fetch3']
     del G['panda1 - fetch1']
     del G['panda2 - fetch2']
     del G['panda3 - fetch3']
+    for key in G:
+        G_ls.append(G[key])
     return G, G_ls
 
 def initGroup(sprite_list, goals, team):

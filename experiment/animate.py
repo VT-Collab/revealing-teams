@@ -12,7 +12,7 @@ import time
 import pickle
 
 
-def animate(sprite_list, team, states, gstar_idx):
+def animate(sprite_list, team, states_panda, states_fetch, gstar_idx):
     world = pygame.display.set_mode([700,700])
     # create game
     clock = pygame.time.Clock()
@@ -25,7 +25,8 @@ def animate(sprite_list, team, states, gstar_idx):
     frame = 1
     image_name = '{}_{}_{}_{}.png'.format('alloc', str(gstar_idx), 'frame', '0')
     # pygame.image.save(world, '{}/{}'.format('screenshots', image_name))
-    for state in states:
+    for i in range(len(states_panda)):
+        state = np.concatenate((states_panda[i],states_fetch[i]),axis=0)
         # update for next time step
         updateState(team, state)
         # animate
@@ -38,10 +39,10 @@ def animate(sprite_list, team, states, gstar_idx):
         # pygame.image.save(world, '{}/{}'.format('screenshots', image_name))
         frame += 1
 
-def savedStates(task):
-    filename3 = "data/"+task+"/robots_states.pkl"
-    states = pickle.load(open(filename3, "rb"))
-    return states
+def savedData(task, file):
+    filename = "data/"+task+"/"+file+".pkl"
+    data = pickle.load(open(filename, "rb"))
+    return data
 
 def main():
     # pick which task to simulate
@@ -58,18 +59,17 @@ def main():
     initGroup(sprite_list, goals, team)
 
     # import score and allocation saved data
-    filename1 = "data/"+task+"/allocations.pkl"
-    allocations = pickle.load(open(filename1, "rb"))
-    filename2 = "data/"+task+"/scores.pkl"
-    scores = pickle.load(open(filename2, "rb"))
+    allocations = savedData(task, 'allocations')
+    scores = savedData(task, 'scores')
 
     # import states saved data
-    states = savedStates(task)
+    states_panda = savedData(task, 'States_panda')
+    states_fetch = savedData(task, 'States_fetch')
 
     # sort scores in descending order, ranked by legibility
     ranked_scores = scores[scores[:, 1].argsort()]
     ranked_scores = ranked_scores[::-1]
-    print('[*] Ranked based on legibility: ','\n',ranked_scores)
+    # print('[*] Ranked based on legibility: ','\n',ranked_scores)
 
     # # sort based on fairness
     # ranked_scores = ranked_scores[ranked_scores[:,2].argsort(kind='mergesort')]
@@ -80,7 +80,7 @@ def main():
         resetPos(team)
         print('[*] Allocation: ', gstar_idx)
         # aniamte the environment
-        animate(sprite_list, team, states[gstar_idx], gstar_idx)
+        animate(sprite_list, team, states_panda[gstar_idx], states_fetch[gstar_idx], gstar_idx)
 
 if __name__ == "__main__":
     main()

@@ -23,14 +23,15 @@ def bayes(s, a, A, G_ls, beta=20.0):
 
 def legibleRobots(team, gstar_idx, gstar, A, G_ls):
     # constrained optimization to find revealing but efficient action
-    states = []
+    states_panda = []
+    states_fetch = []
     step = 1
-    step_max = 55
+    step_max = 50
     p_aloc = np.ones(len(G_ls))
     while True:
         print('---Step: ',step)
         s = getState(team)
-        epsilon = 0.001
+        epsilon = 0.002
         Q = {}
         Qmax = -np.Inf
         for a in A:
@@ -53,15 +54,18 @@ def legibleRobots(team, gstar_idx, gstar, A, G_ls):
 
         # update for next time step
         updateState(team, s + astar)
-        states.append(s+astar)
-        step +=1
+        new_state = s + astar
+        states_panda.append(new_state[:2])
+        states_fetch.append(new_state[2:])
 
         if step <= step_max:
             p_aloc = np.multiply(p_aloc, bayes(s, astar, A, G_ls))
-            if step == step_max:
+            if np.linalg.norm(astar) < 0.0001:
                 print("[*] Done!", '\n')
                 break
-    return p_aloc/np.sum(p_aloc), states
+        step +=1
+
+    return p_aloc/np.sum(p_aloc), states_panda, states_fetch
 
 
 def main():
@@ -76,7 +80,8 @@ def main():
     initGroup(sprite_list, goals, team)
 
     # main loop
-    states = []
+    States_panda = []
+    States_fetch = []
     scores = np.empty([len(G),4], dtype=object)
     P_aloc = np.empty([len(G),len(G)])
     gstar_idx = 0
@@ -97,8 +102,9 @@ def main():
         Dist[gstar_idx] = dist_normed
 
         # legible robot motion f
-        P_aloc[gstar_idx], states_r = legibleRobots(team, gstar_idx, gstar, A, G_ls)
-        states.append(states_r)
+        P_aloc[gstar_idx], states_panda, states_fetch = legibleRobots(team, gstar_idx, gstar, A, G_ls)
+        States_panda.append(states_panda)
+        States_fetch.append(states_fetch)
 
         # index allocations
         scores[gstar_idx,0] = key
@@ -116,8 +122,10 @@ def main():
     pickle.dump(G, open(savename1, "wb"))
     savename2 = "data/"+task+"/scores.pkl"
     pickle.dump(scores, open(savename2, "wb"))
-    savename3 = "data/"+task+"/robots_states.pkl"
-    pickle.dump(states, open(savename3, "wb"))
+    savename3 = "data/"+task+"/States_panda.pkl"
+    pickle.dump(States_panda, open(savename3, "wb"))
+    savename4 = "data/"+task+"/States_fetch.pkl"
+    pickle.dump(States_fetch, open(savename4, "wb"))
 
 if __name__=="__main__":
     main()
