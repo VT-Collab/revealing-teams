@@ -204,7 +204,7 @@ class Joystick(object):
 
 def robotAtion(waypoint, cur_pos, action_scale, goal):
     # robot_error = (waypoint - cur_pos)
-    robot_error = (waypoint - cur_pos)/action_scale
+    robot_error = (waypoint - cur_pos)/ np.linalg.norm(waypoint - cur_pos) * action_scale
     robot_action = [robot_error[0], robot_error[1], robot_error[2], 0, 0, 0]
     return robot_action
 

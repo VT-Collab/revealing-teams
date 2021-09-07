@@ -31,7 +31,9 @@ def legibleRobots(team, gstar_idx, gstar, A, G_ls):
     while True:
         print('---Step: ',step)
         s = getState(team)
-        epsilon = 0.002
+        epsilon = 0.02
+        if step > 35:
+            epsilon = 0.00001
         Q = {}
         Qmax = -np.Inf
         for a in A:

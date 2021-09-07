@@ -27,7 +27,7 @@ allocations = savedData(task,'allocations')
 scores = savedData(task,'scores')
 
 # import states saved data
-states = savedData(task,'robots_states')
+states = savedData(task,'States_panda')
 
 
 # sort scores in descending order, ranked by legibility
