@@ -3,7 +3,7 @@ import numpy as np
 def actionSpace():
     # discretize the space of actions for the team
     n_actions = 10
-    r = 0.005
+    r = 0.01
     single_action_1 = []
     single_action_2 = []
     angles = np.linspace(-np.pi/2, np.pi/2, n_actions)

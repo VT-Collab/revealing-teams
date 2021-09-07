@@ -26,6 +26,7 @@ def animate(sprite_list, team, states_panda, states_fetch, gstar_idx):
     image_name = '{}_{}_{}_{}.png'.format('alloc', str(gstar_idx), 'frame', '0')
     # pygame.image.save(world, '{}/{}'.format('screenshots', image_name))
     for i in range(len(states_panda)):
+        print('--state: ', i)
         state = np.concatenate((states_panda[i],states_fetch[i]),axis=0)
         # update for next time step
         updateState(team, state)
