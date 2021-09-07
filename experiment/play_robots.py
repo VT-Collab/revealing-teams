@@ -4,12 +4,12 @@ import sys
 import pickle
 import time
 
-# from teleop import main as tele
+from teleop import main as tele
 from utils.grid_world import *
 
-# from sensor_msgs.msg import (
-#       JointState
-# )
+from sensor_msgs.msg import (
+      JointState
+)
 
 task = sys.argv[1]
 
@@ -51,19 +51,19 @@ h0_fetch = positions_fetch[0][2]
 
 
 # for gstar in states:
-gstar_panda = States_panda[5]
+gstar_panda = States_panda[2]
 gstar_fetch = States_fetch[5]
 
 trajectory_panda = []
 trajectory_fetch = []
 
-for idx in range(len(gstar)):
+for idx in range(len(gstar_panda)):
 
     pos_panda = transformFromPygame(gstar_panda[idx][0],gstar_panda[idx][1])
     trajectory_panda.append(list(pos_panda)+[h0_panda])
 
 
-    pos_fetch = transformFromPygame(States_fetch[idx][2],States_fetch[idx][3])
+    pos_fetch = transformFromPygame(gstar_fetch[idx][0],gstar_fetch[idx][1])
     h0_fetch_tfmd = transform(np.array([0,0,h0_fetch]))[-1]
     pos_fetch_tfmd = transform(list(pos_fetch)+[h0_fetch_tfmd], back_to_fetch=True)
     trajectory_fetch.append(pos_fetch_tfmd)

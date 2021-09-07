@@ -202,13 +202,13 @@ class Joystick(object):
         return A_pressed, Start_pressed
 
 
-def robotAtion(waypoint, cur_pos, action_scale, goal):
-    robot_error = (waypoint - cur_pos) / np.linalg.norm(waypoint - cur_pos) * action_scale
+def robotAtion(waypoint, cur_pos, action_scale):
+    robot_error = (waypoint - cur_pos)/np.linalg.norm(waypoint - cur_pos)*action_scale
     robot_action = [robot_error[0], robot_error[1], robot_error[2], 0, 0, 0]
     return robot_action
 
 
-def fetchThread(interface, waypoint, goal, listener, fetch_robot, mover, action_scale_fetch = 0.8):
+def fetchThread(idx, interface, waypoint, listener, fetch_robot, mover, action_scale_fetch = 0.8):
 
     pause = False
     while True:
@@ -217,7 +217,7 @@ def fetchThread(interface, waypoint, goal, listener, fetch_robot, mover, action_
         pose = fetch_robot.dirkin(listener.state)
         fetch_xyz = np.asarray(pose["gripper_link"].pos)
         # compute robot actions
-        action_fetch = robotAtion(waypoint, fetch_xyz, action_scale_fetch, goal)
+        action_fetch = robotAtion(waypoint, fetch_xyz, action_scale_fetch)
         dist = np.linalg.norm(waypoint-fetch_xyz)
         if dist < 0.002:
             # if waypoint == 3:
@@ -248,7 +248,7 @@ def fetchThread(interface, waypoint, goal, listener, fetch_robot, mover, action_
         mover.send(action_fetch, fetch_step_t)
 
 
-def pandaThread(interface, waypoint, goal, conn, conn_gripper=1, action_scale_panda=.5):
+def pandaThread(idx, interface, waypoint, conn, conn_gripper=1, action_scale_panda=0.1):
 
     pause = False
     while True:
@@ -257,17 +257,21 @@ def pandaThread(interface, waypoint, goal, conn, conn_gripper=1, action_scale_pa
         panda_xyz = joint2pose(state_panda["q"])
 
         # compute robot actions
-        action_panda = robotAtion(waypoint, panda_xyz, action_scale_panda, goal)
+        action_panda = robotAtion(waypoint, panda_xyz, action_scale_panda)
         dist = np.linalg.norm(waypoint-panda_xyz)
 
-        if dist < 0.003:
-            # if waypoint == 3:
-            #     send2gripper(conn_gripper, 'c')
-            #     time.sleep(2)
-            # elif waypoint == 6:
-            #     x = 1
-            #     send2gripper(conn_gripper, 'o')
-            break
+        if idx == 54:
+            if dist < 0.002:
+                # if waypoint == 3:
+                #     send2gripper(conn_gripper, 'c')
+                #     time.sleep(2)
+                # elif waypoint == 6:
+                #     x = 1
+                #     send2gripper(conn_gripper, 'o')
+                break
+        else:
+            if dist < .3:
+                break
 
         # pause and resume the robot
         last_time = 0.0
@@ -316,16 +320,16 @@ def main(trajectory_panda, trajectory_fetch):
     send_panda_home(conn)
 
     for idx in range(len(trajectory_panda)):
-        # if idx in [5,10,15,20,25,30,35,40,53]:
+        # if idx % 9 == 0:
         print('waypoint: ',idx+1)
 
         # t_panda = threading.Thread(target = pandaThread,
         #         args= (interface, waypoint, trajectory_panda[idx], conn, conn_gripper))
         t_panda = threading.Thread(target = pandaThread,
-                args= (interface, trajectory_panda[idx], trajectory_panda[-1], conn))
+                args= (idx, interface, trajectory_panda[idx], conn))
 
         # t_fetch = threading.Thread(target = fetchThread,
-        #         args=(interface, trajectory_fetch[idx], trajectory_fetch[-1], listener, fetch_robot, mover,))
+        #         args=(idx, interface, trajectory_fetch[idx], listener, fetch_robot, mover,))
 
         t_panda.start()
         # t_fetch.start()
