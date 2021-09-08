@@ -32,9 +32,8 @@ from geometry_msgs.msg import(
 )
 
 
-fetch_home = [0.4, -0.055606842041015625, -0.8344855308532715,
-            3.082918405532837, -2.2994372844696045, 3.0422675609588623,
-            -1.4718544483184814, -3.125485897064209]
+fetch_home = [0.4, 0.05522298812866211, -0.8364033699035645, 3.118966579437256,
+-2.2507331371307373, 3.130854606628418, -1.4737722873687744, 3.120117425918579]
 fetch_home_t = 5.0
 
 
@@ -208,7 +207,7 @@ def robotAtion(waypoint, cur_pos, action_scale):
     return robot_action
 
 
-def fetchThread(idx, interface, waypoint, listener, fetch_robot, mover, action_scale_fetch = 0.8):
+def fetchThread(idx, interface, waypoint, listener, fetch_robot, mover, action_scale_fetch = 0.04):
 
     pause = False
     while True:
@@ -219,13 +218,18 @@ def fetchThread(idx, interface, waypoint, listener, fetch_robot, mover, action_s
         # compute robot actions
         action_fetch = robotAtion(waypoint, fetch_xyz, action_scale_fetch)
         dist = np.linalg.norm(waypoint-fetch_xyz)
-        if dist < 0.002:
-            # if waypoint == 3:
-            #     mover.close_gripper()
-            #     time.sleep(2)
-            # elif waypoint == 6:
-            #     mover.open_gripper()
-            break
+
+        if idx == 54:
+            if dist < 0.002:
+                # if waypoint == 3:
+                #     mover.close_gripper()
+                #     time.sleep(2)
+                # elif waypoint == 6:
+                #     mover.open_gripper()
+                break
+        else:
+            if dist < .01:
+                break
 
         # pause and resume the robot
         last_time = 0.0
@@ -248,7 +252,7 @@ def fetchThread(idx, interface, waypoint, listener, fetch_robot, mover, action_s
         mover.send(action_fetch, fetch_step_t)
 
 
-def pandaThread(idx, interface, waypoint, conn, conn_gripper=1, action_scale_panda=0.1):
+def pandaThread(idx, interface, waypoint, conn, conn_gripper=1, action_scale_panda=0.04):
 
     pause = False
     while True:
@@ -270,7 +274,7 @@ def pandaThread(idx, interface, waypoint, conn, conn_gripper=1, action_scale_pan
                 #     send2gripper(conn_gripper, 'o')
                 break
         else:
-            if dist < .3:
+            if dist < .01:
                 break
 
         # pause and resume the robot
@@ -316,7 +320,7 @@ def main(trajectory_panda, trajectory_fetch):
 
 
     # send robots to home
-    mover.send_joint(fetch_home, fetch_home_t)
+    # mover.send_joint(fetch_home, fetch_home_t)
     send_panda_home(conn)
 
     for idx in range(len(trajectory_panda)):

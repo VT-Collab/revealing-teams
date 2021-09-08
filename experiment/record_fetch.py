@@ -29,9 +29,8 @@ from geometry_msgs.msg import(
 )
 
 
-HOME_POSITION = [0.4, -0.055606842041015625, -0.8344855308532715,
-            3.082918405532837, -2.2994372844696045, 3.0422675609588623,
-            -1.4718544483184814, -3.125485897064209]
+HOME_POSITION = [0.4, 0.05522298812866211, -0.8364033699035645, 3.118966579437256,
+-2.2507331371307373, 3.130854606628418, -1.4737722873687744, 3.120117425918579]
 HOMING_TIME = 4.0
 
 STEP_SIZE_L = 0.2
@@ -159,6 +158,7 @@ def main():
     record = False
     count = 0
     positions = []
+
 
     while not rospy.is_shutdown():
         axes, buttons, stop = joystick.getInput()

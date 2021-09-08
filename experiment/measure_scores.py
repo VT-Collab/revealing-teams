@@ -26,13 +26,13 @@ def legibleRobots(team, gstar_idx, gstar, A, G_ls):
     states_panda = []
     states_fetch = []
     step = 1
-    step_max = 55
+    step_max = 30
     p_aloc = np.ones(len(G_ls))
     while True:
         print('---Step: ',step)
         s = getState(team)
         epsilon = 0.02
-        if step > 25:
+        if step > 20:
             epsilon = 0.00001
         Q = {}
         Qmax = -np.Inf
