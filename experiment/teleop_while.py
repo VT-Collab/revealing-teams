@@ -7,7 +7,6 @@ import sys
 import rospy
 import actionlib
 import kinpy as kp
-import threading
 
 
 from utils.fetch_kn import *
@@ -207,99 +206,6 @@ def robotAtion(waypoint, cur_pos, action_scale):
     return robot_action
 
 
-def fetchThread(idx, interface, waypoint, listener, fetch_robot, mover, action_scale_fetch = 0.04):
-
-    pause = False
-    while True:
-        fetch_step_t = 0.1
-        # current end-effector position
-        pose = fetch_robot.dirkin(listener.state)
-        fetch_xyz = np.asarray(pose["gripper_link"].pos)
-        # compute robot actions
-        action_fetch = robotAtion(waypoint, fetch_xyz, action_scale_fetch)
-        dist = np.linalg.norm(waypoint-fetch_xyz)
-
-        if idx == 30:
-            if dist < 0.002:
-                # if waypoint == 3:
-                #     mover.close_gripper()
-                #     time.sleep(2)
-                # elif waypoint == 6:
-                #     mover.open_gripper()
-                break
-        else:
-            if dist < .1:
-                break
-
-        # pause and resume the robot
-        last_time = 0.0
-        sample_time = 0.5
-        A_pressed, Start_pressed = interface.input()
-        if A_pressed and not pause:
-            pause = True
-            last_time = time.time()
-            # print('Task paused!')
-        if pause:
-            action_fetch = [0]*6
-        if Start_pressed and pause:
-            curr_time = time.time()
-            if curr_time - last_time >= sample_time:
-                last_time = curr_time
-                pause = False
-                # print("Task continues!",'\n')
-
-        # send commands to the robot
-        mover.send(action_fetch, fetch_step_t)
-
-
-def pandaThread(idx, interface, waypoint, conn, conn_gripper=1, action_scale_panda=0.04):
-
-    pause = False
-    while True:
-        # current end-effector position
-        state_panda = readState(conn)
-        panda_xyz = joint2pose(state_panda["q"])
-
-        # compute robot actions
-        action_panda = robotAtion(waypoint, panda_xyz, action_scale_panda)
-        dist = np.linalg.norm(waypoint-panda_xyz)
-
-        if idx == 54:
-            if dist < 0.002:
-                # if waypoint == 3:
-                #     send2gripper(conn_gripper, 'c')
-                #     time.sleep(2)
-                # elif waypoint == 6:
-                #     x = 1
-                #     send2gripper(conn_gripper, 'o')
-                break
-        else:
-            if dist < .1:
-                break
-
-        # pause and resume the robot
-        last_time = 0.0
-        sample_time = 0.5
-        A_pressed, Start_pressed = interface.input()
-        if A_pressed and not pause:
-            pause = True
-            last_time = time.time()
-            print('Task paused!')
-        if pause:
-            action_panda = [0]*6
-        if Start_pressed and pause:
-            curr_time = time.time()
-            if curr_time - last_time >= sample_time:
-                last_time = curr_time
-                pause = False
-                print("Task continues!")
-
-        # send action commands to the robot
-        # print(xdot2qdot(action_panda, state_panda)[1])
-        send2robot(conn, xdot2qdot(action_panda, state_panda))
-
-
-
 def main(trajectory_panda, trajectory_fetch):
     interface = Joystick()
 
@@ -324,25 +230,64 @@ def main(trajectory_panda, trajectory_fetch):
     # mover.send_joint(fetch_home, fetch_home_t)
     send_panda_home(conn)
 
+    pause = False
+    fetch_step_t = 0.1
+
     for idx in range(len(trajectory_panda)):
-        # if idx % 9 == 0:
         print('waypoint: ',idx+1)
+        while True:
+            Start_time = time.time()
 
-        # t_panda = threading.Thread(target = pandaThread,
-        #         args= (interface, waypoint, trajectory_panda[idx], conn, conn_gripper))
-        t_panda = threading.Thread(target = pandaThread,
-                args= (idx, interface, trajectory_panda[idx], conn))
+            # current end-effector position
+            state_panda = readState(conn)
+            panda_xyz = joint2pose(state_panda["q"])
 
-        # t_fetch = threading.Thread(target = fetchThread,
-                # args=(idx, interface, trajectory_fetch[idx], listener, fetch_robot, mover,))
+            pose = fetch_robot.dirkin(listener.state)
+            fetch_xyz = np.asarray(pose["gripper_link"].pos)
 
-        Start_time = time.time()
-        t_panda.start()
-        # t_fetch.start()
+            # compute robot actions
+            action_panda = robotAtion(trajectory_panda[idx], panda_xyz, 0.08)
+            dist_panda = np.linalg.norm(trajectory_panda[idx]-panda_xyz)
 
-        t_panda.join()
-        # t_fetch.join()
-        print(time.time() - Start_time)
+            action_fetch = robotAtion(trajectory_fetch[idx], fetch_xyz, 0.04)
+            dist_fetch = np.linalg.norm(trajectory_fetch[idx]-fetch_xyz)
+
+
+            if idx == 29:
+                if dist_panda < 0.002:
+                    break
+            else:
+                if dist_panda < .01:
+                    break
+
+            # pause and resume the robot
+            last_time = 0.0
+            sample_time = 0.5
+            A_pressed, Start_pressed = interface.input()
+            if A_pressed and not pause:
+                pause = True
+                last_time = time.time()
+                print('Task paused!')
+            if pause:
+                action_panda = [0]*6
+                action_fetch = [0]*6
+            if Start_pressed and pause:
+                curr_time = time.time()
+                if curr_time - last_time >= sample_time:
+                    last_time = curr_time
+                    pause = False
+                    print("Task continues!")
+
+            # send action commands to the robot
+            send2robot(conn, xdot2qdot(action_panda, state_panda))
+            # mover.send(action_fetch, fetch_step_t)
+
+
+
+
+
+
+            print(time.time() - Start_time)
 
 
 

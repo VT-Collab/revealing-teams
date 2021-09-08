@@ -4,7 +4,7 @@ import sys
 import pickle
 import time
 
-from teleop import main as tele
+from teleop_while import main as tele
 from utils.grid_world import *
 
 from sensor_msgs.msg import (
