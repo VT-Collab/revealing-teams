@@ -7,9 +7,9 @@ import time
 from teleop_while import main as tele
 from utils.grid_world import *
 
-from sensor_msgs.msg import (
-      JointState
-)
+# from sensor_msgs.msg import (
+#       JointState
+# )
 
 task = sys.argv[1]
 
