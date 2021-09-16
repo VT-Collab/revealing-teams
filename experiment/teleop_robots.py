@@ -205,6 +205,11 @@ def robotAtion(waypoint, cur_pos, action_scale):
     robot_action = [robot_error[0], robot_error[1], robot_error[2], 0, 0, 0]
     return robot_action
 
+def savedData(task, file):
+    filename = "data/"+task+"/"+file+".pkl"
+    data = pickle.load(open(filename, "rb"))
+    return data
+
 
 def main(trajectory_panda, trajectory_fetch):
 
@@ -229,12 +234,12 @@ def main(trajectory_panda, trajectory_fetch):
     mover.send_joint(fetch_home, fetch_home_t)
     send_panda_home(conn)
 
-    panda_action_scale = 0.1
+    panda_action_scale = 0.05
     panda_waypoint = 0
     panda_goal = trajectory_panda[panda_waypoint]
 
     fetch_step_t = 0.1
-    fetch_action_scale = 0.1
+    fetch_action_scale = 0.05
     fetch_waypoint = 0
     fetch_goal = trajectory_fetch[fetch_waypoint]
 
@@ -264,7 +269,7 @@ def main(trajectory_panda, trajectory_fetch):
         fetch_state = fetch_robot.dirkin(listener.state)
         fetch_xyz = np.asarray(fetch_state["gripper_link"].pos)
 
-        if np.linalg.norm(panda_goal - panda_xyz) < 0.005:
+        if np.linalg.norm(panda_goal - panda_xyz) < 0.01:
             panda_waypoint += 1
             if panda_waypoint >= len(trajectory_panda):
                 panda_action_scale = 0.0
@@ -272,7 +277,7 @@ def main(trajectory_panda, trajectory_fetch):
                 panda_working = False
             panda_goal = trajectory_panda[panda_waypoint]
 
-        if np.linalg.norm(fetch_goal - fetch_xyz) < 0.005:
+        if np.linalg.norm(fetch_goal - fetch_xyz) < 0.01:
             fetch_waypoint += 1
             if fetch_waypoint >= len(trajectory_fetch):
                 fetch_action_scale = 0.0
@@ -283,6 +288,7 @@ def main(trajectory_panda, trajectory_fetch):
         panda_error = (panda_goal - panda_xyz)/np.linalg.norm(panda_goal - panda_xyz)*panda_action_scale
         panda_action = [panda_error[0], panda_error[1], panda_error[2], 0, 0, 0]
 
+        fetch_action_scale = 0.0
         fetch_error = (fetch_goal - fetch_xyz)/np.linalg.norm(fetch_goal - fetch_xyz)*fetch_action_scale
         fetch_action = [fetch_error[0], fetch_error[1], fetch_error[2], 0, 0, 0]
 

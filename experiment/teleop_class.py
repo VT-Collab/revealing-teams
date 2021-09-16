@@ -206,18 +206,30 @@ def robotAction(waypoint, cur_pos, action_scale):
     return robot_action
 
 
-def swtichGoals(robot_goal, robot_xyz, robot_threshold, robot_action_scale, trajectory_robot):
-    if np.linalg.norm(panda_goal - panda_xyz) < panda_threshold:
+def swtichGoals(robot_waypoint, robot_goal, robot_xyz, robot_threshold, robot_action_scale, trajectory_robot, conn_gripper):
+    # print(robot_waypoint)
+    robot_working = True
+    if np.linalg.norm(robot_goal - robot_xyz) < robot_threshold:
         robot_waypoint += 1
-        if robot_waypoint > len(trajectory_robot)-3:
-            robot_threshold /= 2
-            robot_action_scale /= 2
+        if robot_waypoint > len(trajectory_robot)-25:
+            robot_threshold = 0.002
+            robot_action_scale = 0.03
+
+        if robot_waypoint == len(trajectory_robot)-1:
+            robot_threshold = 0.1
+            robot_action_scale = 0.1
+
+        if robot_waypoint == len(trajectory_robot)-2:
+            send2gripper(conn_gripper, 'c')
+            time.sleep(2)
+
+
         if robot_waypoint >= len(trajectory_robot):
             robot_action_scale = 0.0
             robot_waypoint -= 1
-            working = False
+            robot_working = False
         robot_goal = trajectory_robot[robot_waypoint]
-    return robot_goal, robot_waypoint, working
+    return robot_goal, robot_waypoint, robot_working, robot_threshold, robot_action_scale
 
 
 def main(trajectory_panda, trajectory_fetch):
@@ -235,21 +247,21 @@ def main(trajectory_panda, trajectory_fetch):
     PORT_robot = 8080
     conn = connect2robot(PORT_robot)
 
-    # print('[*] Connecting to Panda gripper...')
-    # PORT_gripper = 8081
-    # conn_gripper = connect2gripper(PORT_gripper)
+    print('[*] Connecting to Panda gripper...')
+    PORT_gripper = 8081
+    conn_gripper = connect2gripper(PORT_gripper)
     # send2gripper(conn_gripper, 'o')
 
     mover.send_joint(fetch_home, fetch_home_t)
     send_panda_home(conn)
 
-    panda_action_scale = 0.1
+    panda_action_scale = 0.05
     panda_waypoint = 0
     panda_threshold = 0.01
     panda_goal = trajectory_panda[panda_waypoint]
 
     fetch_step_t = 0.1
-    fetch_action_scale = 0.1
+    fetch_action_scale = 0.05
     fetch_waypoint = 0
     fetch_threshold = 0.01
     fetch_goal = trajectory_fetch[fetch_waypoint]
@@ -281,35 +293,18 @@ def main(trajectory_panda, trajectory_fetch):
         fetch_xyz = np.asarray(fetch_state["gripper_link"].pos)
 
 
-        panda_goal, panda_waypoint, panda_working = swtichGoals(panda_goal, panda_xyz,
-                    panda_threshold, panda_action_scale, trajectory_panda)
+        panda_goal, panda_waypoint, panda_working, panda_threshold, panda_action_scale = swtichGoals(panda_waypoint, panda_goal, panda_xyz,
+                                                                panda_threshold, panda_action_scale, trajectory_panda, conn_gripper)
 
-        fetch_goal, fetch_working = swtichGoals(fetch_goal, fetch_xyz,
-                    fetch_threshold, fetch_action_scale, trajectory_fetch)
-
-
-        # if np.linalg.norm(panda_goal - panda_xyz) < panda_threshold:
-        #     panda_waypoint += 1
-        #     if panda_waypoint > len(trajectory_panda)-3:
-        #         panda_threshold = 0.005
-        #         panda_action_scale /= 2
-        #     if panda_waypoint >= len(trajectory_panda):
-        #         panda_action_scale = 0.0
-        #         panda_waypoint -= 1
-        #         panda_working = False
-        #     panda_goal = trajectory_panda[panda_waypoint]
-
-        # if np.linalg.norm(fetch_goal - fetch_xyz) < fetch_threshold:
-        #     fetch_waypoint += 1
-        #     if fetch_waypoint >= len(trajectory_fetch):
-        #         fetch_action_scale = 0.0
-        #         fetch_waypoint -= 1
-        #         fetch_working = False
-        #     fetch_goal = trajectory_fetch[fetch_waypoint]
+        # fetch_goal, fetch_working, fetch_working, fetch_threshold = swtichGoals(fetch_waypoint, fetch_goal, fetch_xyz,
+        #                                                         fetch_threshold, fetch_action_scale, trajectory_fetch)
 
 
         panda_action = robotAction(panda_goal, panda_xyz, panda_action_scale)
         fetch_action = robotAction(fetch_goal, fetch_xyz, fetch_action_scale)
+
+
+        fetch_action = [0]*6
 
         if pause:
             panda_action = [0]*6
@@ -318,6 +313,8 @@ def main(trajectory_panda, trajectory_fetch):
         send2robot(conn, xdot2qdot(panda_action, panda_state))
         mover.send(fetch_action, fetch_step_t)
 
+        if not panda_working:
+            send2gripper(conn_gripper, 'o')
 
     # go down
     # close grippers

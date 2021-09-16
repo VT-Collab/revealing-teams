@@ -4,8 +4,8 @@ import sys
 import pickle
 import time
 
-# from teleop_robots import main as tele
-# from utils.grid_world import *
+from teleop_class import main as tele
+from utils.grid_world import *
 
 
 
@@ -42,12 +42,9 @@ ranked_scores = ranked_scores[::-1]
 
 
 # recorded end-effector positions
-positions_panda = savedData(task, 'panda_1')
-positions_fetch = savedData(task, 'fetch_3')
-print()
-print(positions_fetch)
-print()
-x
+positions_panda = savedData(task, 'panda_2')
+positions_fetch = savedData(task, 'fetch_1')
+
 # initial end-effector height
 h0_panda = positions_panda[0][2]
 h0_fetch = positions_fetch[0][2]
@@ -71,5 +68,11 @@ for idx in range(len(gstar_panda)):
     h0_fetch_tfmd = transform(np.array([0,0,h0_fetch]))[-1]
     pos_fetch_tfmd = transform(list(pos_fetch)+[h0_fetch_tfmd], back_to_fetch=True)
     trajectory_fetch.append(pos_fetch_tfmd)
+
+trajectory_panda.append(positions_panda[2])
+trajectory_panda.append(trajectory_panda[-2])
+trajectory_panda.append([0.38204478, 0.01169821, 0.24424794])
+
+trajectory_fetch + [trajectory_fetch[-1],list(positions_fetch[2])]
 
 tele(trajectory_panda, trajectory_fetch)
