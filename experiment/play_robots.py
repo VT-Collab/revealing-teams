@@ -4,12 +4,10 @@ import sys
 import pickle
 import time
 
-from teleop_while import main as tele
+from teleop_robots import main as tele
 from utils.grid_world import *
 
-# from sensor_msgs.msg import (
-#       JointState
-# )
+
 
 task = sys.argv[1]
 
@@ -43,16 +41,22 @@ ranked_scores = ranked_scores[::-1]
 #     x
 
 
-# initial end-effector height
+# recorded end-effector positions
 positions_panda = savedData(task, 'panda_1')
+positions_fetch = savedData(task, 'fetch_3')
+print()
+print(positions_fetch[0])
+print()
+x
+# initial end-effector height
 h0_panda = positions_panda[0][2]
-positions_fetch = savedData(task, 'fetch_1')
 h0_fetch = positions_fetch[0][2]
 
 
 # for gstar in states:
 gstar_panda = States_panda[4]
 gstar_fetch = States_fetch[4]
+
 
 trajectory_panda = []
 trajectory_fetch = []
