@@ -50,9 +50,10 @@ h0_panda = positions_panda[0][2]
 h0_fetch = positions_fetch[0][2]
 
 
+n = 1
 # for gstar in states:
-gstar_panda = States_panda[4]
-gstar_fetch = States_fetch[4]
+gstar_panda = States_panda[n]
+gstar_fetch = States_fetch[n]
 
 
 trajectory_panda = []

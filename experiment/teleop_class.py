@@ -252,9 +252,9 @@ def main(trajectory_panda, trajectory_fetch):
     conn_gripper = connect2gripper(PORT_gripper)
     # send2gripper(conn_gripper, 'o')
 
-    mover.send_joint(fetch_home, fetch_home_t)
+    # mover.send_joint(fetch_home, fetch_home_t)
     send_panda_home(conn)
-
+    x
     panda_action_scale = 0.05
     panda_waypoint = 0
     panda_threshold = 0.01
