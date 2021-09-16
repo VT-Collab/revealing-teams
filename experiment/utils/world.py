@@ -33,7 +33,7 @@ def transform(p, back_to_fetch=False):
 def envAgents():
     # initial end-effector positions
     panda_p0 = np.array([0.38204478, 0.01169821, 0.24424794])
-    fetch_p0 = np.array([0.71579027, 0.19279565, 0.74217811])
+    fetch_p0 = np.array([0.66547681, 0.34426406, 0.74669254])
     team_loc = [panda_p0, transform(fetch_p0)]
     return team_loc
 

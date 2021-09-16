@@ -4,8 +4,8 @@ import sys
 import pickle
 import time
 
-from teleop_robots import main as tele
-from utils.grid_world import *
+# from teleop_robots import main as tele
+# from utils.grid_world import *
 
 
 
@@ -45,7 +45,7 @@ ranked_scores = ranked_scores[::-1]
 positions_panda = savedData(task, 'panda_1')
 positions_fetch = savedData(task, 'fetch_3')
 print()
-print(positions_fetch[0])
+print(positions_fetch)
 print()
 x
 # initial end-effector height
