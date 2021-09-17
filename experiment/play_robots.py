@@ -42,8 +42,8 @@ ranked_scores = ranked_scores[::-1]
 
 
 # recorded end-effector positions
-positions_panda = savedData(task, 'panda_2')
-positions_fetch = savedData(task, 'fetch_1')
+positions_panda = savedData(task, 'panda_1')
+positions_fetch = savedData(task, 'fetch_2')
 
 # initial end-effector height
 h0_panda = positions_panda[0][2]
