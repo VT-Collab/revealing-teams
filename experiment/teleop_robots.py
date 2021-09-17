@@ -288,7 +288,6 @@ def main(trajectory_panda, trajectory_fetch):
         panda_error = (panda_goal - panda_xyz)/np.linalg.norm(panda_goal - panda_xyz)*panda_action_scale
         panda_action = [panda_error[0], panda_error[1], panda_error[2], 0, 0, 0]
 
-        fetch_action_scale = 0.0
         fetch_error = (fetch_goal - fetch_xyz)/np.linalg.norm(fetch_goal - fetch_xyz)*fetch_action_scale
         fetch_action = [fetch_error[0], fetch_error[1], fetch_error[2], 0, 0, 0]
 

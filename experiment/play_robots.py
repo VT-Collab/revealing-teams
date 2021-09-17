@@ -49,6 +49,9 @@ positions_fetch = savedData(task, 'fetch_2')
 h0_panda = positions_panda[0][2]
 h0_fetch = positions_fetch[0][2]
 
+# beans
+panda_bean = savedData(task, 'panda_bean')
+fetch_bean = savedData(task, 'fetch_bean')
 
 n = 1
 # for gstar in states:
@@ -70,10 +73,15 @@ for idx in range(len(gstar_panda)):
     pos_fetch_tfmd = transform(list(pos_fetch)+[h0_fetch_tfmd], back_to_fetch=True)
     trajectory_fetch.append(pos_fetch_tfmd)
 
+
 trajectory_panda.append(positions_panda[2])
 trajectory_panda.append(trajectory_panda[-2])
-trajectory_panda.append([0.38204478, 0.01169821, 0.24424794])
+trajectory_panda.append(panda_bean[0])
 
-trajectory_fetch + [trajectory_fetch[-1],list(positions_fetch[2])]
+
+trajectory_fetch.append(positions_fetch[2])
+trajectory_fetch.append(trajectory_fetch[-2])
+trajectory_fetch.append(fetch_bean[0])
+
 
 tele(trajectory_panda, trajectory_fetch)
