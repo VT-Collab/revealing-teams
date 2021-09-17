@@ -31,10 +31,10 @@ def legibleRobots(team, gstar_idx, gstar, A, G_ls):
     while True:
         print('---Step: ',step)
         s = getState(team)
-        epsilon = 0.015
+        epsilon = 0.02
 
-        if np.linalg.norm(gstar - s) < 0.2:
-            epsilon = 0.000001
+        # if np.linalg.norm(gstar - s) < 0.2:
+        #     epsilon = 0.000001
 
         Q = {}
         Qmax = -np.Inf
@@ -50,11 +50,20 @@ def legibleRobots(team, gstar_idx, gstar, A, G_ls):
                 astar = np.copy(a)
                 value = likelihood[gstar_idx]
 
-        threshold = 0.001
-        if np.linalg.norm(gstar[:2] - s[:2]) < threshold:
-            astar[:2] = [0,0]
-        elif np.linalg.norm(gstar[2:] - s[2:]) < threshold:
-            astar[2:] = [0,0]
+        error1 = np.linalg.norm(gstar[:2] - s[:2])
+        error2 = np.linalg.norm(gstar[2:] - s[2:])
+
+        if error1 < 0.2:
+            if error1 < 0.02:
+                astar[:2] = (gstar[:2] - s[:2])
+            else:
+                astar[:2] = (gstar[:2] - s[:2]) / error1  * 0.02
+
+        if error2 < 0.2:
+            if error2 < 0.02:
+                astar[2:] = (gstar[2:] - s[2:])
+            else:
+                astar[2:] = (gstar[2:] - s[2:]) / error2 * 0.02
 
         # update for next time step
         updateState(team, s + astar)
