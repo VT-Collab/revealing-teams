@@ -89,8 +89,10 @@ def transformFromPygame(x,y):
 
 def envAgents():
     # initial end-effector positions
-    panda_p0 = np.array([0.38204478, 0.01169821, 0.24424794])
-    fetch_p0 = transform(np.array([0.66515038, 0.34430734, 0.74878888]))
+    panda_to_obj1 = savedGoals('task1', 'panda', '1')
+    fetch_to_obj1 = savedGoals('task1', 'fetch', '1')
+    panda_p0 = panda_to_obj1[0]
+    fetch_p0 = transform(fetch_to_obj1[0])
     # add as many agents as you want
     agent_r1 = Object(transformToPygame(panda_p0[0], panda_p0[1]), [0, 0, 255], 25)
     agent_r2 = Object(transformToPygame(float(fetch_p0[0]), float(fetch_p0[1])), [255, 0, 0], 25)

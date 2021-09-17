@@ -5,7 +5,7 @@ import pickle
 import sys
 
 from utils.robot_actions import actionSpace
-from utils.grid_world import *
+from utils.world import *
 
 
 # bayes rule with boltzmann rational
@@ -32,8 +32,10 @@ def legibleRobots(team, gstar_idx, gstar, A, G_ls):
         print('---Step: ',step)
         s = getState(team)
         epsilon = 0.02
-        if step > 20:
+
+        if np.linalg.norm(gstar - s) < 0.1:
             epsilon = 0.00001
+
         Q = {}
         Qmax = -np.Inf
         for a in A:

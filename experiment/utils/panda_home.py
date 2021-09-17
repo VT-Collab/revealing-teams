@@ -63,7 +63,7 @@ def main(conn):
         utils.send2robot(conn, qdot)
         dist = np.linalg.norm(state - home1)
         elapsed_time = time.time() - start_time
-    print('[*] Done!')
+    # print('[*] Done!')
 
 
 if __name__ == "__main__":

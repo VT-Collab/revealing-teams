@@ -1,4 +1,4 @@
-from utils.grid_world import (
+from utils.world import (
         Object, getState, updateState,
         resetPos, envAgents, envGoals, initGroup
 )
