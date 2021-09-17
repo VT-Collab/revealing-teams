@@ -31,12 +31,12 @@ from geometry_msgs.msg import(
 )
 
 
-fetch_home = [0.42, 0.28493690490722656, -0.8260488510131836,
--3.1005585193634033, -2.2150681018829346, -2.876214027404785, -1.4580485820770264, 3.029228925704956]
+fetch_home = [0.42, 0.274965763092041, -0.8133935928344727,
+-3.1040101051330566, -2.1675150394439697, -2.8873353004455566, -1.424684762954712, 3.025010585784912]
 fetch_home_t = 5.0
 
 
-'''-----------Fetch-----------'''
+'''######################## Fetch ########################'''
 class TrajectoryClient(object):
 
     def __init__(self):
@@ -96,11 +96,11 @@ class TrajectoryClient(object):
         waypoint = GripperCommandGoal
         waypoint.command = command
         self.gripper.send_goal(waypoint)
-'''-----------Fetch-----------'''
+'''######################## Fetch ########################'''
 
 
 
-'''-----------Panda-----------'''
+'''######################## Panda ########################'''
 def connect2robot(PORT):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -182,7 +182,7 @@ def joint2pose(q):
     H_panda_hand = TransZ(-np.pi/4, 0, 0, 0.2105)
     H = np.linalg.multi_dot([H1, H2, H3, H4, H5, H6, H7, H_panda_hand])
     return H[:,3][:3]
-'''-----------Panda-----------'''
+'''######################## Panda ########################'''
 
 
 class Joystick(object):
@@ -276,8 +276,8 @@ def main(allocation_panda, allocation_fetch):
         panda_xyz = joint2pose(panda_state["q"])
         fetch_state = fetch_robot.dirkin(listener.state)
         fetch_xyz = np.asarray(fetch_state["gripper_link"].pos)
-
-        '''############## Panda ##############'''
+        
+        '''######################## Panda ########################'''
         if flag_panda:
             panda_action = [0]*6
             panda_working = False
@@ -301,10 +301,11 @@ def main(allocation_panda, allocation_fetch):
                     panda_waypoint -= 1
                     panda_working = False
                 panda_goal = trajectory_panda[panda_waypoint]
-        '''############## Panda ##############'''
+        '''######################## Panda ########################'''
 
 
-        '''############## Fetch ##############'''
+
+        '''######################## Fetch ########################'''
         if flag_fetch:
             fetch_action = [0]*6
             fetch_working = False
@@ -328,7 +329,7 @@ def main(allocation_panda, allocation_fetch):
                     fetch_waypoint -= 1
                     fetch_working = False
                 fetch_goal = trajectory_fetch[fetch_waypoint]
-        '''############## Fetch ##############'''
+        '''######################## Fetch ########################'''
 
         # compute robot actions
         panda_action = robotAction(panda_goal, panda_xyz, panda_action_scale)
@@ -340,6 +341,7 @@ def main(allocation_panda, allocation_fetch):
             fetch_action = [0]*6
 
         # send ee velocity commands to robots
+        panda_action = [0]*6
         send2robot(conn, xdot2qdot(panda_action, panda_state))
         mover.send(fetch_action, fetch_step_t)
 

@@ -8,7 +8,6 @@ from teleop import main as tele
 from utils.world import *
 
 
-
 task = sys.argv[1]
 
 
@@ -45,7 +44,7 @@ ranked_scores = ranked_scores[::-1]
 
 # print(ranked_scores)
 
-allocation_name = ranked_scores[3][0]
+allocation_name = ranked_scores[2][0]
 print(allocation_name)
 result = np.where(scores == allocation_name)
 allocation_n = result[0][0]
