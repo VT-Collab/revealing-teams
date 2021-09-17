@@ -43,8 +43,8 @@ ranked_scores = ranked_scores[::-1]
 #     x
 
 # print(ranked_scores)
-
-allocation_name = ranked_scores[2][0]
+n = 7
+allocation_name = ranked_scores[n][0]
 print(allocation_name)
 result = np.where(scores == allocation_name)
 allocation_n = result[0][0]

@@ -224,7 +224,7 @@ def main(allocation_panda, allocation_fetch):
     print('[*] Connecting to Panda gripper...')
     PORT_gripper = 8081
     conn_gripper = connect2gripper(PORT_gripper)
-    send2gripper(conn_gripper, 'o')
+    # send2gripper(conn_gripper, 'o')
 
     mover.send_joint(fetch_home, fetch_home_t)
     send_panda_home(conn)
@@ -247,7 +247,7 @@ def main(allocation_panda, allocation_fetch):
     fetch_action_scale = 0.05
     fetch_step_t = 0.1
     fetch_waypoint = 0
-    fetch_threshold = 0.005
+    fetch_threshold = 0.01
     fetch_goal = trajectory_fetch[fetch_waypoint]
 
     pause = False
@@ -276,7 +276,7 @@ def main(allocation_panda, allocation_fetch):
         panda_xyz = joint2pose(panda_state["q"])
         fetch_state = fetch_robot.dirkin(listener.state)
         fetch_xyz = np.asarray(fetch_state["gripper_link"].pos)
-        
+
         '''######################## Panda ########################'''
         if flag_panda:
             panda_action = [0]*6
@@ -312,7 +312,7 @@ def main(allocation_panda, allocation_fetch):
         else:
             if np.linalg.norm(fetch_goal - fetch_xyz) < fetch_threshold:
                 fetch_waypoint += 1
-                if fetch_waypoint > len(trajectory_fetch)-15:
+                if fetch_waypoint > len(trajectory_fetch)-5:
                     fetch_threshold = 0.002
                     fetch_action_scale = 0.02
 
@@ -341,7 +341,7 @@ def main(allocation_panda, allocation_fetch):
             fetch_action = [0]*6
 
         # send ee velocity commands to robots
-        panda_action = [0]*6
+        fetch_action = [0]*6
         send2robot(conn, xdot2qdot(panda_action, panda_state))
         mover.send(fetch_action, fetch_step_t)
 
