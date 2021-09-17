@@ -45,14 +45,14 @@ ranked_scores = ranked_scores[::-1]
 
 # print(ranked_scores)
 
-allocation_name = ranked_scores[1][0]
+allocation_name = ranked_scores[3][0]
 print(allocation_name)
 result = np.where(scores == allocation_name)
 allocation_n = result[0][0]
 
 # recorded end-effector positions (robots might have no target)
-flag_panda = True
-flag_fetch = True
+flag_panda = False
+flag_fetch = False
 panda_target = 'panda_' + allocation_name[5]
 fetch_target = 'fetch_' + allocation_name[-1]
 

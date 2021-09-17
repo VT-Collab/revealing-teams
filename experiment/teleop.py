@@ -340,7 +340,6 @@ def main(allocation_panda, allocation_fetch):
             fetch_action = [0]*6
 
         # send ee velocity commands to robots
-        panda_action = [0]*6
         send2robot(conn, xdot2qdot(panda_action, panda_state))
         mover.send(fetch_action, fetch_step_t)
 
