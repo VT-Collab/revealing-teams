@@ -34,16 +34,33 @@ ranked_scores = ranked_scores[::-1]
 # ranked_scores = ranked_scores[ranked_scores[:,2].argsort(kind='mergesort')]
 # print('[*] Ranked based on fairness: ','\n',ranked_scores)
 
-# # main loop
+# main loop
 # for gstar_idx, item in enumerate(ranked_scores):
 #     print('[*] Allocation: ', gstar_idx)
-#     print(states[gstar_idx])
+#     allocation_name = item[0]
+#     pandaallocation_name[5]
+#     allocation_name[-1]
+#     print(allocation_name)
 #     x
 
+allocation_name = ranked_scores[3][0]
+result = np.where(scores == allocation_name)
+allocation_n = result[0][0]
+# print(allocation_n)
+
+panda_target = 'panda_' + allocation_name[5]
+fetch_target = 'fetch_' + allocation_name[-1]
+
+
+
+# print(scores)
+# print()
+# print(ranked_scores)
+# x
 
 # recorded end-effector positions
-positions_panda = savedData(task, 'panda_1')
-positions_fetch = savedData(task, 'fetch_2')
+positions_panda = savedData(task, panda_target)
+positions_fetch = savedData(task, fetch_target)
 
 # initial end-effector height
 h0_panda = positions_panda[0][2]
@@ -53,10 +70,10 @@ h0_fetch = positions_fetch[0][2]
 panda_bean = savedData(task, 'panda_bean')
 fetch_bean = savedData(task, 'fetch_bean')
 
-n = 1
+# n = 1
 # for gstar in states:
-gstar_panda = States_panda[n]
-gstar_fetch = States_fetch[n]
+gstar_panda = States_panda[allocation_n]
+gstar_fetch = States_fetch[allocation_n]
 
 
 trajectory_panda = []

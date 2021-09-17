@@ -237,7 +237,7 @@ def main(trajectory_panda, trajectory_fetch):
     fetch_action_scale = 0.05
     fetch_step_t = 0.1
     fetch_waypoint = 0
-    fetch_threshold = 0.01
+    fetch_threshold = 0.005
     fetch_goal = trajectory_fetch[fetch_waypoint]
 
     pause = False
@@ -279,7 +279,7 @@ def main(trajectory_panda, trajectory_fetch):
 
             if panda_waypoint == len(trajectory_panda)-2:
                 send2gripper(conn_gripper, 'c')
-                time.sleep(2)
+                time.sleep(0.5)
 
             if panda_waypoint >= len(trajectory_panda):
                 panda_action_scale = 0.0
@@ -302,7 +302,7 @@ def main(trajectory_panda, trajectory_fetch):
 
             if fetch_waypoint == len(trajectory_fetch)-2:
                 mover.close_gripper()
-                time.sleep(2)
+                time.sleep(0.5)
 
             if fetch_waypoint >= len(trajectory_fetch):
                 fetch_action_scale = 0.0
@@ -319,6 +319,7 @@ def main(trajectory_panda, trajectory_fetch):
             panda_action = [0]*6
             fetch_action = [0]*6
 
+        panda_action = [0]*6
         send2robot(conn, xdot2qdot(panda_action, panda_state))
         mover.send(fetch_action, fetch_step_t)
 
