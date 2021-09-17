@@ -2,7 +2,7 @@ import numpy as np
 
 def actionSpace():
     # discretize the space of actions for the team
-    n_actions = 5
+    n_actions = 10
     r = 0.02
     single_action_1 = []
     single_action_2 = []
