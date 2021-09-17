@@ -31,8 +31,8 @@ from geometry_msgs.msg import(
 )
 
 
-fetch_home = [0.42, 0.05522298812866211, -0.8364033699035645, 3.118966579437256,
--2.2507331371307373, 3.130854606628418, -1.4737722873687744, 3.120117425918579]
+fetch_home = [0.42, 0.28493690490722656, -0.8260488510131836,
+-3.1005585193634033, -2.2150681018829346, -2.876214027404785, -1.4580485820770264, 3.029228925704956]
 fetch_home_t = 5.0
 
 
@@ -254,7 +254,7 @@ def main(trajectory_panda, trajectory_fetch):
 
     # mover.send_joint(fetch_home, fetch_home_t)
     send_panda_home(conn)
-    x
+
     panda_action_scale = 0.05
     panda_waypoint = 0
     panda_threshold = 0.01

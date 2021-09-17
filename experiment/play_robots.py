@@ -5,7 +5,7 @@ import pickle
 import time
 
 from teleop_class import main as tele
-from utils.grid_world import *
+from utils.world import *
 
 
 
