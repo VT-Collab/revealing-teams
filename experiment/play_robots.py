@@ -4,7 +4,7 @@ import sys
 import pickle
 import time
 
-from teleop_class import main as tele
+from teleop import main as tele
 from utils.world import *
 
 
