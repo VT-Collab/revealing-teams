@@ -44,7 +44,7 @@ ranked_scores = ranked_scores[::-1]
 
 # print(ranked_scores)
 # x
-n = 2
+n = 5
 allocation_name = ranked_scores[n][0]
 print(allocation_name)
 result = np.where(scores == allocation_name)
@@ -90,12 +90,14 @@ trajectory_fetch = []
 for idx_panda in range(len(gstar_panda)):
     pos_panda = transformFromPygame(gstar_panda[idx_panda][0],gstar_panda[idx_panda][1])
     trajectory_panda.append(list(pos_panda)+[h0_panda])
-
+print(trajectory_panda)
+x
 for idx_fetch in range(len(gstar_fetch)):
     pos_fetch = transformFromPygame(gstar_fetch[idx_fetch][0],gstar_fetch[idx_fetch][1])
     h0_fetch_tfmd = transform(np.array([0,0,h0_fetch]))[-1]
     pos_fetch_tfmd = transform(list(pos_fetch)+[h0_fetch_tfmd], back_to_fetch=True)
     trajectory_fetch.append(pos_fetch_tfmd)
+
 
 trajectory_panda.append(list(positions_panda[2]))
 trajectory_panda.append(trajectory_panda[-2])
