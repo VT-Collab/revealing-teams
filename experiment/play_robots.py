@@ -43,7 +43,8 @@ ranked_scores = ranked_scores[::-1]
 #     x
 
 # print(ranked_scores)
-n = 7
+# x
+n = 6
 allocation_name = ranked_scores[n][0]
 print(allocation_name)
 result = np.where(scores == allocation_name)
@@ -83,17 +84,15 @@ fetch_bean = savedData(task, 'fetch_bean')
 gstar_panda = States_panda[allocation_n]
 gstar_fetch = States_fetch[allocation_n]
 
-
 trajectory_panda = []
 trajectory_fetch = []
 
-for idx in range(len(gstar_panda)):
-
-    pos_panda = transformFromPygame(gstar_panda[idx][0],gstar_panda[idx][1])
+for idx_panda in range(len(gstar_panda)):
+    pos_panda = transformFromPygame(gstar_panda[idx_panda][0],gstar_panda[idx_panda][1])
     trajectory_panda.append(list(pos_panda)+[h0_panda])
 
-
-    pos_fetch = transformFromPygame(gstar_fetch[idx][0],gstar_fetch[idx][1])
+for idx_fetch in range(len(gstar_fetch)):
+    pos_fetch = transformFromPygame(gstar_fetch[idx_fetch][0],gstar_fetch[idx_fetch][1])
     h0_fetch_tfmd = transform(np.array([0,0,h0_fetch]))[-1]
     pos_fetch_tfmd = transform(list(pos_fetch)+[h0_fetch_tfmd], back_to_fetch=True)
     trajectory_fetch.append(pos_fetch_tfmd)
@@ -104,9 +103,9 @@ trajectory_panda.append(trajectory_panda[-2])
 trajectory_panda.append(list(panda_bean[0]))
 
 
-trajectory_fetch.append(list(positions_fetch[2]))
+trajectory_fetch.append(positions_fetch[2])
 trajectory_fetch.append(trajectory_fetch[-2])
-trajectory_fetch.append(list(fetch_bean[0]))
+trajectory_fetch.append(fetch_bean[0])
 
 allocation_panda = [flag_panda, trajectory_panda]
 allocation_fetch = [flag_fetch, trajectory_fetch]
