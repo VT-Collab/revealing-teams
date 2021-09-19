@@ -200,16 +200,19 @@ class Joystick(object):
         return A_pressed, Start_pressed
 
 
-def robotAction(goal, cur_pos, action_scale, traj_length, waypoint):
-    if np.linalg.norm(goal - cur_pos) < 0.02 and waypoint > traj_length-15:
-        robot_error = (goal - cur_pos)
+def robotAction(goal, cur_pos, action_scale, traj_length, waypoint, robot_working):
+    if robot_working:
+        if np.linalg.norm(goal - cur_pos) < 0.02 and waypoint > traj_length-15:
+            robot_error = (goal - cur_pos)
+        else:
+            robot_error = (goal - cur_pos)/np.linalg.norm(goal - cur_pos)*action_scale
     else:
-        robot_error = (goal - cur_pos)/np.linalg.norm(goal - cur_pos)*action_scale
+        robot_error = [0,0,0]
     robot_action = [robot_error[0], robot_error[1], robot_error[2], 0, 0, 0]
     return robot_action
 
 
-def main(allocation_panda, allocation_fetch):
+def main(ALLOCATION_PANDA, ALLOCATION_FETCH):
 
     interface = Joystick()
 
@@ -229,125 +232,125 @@ def main(allocation_panda, allocation_fetch):
     conn_gripper = connect2gripper(PORT_gripper)
     send2gripper(conn_gripper, 'o')
 
-    mover.send_joint(fetch_home, fetch_home_t)
-    send_panda_home(conn)
+    for alloc_idx in range(len(ALLOCATION_PANDA)):
 
-    # trajectories of robots
-    trajectory_panda = allocation_panda[-1]
-    trajectory_fetch = allocation_fetch[-1]
-    panda_traj_length = len(trajectory_panda)
-    fetch_traj_length = len(trajectory_fetch)
+        allocation_panda = ALLOCATION_PANDA[alloc_idx]
+        allocation_fetch = ALLOCATION_FETCH[alloc_idx]
 
-    # robot flags: paly vs. no-play
-    flag_panda = allocation_panda[0]
-    flag_fetch = allocation_fetch[0]
+        # send robots to home positions
+        mover.send_joint(fetch_home, fetch_home_t)
+        send_panda_home(conn)
 
-    # Panda paramteres
-    panda_action_scale = 0.05
-    panda_waypoint = 0
-    panda_threshold = 0.01
-    panda_goal = trajectory_panda[panda_waypoint]
+        # trajectories of robots
+        trajectory_panda = allocation_panda[-1]
+        trajectory_fetch = allocation_fetch[-1]
+        panda_traj_length = len(trajectory_panda)
+        fetch_traj_length = len(trajectory_fetch)
 
-    # Fetch paramteres
-    fetch_action_scale = 0.05
-    fetch_step_t = 0.1
-    fetch_waypoint = 0
-    fetch_threshold = 0.01
-    fetch_goal = trajectory_fetch[fetch_waypoint]
+        # robot flags: paly vs. no-play
+        flag_panda = allocation_panda[0]
+        flag_fetch = allocation_fetch[0]
 
-    pause = False
-    last_time = None
-    sample_time = 0.5
-    panda_working = True
-    fetch_working = True
+        # Panda paramteres
+        panda_action_scale = 0.05
+        panda_waypoint = 0
+        panda_threshold = 0.01
+        panda_goal = trajectory_panda[panda_waypoint]
 
-    while panda_working or fetch_working:
+        # Fetch paramteres
+        fetch_action_scale = 0.05
+        fetch_step_t = 0.1
+        fetch_waypoint = 0
+        fetch_threshold = 0.01
+        fetch_goal = trajectory_fetch[fetch_waypoint]
 
-        # joystick control for the user to pause/continue the robots
-        A_pressed, Start_pressed = interface.input()
-        if A_pressed and not pause:
-            pause = True
-            last_time = time.time()
-            print('Task paused!')
-        if Start_pressed and pause:
-            curr_time = time.time()
-            if curr_time - last_time >= sample_time:
-                last_time = curr_time
-                pause = False
-                print("Task continues!")
+        pause = False
+        last_time = None
+        sample_time = 0.5
+        panda_working = True
+        fetch_working = True
 
-        # read robot states
-        panda_state = readState(conn)
-        panda_xyz = joint2pose(panda_state["q"])
-        fetch_state = fetch_robot.dirkin(listener.state)
-        fetch_xyz = np.asarray(fetch_state["gripper_link"].pos)
+        while panda_working or fetch_working:
 
-        '''######################## Panda ########################'''
-        if flag_panda:
-            panda_action = [0]*6
-            panda_working = False
-        else:
-            if np.linalg.norm(panda_goal - panda_xyz) < panda_threshold:
-                panda_waypoint += 1
-                if panda_waypoint == panda_traj_length-2 and panda_working:
-                    send2gripper(conn_gripper, 'c')
-                    time.sleep(1)
-                elif panda_waypoint == panda_traj_length-1:
-                    panda_action_scale = 0.2
-                elif panda_waypoint == panda_traj_length:
-                    panda_action_scale = 0.0
-                    panda_waypoint -= 1
-                    panda_working = False
-                else:
-                    pass
-                panda_goal = trajectory_panda[panda_waypoint]
-        '''######################## Panda ########################'''
+            # joystick control for the user to pause/continue the robots
+            A_pressed, Start_pressed = interface.input()
+            if A_pressed and not pause:
+                pause = True
+                last_time = time.time()
+                print('Task paused!')
+            if Start_pressed and pause:
+                curr_time = time.time()
+                if curr_time - last_time >= sample_time:
+                    last_time = curr_time
+                    pause = False
+                    print("Task continues!")
+
+            # read robot states
+            panda_state = readState(conn)
+            panda_xyz = joint2pose(panda_state["q"])
+            fetch_state = fetch_robot.dirkin(listener.state)
+            fetch_xyz = np.asarray(fetch_state["gripper_link"].pos)
+
+            '''######################## Panda ########################'''
+            if flag_panda:
+                panda_working = False
+            else:
+                if np.linalg.norm(panda_goal - panda_xyz) < panda_threshold:
+                    panda_waypoint += 1
+                    if panda_waypoint == panda_traj_length-2 and panda_working:
+                        send2gripper(conn_gripper, 'c')
+                        time.sleep(1)
+                    elif panda_waypoint == panda_traj_length-1:
+                        panda_action_scale = 0.2
+                    elif panda_waypoint == panda_traj_length:
+                        panda_action_scale = 0.0
+                        panda_waypoint -= 1
+                        panda_working = False
+                    else:
+                        pass
+                    panda_goal = trajectory_panda[panda_waypoint]
+            '''######################## Panda ########################'''
 
 
+            '''######################## Fetch ########################'''
+            if flag_fetch:
+                fetch_working = False
+            else:
+                if np.linalg.norm(fetch_goal - fetch_xyz) < fetch_threshold:
+                    fetch_waypoint += 1
+                    if fetch_waypoint == fetch_traj_length-2 and fetch_working:
+                        mover.close_gripper()
+                        time.sleep(1)
+                    if fetch_waypoint == fetch_traj_length-1:
+                        fetch_action_scale = 0.1
+                    if fetch_waypoint == fetch_traj_length:
+                        fetch_action_scale = 0.0
+                        fetch_waypoint -= 1
+                        fetch_working = False
+                    fetch_goal = trajectory_fetch[fetch_waypoint]
+            '''######################## Fetch ########################'''
 
-        '''######################## Fetch ########################'''
-        if flag_fetch:
-            fetch_action = [0]*6
-            fetch_working = False
-        else:
-            if np.linalg.norm(fetch_goal - fetch_xyz) < fetch_threshold:
-                fetch_waypoint += 1
-                if fetch_waypoint == fetch_traj_length-2 and fetch_working:
-                    mover.close_gripper()
-                    time.sleep(1)
-                if fetch_waypoint == fetch_traj_length-1:
-                    fetch_action_scale = 0.1
-                if fetch_waypoint == fetch_traj_length:
-                    fetch_action_scale = 0.0
-                    fetch_waypoint -= 1
-                    fetch_working = False
-                fetch_goal = trajectory_fetch[fetch_waypoint]
-        '''######################## Fetch ########################'''
+            # compute robot actions
+            panda_action = robotAction(panda_goal, panda_xyz, panda_action_scale,
+                                    panda_traj_length, panda_waypoint, panda_working)
+            fetch_action = robotAction(fetch_goal, fetch_xyz, fetch_action_scale,
+                                    fetch_traj_length, fetch_waypoint, fetch_working)
 
-        # compute robot actions
-        panda_action = robotAction(panda_goal, panda_xyz, panda_action_scale, panda_traj_length, panda_waypoint)
-        fetch_action = robotAction(fetch_goal, fetch_xyz, fetch_action_scale, fetch_traj_length, fetch_waypoint)
+            # check if the pause requested by joystick
+            if pause:
+                panda_action = [0]*6
+                fetch_action = [0]*6
 
-        # check if the pause requested by joystick
-        if pause:
-            panda_action = [0]*6
-            fetch_action = [0]*6
+            # send ee velocity commands to robots
+            send2robot(conn, xdot2qdot(panda_action, panda_state))
+            mover.send(fetch_action, fetch_step_t)
 
-        # send ee velocity commands to robots
-        panda_action = [0]*6
-        # fetch_action = [0]*6
-        send2robot(conn, xdot2qdot(panda_action, panda_state))
-        mover.send(fetch_action, fetch_step_t)
+            # check if robots are done with the task
+            if not panda_working and not fetch_working:
+                send2gripper(conn_gripper, 'o')
+                mover.open_gripper()
 
-        # check if robots are done with the task
-        # if not panda_working:
-        #     send2gripper(conn_gripper, 'o')
-        #     fetch_working = False
-        if not fetch_working:
-            mover.open_gripper()
-            panda_working = False
-
-    print("[*] Allocation Done!")
+        print("[*] Allocation Done!")
 
 if __name__ == "__main__":
     try:
