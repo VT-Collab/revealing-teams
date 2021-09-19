@@ -93,8 +93,8 @@ for idx_panda in range(len(gstar_panda)):
 
 for idx_fetch in range(len(gstar_fetch)):
     pos_fetch = transformFromPygame(gstar_fetch[idx_fetch][0],gstar_fetch[idx_fetch][1])
-    h0_fetch_tfmd = transform(np.array([0,0,h0_fetch]))[-1]
-    pos_fetch_tfmd = transform(list(pos_fetch)+[h0_fetch_tfmd], back_to_fetch=True)
+    h0_fetch_tfmd = transform(np.array([0,0,h0_fetch]),task, allocation_name[-1])[-1]
+    pos_fetch_tfmd = transform(list(pos_fetch)+[h0_fetch_tfmd],task, allocation_name[-1], back_to_fetch=True)
     trajectory_fetch.append(pos_fetch_tfmd)
 
 trajectory_panda.append(list(positions_panda[2]))

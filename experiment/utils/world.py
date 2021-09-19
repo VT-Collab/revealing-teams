@@ -56,29 +56,29 @@ def resetPos(team):
         agent_reset = agent.update(agent.reset())
 
 def savedGoals(task, robot, goal_n):
-    filename = "data/"+task+"/"+robot+"_"+goal_n+".pkl"
+    filename = "./data/"+task+"/"+robot+"_"+goal_n+".pkl"
     waypoints = pickle.load(open(filename, "rb"))
     return waypoints
 
-def transform(p, back_to_fetch=False):
+def transform(p, task, obj_n, back_to_fetch=False):
     location = np.concatenate((p,np.array([1])), axis=0)
     # compute the distance between fetch and panda
-    panda_to_obj1 = savedGoals('task1', 'panda', '1')
-    fetch_to_obj1 = savedGoals('task1', 'fetch', '1')
-    dx = panda_to_obj1[1][0]+fetch_to_obj1[1][0]
-    dy = fetch_to_obj1[1][1]-abs(panda_to_obj1[1][1])
+    panda_to_obj = savedGoals(task, 'panda', obj_n)
+    fetch_to_obj = savedGoals(task, 'fetch', obj_n)
+    dx = panda_to_obj[1][0]+fetch_to_obj[1][0]
+    dy = fetch_to_obj[1][1]+abs(panda_to_obj[1][1])
     if back_to_fetch:
         theta = -np.pi
-        dz = fetch_to_obj1[1][2]-panda_to_obj1[1][2]
+        dz = fetch_to_obj[1][2]-panda_to_obj[1][2]
     else:
         theta = np.pi
-        dz = panda_to_obj1[1][2]-fetch_to_obj1[1][2]
+        dz = panda_to_obj[1][2]-fetch_to_obj[1][2]
     # transformation matrix (rotation Z axis + translation)
     T = np.array([[np.cos(theta),-np.sin(theta),0,dx],
                 [np.sin(theta),np.cos(theta),0,dy],
                 [0,0,1,dz],
                 [0,0,0,1]])
-    p_prime = np.matmul(T,location)
+    p_prime = np.matmul(np.linalg.inv(T),location)
     return p_prime[:3]
 
 def transformToPygame(x,y):
@@ -94,7 +94,7 @@ def envAgents():
     panda_to_obj1 = savedGoals('task1', 'panda', '1')
     fetch_to_obj1 = savedGoals('task1', 'fetch', '1')
     panda_p0 = panda_to_obj1[0]
-    fetch_p0 = transform(fetch_to_obj1[0])
+    fetch_p0 = transform(fetch_to_obj1[0],'task1', '1')
     # add as many agents as you want
     agent_r1 = Object(transformToPygame(panda_p0[0], panda_p0[1]), [0, 0, 255], 25)
     agent_r2 = Object(transformToPygame(float(fetch_p0[0]), float(fetch_p0[1])), [255, 0, 0], 25)
@@ -106,7 +106,6 @@ def envGoals(task, team):
     panda_to_obj1 = savedGoals(task, 'panda', '1')
     panda_to_obj2 = savedGoals(task, 'panda', '2')
     panda_to_obj3 = savedGoals(task, 'panda', '3')
-    fetch_to_obj3 = savedGoals(task, 'fetch', '3')
     # define the subtasks and the possible subtask allocations
     goal1 = Object(transformToPygame(panda_to_obj1[1][0], panda_to_obj1[1][1]),
                     [255, 153, 0], 50)
