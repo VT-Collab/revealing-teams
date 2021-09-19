@@ -202,7 +202,7 @@ class Joystick(object):
 
 def robotAction(goal, cur_pos, action_scale, traj_length, waypoint, robot_working):
     if robot_working:
-        if np.linalg.norm(goal - cur_pos) < 0.02 and waypoint > traj_length-15:
+        if np.linalg.norm(goal - cur_pos) < 0.01 and waypoint > traj_length-25:
             robot_error = (goal - cur_pos)
         else:
             robot_error = (goal - cur_pos)/np.linalg.norm(goal - cur_pos)*action_scale
@@ -222,18 +222,21 @@ def main(ALLOCATION_PANDA, ALLOCATION_FETCH):
     mover = TrajectoryClient()
     listener = JointStateListener()
     mover.open_gripper()
+    print('[*] Connected')
 
     print('[*] Connecting to Panda...')
     PORT_robot = 8080
     conn = connect2robot(PORT_robot)
+    print('[*] Connected')
 
     print('[*] Connecting to Panda gripper...')
     PORT_gripper = 8081
     conn_gripper = connect2gripper(PORT_gripper)
     send2gripper(conn_gripper, 'o')
+    print('[*] Connected')
 
     for alloc_idx in range(len(ALLOCATION_PANDA)):
-
+        alloc_idx =+5
         allocation_panda = ALLOCATION_PANDA[alloc_idx]
         allocation_fetch = ALLOCATION_FETCH[alloc_idx]
 
@@ -342,13 +345,15 @@ def main(ALLOCATION_PANDA, ALLOCATION_FETCH):
                 fetch_action = [0]*6
 
             # send ee velocity commands to robots
+            fetch_action = [0]*6
+            fetch_working = False
             send2robot(conn, xdot2qdot(panda_action, panda_state))
             mover.send(fetch_action, fetch_step_t)
 
             # check if robots are done with the task
-            if not panda_working and not fetch_working:
+            if not panda_working:# and not fetch_working:
                 send2gripper(conn_gripper, 'o')
-                mover.open_gripper()
+                # mover.open_gripper()
 
         print("[*] Allocation Done!")
 
