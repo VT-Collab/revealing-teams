@@ -35,7 +35,7 @@ def animate(sprite_list, team, states_panda, states_fetch, gstar_idx):
         sprite_list.draw(world)
         pygame.display.flip()
         clock.tick(fps)
-        time.sleep(0.05)
+        time.sleep(0.1)
         image_name = '{}_{}_{}_{}.png'.format('alloc', str(gstar_idx), 'frame', str(frame))
         # pygame.image.save(world, '{}/{}'.format('screenshots', image_name))
         frame += 1

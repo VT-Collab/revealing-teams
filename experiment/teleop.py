@@ -222,21 +222,22 @@ def main(ALLOCATION_PANDA, ALLOCATION_FETCH):
     mover = TrajectoryClient()
     listener = JointStateListener()
     mover.open_gripper()
-    print('[*] Connected')
+    print('---Connected')
 
     print('[*] Connecting to Panda...')
     PORT_robot = 8080
     conn = connect2robot(PORT_robot)
-    print('[*] Connected')
+    print('---Connected')
 
     print('[*] Connecting to Panda gripper...')
     PORT_gripper = 8081
     conn_gripper = connect2gripper(PORT_gripper)
     send2gripper(conn_gripper, 'o')
-    print('[*] Connected')
+    print('---Connected','\n')
 
     for alloc_idx in range(len(ALLOCATION_PANDA)):
-        alloc_idx =+5
+
+        print('[*] Starting the allocation...')
         allocation_panda = ALLOCATION_PANDA[alloc_idx]
         allocation_fetch = ALLOCATION_FETCH[alloc_idx]
 
@@ -280,13 +281,13 @@ def main(ALLOCATION_PANDA, ALLOCATION_FETCH):
             if A_pressed and not pause:
                 pause = True
                 last_time = time.time()
-                print('Task paused!')
+                print('---Task paused!')
             if Start_pressed and pause:
                 curr_time = time.time()
                 if curr_time - last_time >= sample_time:
                     last_time = curr_time
                     pause = False
-                    print("Task continues!")
+                    print("---Task continues!")
 
             # read robot states
             panda_state = readState(conn)
@@ -345,17 +346,18 @@ def main(ALLOCATION_PANDA, ALLOCATION_FETCH):
                 fetch_action = [0]*6
 
             # send ee velocity commands to robots
-            fetch_action = [0]*6
-            fetch_working = False
+            # fetch_action = [0]*6
+            # fetch_working = False
             send2robot(conn, xdot2qdot(panda_action, panda_state))
             mover.send(fetch_action, fetch_step_t)
 
             # check if robots are done with the task
-            if not panda_working:# and not fetch_working:
+            if not panda_working and not fetch_working:
                 send2gripper(conn_gripper, 'o')
-                # mover.open_gripper()
+                mover.open_gripper()
 
-        print("[*] Allocation Done!")
+        print("[*] Allocation is Done!",'\n')
+        show_next = input("Ready for the next allocation?",'\n')
 
 if __name__ == "__main__":
     try:
