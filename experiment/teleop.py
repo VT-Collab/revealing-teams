@@ -252,7 +252,7 @@ def main(allocation_panda, allocation_fetch):
     fetch_action_scale = 0.05
     fetch_step_t = 0.1
     fetch_waypoint = 0
-    fetch_threshold = 0.005
+    fetch_threshold = 0.01
     fetch_goal = trajectory_fetch[fetch_waypoint]
 
     pause = False
