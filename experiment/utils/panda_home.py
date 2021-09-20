@@ -52,7 +52,7 @@ def return_home(conn, home):
 
 def main(conn):
 
-    total_time = 35.0
+    total_time = 30.0
     start_time = time.time()
     dist = 1
     elapsed_time = time.time() - start_time

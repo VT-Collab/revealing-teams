@@ -27,22 +27,25 @@ States_fetch = savedData(task,'States_fetch')
 # create a batch of allocations
 batch_allocation = np.empty([4, 4])
 if test == 'legible':
-    for item in scores:
-        print(item[:2])
-    # order in the batch: legible, illegible, illegible, legible
-    batch_allocation = np.concatenate((scores[7:],scores[6:7],scores[5:6],scores[1:2]))
-    print()
-    for item in batch_allocation:
-        print(item[:2])
-    x
-elif test == 'fairness':
-    pass
+    if task == 'task1':
+        # pairs in the batch: (legible, illegible), (illegible, legible)
+        batch_allocation = np.concatenate((scores[7:],scores[6:7],scores[2:3],scores[5:6]))
+    elif task == 'task2':
+        # pairs in the batch: (legible, illegible), (legible, illegible)
+        batch_allocation = np.concatenate((scores[1:2],scores[2:3],scores[7:],scores[6:7]))
+    else:
+        print('WRONG TASK NUMBER!!!')
+elif test == 'fair':
+    if task == 'task1':
+        # order in the batch: (near, far), (no-play, play)
+        batch_allocation = np.concatenate((scores[1:2],scores[7:],scores[3:4],scores[4:5]))
+    elif task == 'task2':
+        # order in the batch: (far and play, no-play and near), (no-play and near , far and play)
+        batch_allocation = np.concatenate((scores[7:],scores[:1],scores[3:4],scores[7:]))
+    else:
+        print('WRONG TASK NUMBER!!!')
 else:
-    print('WRONG INPUT!')
-
-
-
-
+    print('WRONG INPUT!!!')
 
 
 ALLOCATION_PANDA = []
@@ -98,10 +101,12 @@ for gstar_idx in range(len(batch_allocation)):
 
     # add pick and drop locations to end of robot legible trajectories
     trajectory_panda.append(list(positions_panda[2]))
+    trajectory_panda[-2][2] = trajectory_panda[-2][2] - 0.1
     trajectory_panda.append(trajectory_panda[-2])
     trajectory_panda.append(list(panda_bean[0]))
 
     trajectory_fetch.append(positions_fetch[2])
+    trajectory_fetch[-2][2] = trajectory_fetch[-2][2] - 0.05
     trajectory_fetch.append(trajectory_fetch[-2])
     trajectory_fetch.append(fetch_bean[0])
 

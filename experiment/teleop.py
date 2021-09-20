@@ -212,8 +212,8 @@ def robotAction(goal, cur_pos, action_scale, traj_length, waypoint, robot_workin
 
 
 def main(ALLOCATION_PANDA, ALLOCATION_FETCH, test):
-    USER_PREF = {}
     USER_TIME = {}
+    USER_PREF = {}
     interface = Joystick()
 
     print('[*] Connecting to Fetch...')
@@ -222,24 +222,20 @@ def main(ALLOCATION_PANDA, ALLOCATION_FETCH, test):
     mover = TrajectoryClient()
     listener = JointStateListener()
     mover.open_gripper()
-    print('---Connected')
 
     print('[*] Connecting to Panda...')
     PORT_robot = 8080
     conn = connect2robot(PORT_robot)
-    print('---Connected')
 
-    print('[*] Connecting to Panda gripper...')
+    print('[*] Connecting to Panda gripper...','\n')
     PORT_gripper = 8081
     conn_gripper = connect2gripper(PORT_gripper)
     send2gripper(conn_gripper, 'o')
-    print('---Connected','\n')
 
     pair_num = 0
     alloc_start_time = time.time()
     for alloc_idx in range(len(ALLOCATION_PANDA)):
 
-        print('[*] Starting the allocation...')
         allocation_panda = ALLOCATION_PANDA[alloc_idx]
         allocation_fetch = ALLOCATION_FETCH[alloc_idx]
 
@@ -276,6 +272,7 @@ def main(ALLOCATION_PANDA, ALLOCATION_FETCH, test):
         panda_working = True
         fetch_working = True
 
+        print('[*] Starting the allocation ' + str(pair_num+1))
         while panda_working or fetch_working:
 
             # joystick control for the user to pause/continue the robots
@@ -284,7 +281,7 @@ def main(ALLOCATION_PANDA, ALLOCATION_FETCH, test):
                 pause = True
                 last_time = time.time()
                 user_paused_time = time.time() - alloc_start_time
-
+                print('User thinking time: ',user_paused_time)
                 # USER_TIME[] = user_paused_time
 
                 print('---Task paused!')
@@ -365,21 +362,25 @@ def main(ALLOCATION_PANDA, ALLOCATION_FETCH, test):
                 send2gripper(conn_gripper, 'o')
                 mover.open_gripper()
 
-        print("[*] Allocation is Done!",'\n')
-
         pair_num += 1
         # record user's preference after viewing each pair of allocations
-        if pair_num%2 == 0:
-            user_pref = input("Which allocation? ")
-            print()
+        valid_inputs = ['1', '2', '3']
+        user_pref  = None
+        if test == 'legible':
+            while user_pref not in valid_inputs:
+                user_pref = input("---Which tennis ball? ")
             pair_name = 'pair_' + str(pair_num)
             USER_PREF[pair_name] = user_pref
-
         if pair_num == 4:
             print('[*] Task is finished!')
+            print('Please answer the survey question...')
+        elif pair_num%2 == 0:
+            print('Please answer the survey question...')
+            show_next = input("---Next?")
         else:
-            show_next = input("Ready for the next allocation?")
-            print()
+            show_next = input("---Next?")
+        print()
+
 
 if __name__ == "__main__":
     try:
