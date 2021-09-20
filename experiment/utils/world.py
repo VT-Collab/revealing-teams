@@ -63,7 +63,7 @@ def savedGoals(task, robot, goal_n):
 def transform(p, exp=False, task='task1', obj_n='1', back_to_fetch=False):
     location = np.concatenate((p,np.array([1])), axis=0)
     # compute the distance between fetch and panda
-    if exp==False:
+    if exp == False:
         panda_to_obj1 = savedGoals('task1', 'panda', '1')
         fetch_to_obj1 = savedGoals('task1', 'fetch', '1')
         dx = panda_to_obj1[1][0]+fetch_to_obj1[1][0]

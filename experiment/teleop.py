@@ -7,7 +7,6 @@ import sys
 import rospy
 import actionlib
 import kinpy as kp
-import matplotlib.pyplot as plt
 
 from utils.fetch_kn import *
 from utils.panda_home import main as send_panda_home
@@ -212,8 +211,9 @@ def robotAction(goal, cur_pos, action_scale, traj_length, waypoint, robot_workin
     return robot_action
 
 
-def main(ALLOCATION_PANDA, ALLOCATION_FETCH):
-
+def main(ALLOCATION_PANDA, ALLOCATION_FETCH, test):
+    USER_PREF = {}
+    USER_TIME = {}
     interface = Joystick()
 
     print('[*] Connecting to Fetch...')
@@ -235,6 +235,8 @@ def main(ALLOCATION_PANDA, ALLOCATION_FETCH):
     send2gripper(conn_gripper, 'o')
     print('---Connected','\n')
 
+    pair_num = 0
+    alloc_start_time = time.time()
     for alloc_idx in range(len(ALLOCATION_PANDA)):
 
         print('[*] Starting the allocation...')
@@ -281,6 +283,10 @@ def main(ALLOCATION_PANDA, ALLOCATION_FETCH):
             if A_pressed and not pause:
                 pause = True
                 last_time = time.time()
+                user_paused_time = time.time() - alloc_start_time
+
+                # USER_TIME[] = user_paused_time
+
                 print('---Task paused!')
             if Start_pressed and pause:
                 curr_time = time.time()
@@ -351,8 +357,6 @@ def main(ALLOCATION_PANDA, ALLOCATION_FETCH):
                 fetch_action = [0]*6
 
             # send ee velocity commands to robots
-            # fetch_action = [0]*6
-            # fetch_working = False
             send2robot(conn, xdot2qdot(panda_action, panda_state))
             mover.send(fetch_action, fetch_step_t)
 
@@ -362,8 +366,20 @@ def main(ALLOCATION_PANDA, ALLOCATION_FETCH):
                 mover.open_gripper()
 
         print("[*] Allocation is Done!",'\n')
-        show_next = input("Ready for the next allocation?")
-        print()
+
+        pair_num += 1
+        # record user's preference after viewing each pair of allocations
+        if pair_num%2 == 0:
+            user_pref = input("Which allocation? ")
+            print()
+            pair_name = 'pair_' + str(pair_num)
+            USER_PREF[pair_name] = user_pref
+
+        if pair_num == 4:
+            print('[*] Task is finished!')
+        else:
+            show_next = input("Ready for the next allocation?")
+            print()
 
 if __name__ == "__main__":
     try:

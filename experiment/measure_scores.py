@@ -9,7 +9,7 @@ from utils.world import *
 
 
 # bayes rule with boltzmann rational
-def bayes(s, a, A, G_ls, beta=5.0):
+def bayes(s, a, A, G_ls, beta=15):
     P = []
     for g in G_ls:
         num = np.exp(-beta * np.linalg.norm(g - (s + a)))

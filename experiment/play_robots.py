@@ -24,22 +24,21 @@ scores = savedData(task,'scores')
 States_panda = savedData(task,'States_panda')
 States_fetch = savedData(task,'States_fetch')
 
+# create a batch of allocations
 batch_allocation = np.empty([4, 4])
 if test == 'legible':
-    # sort scores in descending order, ranked by legibility
-    ranked_scores = scores[scores[:, 1].argsort()]
-    ranked_scores = ranked_scores[::-1]
-    # print('[*] Ranked based on legibility: ','\n',ranked_scores)
-    batch_allocation = ranked_scores
-    # for item in ranked_scores:
-    #     print(item[:2])
-    # x
-
+    for item in scores:
+        print(item[:2])
+    # order in the batch: legible, illegible, illegible, legible
+    batch_allocation = np.concatenate((scores[7:],scores[6:7],scores[5:6],scores[1:2]))
+    print()
+    for item in batch_allocation:
+        print(item[:2])
+    x
+elif test == 'fairness':
+    pass
 else:
     print('WRONG INPUT!')
-# # sort based on fairness
-# ranked_scores = ranked_scores[ranked_scores[:,2].argsort(kind='mergesort')]
-# print('[*] Ranked based on fairness: ','\n',ranked_scores)
 
 
 
@@ -53,7 +52,7 @@ ALLOCATION_FETCH = []
 for gstar_idx in range(len(batch_allocation)):
 
     # finds ranked score table allocations in the original score table
-    allocation_name = ranked_scores[gstar_idx][0]
+    allocation_name = batch_allocation[gstar_idx][0]
     result = np.where(scores == allocation_name)
     allocation_n = result[0][0]
 
@@ -115,4 +114,4 @@ for gstar_idx in range(len(batch_allocation)):
     ALLOCATION_FETCH.append(allocation_fetch)
 
 # play trajectories
-tele(ALLOCATION_PANDA, ALLOCATION_FETCH)
+tele(ALLOCATION_PANDA, ALLOCATION_FETCH, test)
