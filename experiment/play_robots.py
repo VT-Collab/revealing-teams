@@ -9,7 +9,7 @@ from utils.world import *
 
 
 task = sys.argv[1]
-
+test = sys.argv[2]
 
 def savedData(task, file):
     filename = "data/"+task+"/"+file+".pkl"
@@ -24,21 +24,33 @@ scores = savedData(task,'scores')
 States_panda = savedData(task,'States_panda')
 States_fetch = savedData(task,'States_fetch')
 
-# sort scores in descending order, ranked by legibility
-ranked_scores = scores[scores[:, 1].argsort()]
-ranked_scores = ranked_scores[::-1]
-# print('[*] Ranked based on legibility: ','\n',ranked_scores)
+batch_allocation = np.empty([4, 4])
+if test == 'legible':
+    # sort scores in descending order, ranked by legibility
+    ranked_scores = scores[scores[:, 1].argsort()]
+    ranked_scores = ranked_scores[::-1]
+    # print('[*] Ranked based on legibility: ','\n',ranked_scores)
+    batch_allocation = ranked_scores
+    # for item in ranked_scores:
+    #     print(item[:2])
+    # x
 
+else:
+    print('WRONG INPUT!')
 # # sort based on fairness
 # ranked_scores = ranked_scores[ranked_scores[:,2].argsort(kind='mergesort')]
 # print('[*] Ranked based on fairness: ','\n',ranked_scores)
+
+
+
+
 
 
 ALLOCATION_PANDA = []
 ALLOCATION_FETCH = []
 
 # this loop iterates ranked allocations and creates ACTUAL robot trajectory
-for gstar_idx in range(len(ranked_scores)):
+for gstar_idx in range(len(batch_allocation)):
 
     # finds ranked score table allocations in the original score table
     allocation_name = ranked_scores[gstar_idx][0]

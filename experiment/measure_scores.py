@@ -9,7 +9,7 @@ from utils.world import *
 
 
 # bayes rule with boltzmann rational
-def bayes(s, a, A, G_ls, beta=20.0):
+def bayes(s, a, A, G_ls, beta=5.0):
     P = []
     for g in G_ls:
         num = np.exp(-beta * np.linalg.norm(g - (s + a)))
@@ -31,7 +31,7 @@ def legibleRobots(team, gstar_idx, gstar, A, G_ls):
     while True:
         print('---Step: ',step)
         s = getState(team)
-        epsilon = 0.035
+        epsilon = 0.04
         Q = {}
         Qmax = -np.Inf
         for a in A:

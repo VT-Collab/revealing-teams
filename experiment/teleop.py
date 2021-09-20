@@ -262,7 +262,7 @@ def main(ALLOCATION_PANDA, ALLOCATION_FETCH):
         panda_goal = trajectory_panda[panda_waypoint]
 
         # Fetch paramteres
-        fetch_action_scale = 0.05
+        fetch_action_scale = 0.06
         fetch_step_t = 0.1
         fetch_waypoint = 0
         fetch_threshold = 0.01
@@ -322,11 +322,16 @@ def main(ALLOCATION_PANDA, ALLOCATION_FETCH):
             else:
                 if np.linalg.norm(fetch_goal - fetch_xyz) < fetch_threshold:
                     fetch_waypoint += 1
+                    if fetch_waypoint == fetch_traj_length-3 and fetch_working:
+                        fetch_action_scale = 0.02
+                        fetch_threshold = 0.005
                     if fetch_waypoint == fetch_traj_length-2 and fetch_working:
+                        fetch_action_scale = 0.06
                         mover.close_gripper()
-                        time.sleep(1)
+                        time.sleep(0.6)
                     if fetch_waypoint == fetch_traj_length-1:
-                        fetch_action_scale = 0.1
+                        fetch_action_scale = 0.3
+                        fetch_threshold = 0.1
                     if fetch_waypoint == fetch_traj_length:
                         fetch_action_scale = 0.0
                         fetch_waypoint -= 1
@@ -357,7 +362,8 @@ def main(ALLOCATION_PANDA, ALLOCATION_FETCH):
                 mover.open_gripper()
 
         print("[*] Allocation is Done!",'\n')
-        show_next = input("Ready for the next allocation?",'\n')
+        show_next = input("Ready for the next allocation?")
+        print()
 
 if __name__ == "__main__":
     try:
