@@ -78,7 +78,7 @@ class TrajectoryClient(object):
         goal.trajectory.points.append(waypoint)
         goal.trajectory.header.stamp = rospy.Time.now()
         self.client.send_goal(goal)
-        rospy.sleep(time)
+        # rospy.sleep(time)
 
     def open_gripper(self):
         command = GripperCommand
@@ -213,7 +213,7 @@ def robotAction(goal, cur_pos, action_scale, traj_length, waypoint, robot_workin
 
 def main(ALLOCATION_PANDA, ALLOCATION_FETCH, test):
     USER_TIME = {}
-    USER_PREF = {}
+    USER_CHOICE = {}
     interface = Joystick()
 
     print('[*] Connecting to Fetch...')
@@ -233,7 +233,6 @@ def main(ALLOCATION_PANDA, ALLOCATION_FETCH, test):
     send2gripper(conn_gripper, 'o')
 
     pair_num = 0
-    alloc_start_time = time.time()
     for alloc_idx in range(len(ALLOCATION_PANDA)):
 
         allocation_panda = ALLOCATION_PANDA[alloc_idx]
@@ -260,10 +259,10 @@ def main(ALLOCATION_PANDA, ALLOCATION_FETCH, test):
         panda_goal = trajectory_panda[panda_waypoint]
 
         # Fetch paramteres
-        fetch_action_scale = 0.06
+        fetch_action_scale = 0.05
         fetch_step_t = 0.1
         fetch_waypoint = 0
-        fetch_threshold = 0.01
+        fetch_threshold = 0.008
         fetch_goal = trajectory_fetch[fetch_waypoint]
 
         pause = False
@@ -273,6 +272,7 @@ def main(ALLOCATION_PANDA, ALLOCATION_FETCH, test):
         fetch_working = True
 
         print('[*] Starting the allocation ' + str(pair_num+1))
+        alloc_start_time = time.time()
         while panda_working or fetch_working:
 
             # joystick control for the user to pause/continue the robots
@@ -308,7 +308,7 @@ def main(ALLOCATION_PANDA, ALLOCATION_FETCH, test):
                         send2gripper(conn_gripper, 'c')
                         time.sleep(1)
                     elif panda_waypoint == panda_traj_length-1:
-                        panda_action_scale = 0.2
+                        panda_action_scale = 0.3
                     elif panda_waypoint == panda_traj_length:
                         panda_action_scale = 0.0
                         panda_waypoint -= 1
@@ -327,7 +327,7 @@ def main(ALLOCATION_PANDA, ALLOCATION_FETCH, test):
                     fetch_waypoint += 1
                     if fetch_waypoint == fetch_traj_length-3 and fetch_working:
                         fetch_action_scale = 0.02
-                        fetch_threshold = 0.005
+                        fetch_threshold = 0.004
                     if fetch_waypoint == fetch_traj_length-2 and fetch_working:
                         fetch_action_scale = 0.06
                         mover.close_gripper()
@@ -363,14 +363,14 @@ def main(ALLOCATION_PANDA, ALLOCATION_FETCH, test):
                 mover.open_gripper()
 
         pair_num += 1
-        # record user's preference after viewing each pair of allocations
+        # record user's choice after viewing each pair of allocations
         valid_inputs = ['1', '2', '3']
-        user_pref  = None
+        user_choice  = None
         if test == 'legible':
-            while user_pref not in valid_inputs:
-                user_pref = input("---Which tennis ball? ")
+            while user_choice not in valid_inputs:
+                user_choice = input("---Which tennis ball? ")
             pair_name = 'pair_' + str(pair_num)
-            USER_PREF[pair_name] = user_pref
+            USER_CHOICE[pair_name] = user_choice
         if pair_num == 4:
             print('[*] Task is finished!')
             print('Please answer the survey question...')
