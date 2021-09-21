@@ -119,4 +119,4 @@ for gstar_idx in range(len(batch_allocation)):
     ALLOCATION_FETCH.append(allocation_fetch)
 
 # play trajectories
-tele(ALLOCATION_PANDA, ALLOCATION_FETCH, test)
+tele(ALLOCATION_PANDA, ALLOCATION_FETCH, test, task)

@@ -7,6 +7,7 @@ import sys
 import rospy
 import actionlib
 import kinpy as kp
+import math
 
 from utils.fetch_kn import *
 from utils.panda_home import main as send_panda_home
@@ -211,7 +212,7 @@ def robotAction(goal, cur_pos, action_scale, traj_length, waypoint, robot_workin
     return robot_action
 
 
-def main(ALLOCATION_PANDA, ALLOCATION_FETCH, test):
+def main(ALLOCATION_PANDA, ALLOCATION_FETCH, test, task):
     USER_TIME = {}
     USER_CHOICE = {}
     interface = Joystick()
@@ -232,8 +233,10 @@ def main(ALLOCATION_PANDA, ALLOCATION_FETCH, test):
     conn_gripper = connect2gripper(PORT_gripper)
     send2gripper(conn_gripper, 'o')
 
-    pair_num = 0
+    # this loops iterates 2 pairs of subtask allocations
     for alloc_idx in range(len(ALLOCATION_PANDA)):
+        if (alloc_idx+1) % 2 == 0:
+            pair_num = alloc_idx
 
         allocation_panda = ALLOCATION_PANDA[alloc_idx]
         allocation_fetch = ALLOCATION_FETCH[alloc_idx]
@@ -271,7 +274,7 @@ def main(ALLOCATION_PANDA, ALLOCATION_FETCH, test):
         panda_working = True
         fetch_working = True
 
-        print('[*] Starting the allocation ' + str(pair_num+1))
+        print('[*] Starting the allocation ' + str(alloc_idx+1))
         alloc_start_time = time.time()
         while panda_working or fetch_working:
 
@@ -281,8 +284,7 @@ def main(ALLOCATION_PANDA, ALLOCATION_FETCH, test):
                 pause = True
                 last_time = time.time()
                 user_paused_time = time.time() - alloc_start_time
-                print('User thinking time: ',user_paused_time)
-                # USER_TIME[] = user_paused_time
+                print('User paused time: ',user_paused_time)
 
                 print('---Task paused!')
             if Start_pressed and pause:
@@ -291,6 +293,17 @@ def main(ALLOCATION_PANDA, ALLOCATION_FETCH, test):
                     last_time = curr_time
                     pause = False
                     print("---Task continues!")
+
+            # store the user time
+            # image_name = '{}_{}_{}_{}.png'.format('alloc', str(idx+1), 'frame', str(step+1))
+            # pygame.image.save(game.screen, '{}/{}'.format('screenshots/'+folder, image_name))
+
+            time_name = '{}_{}_{}_{}'.format(test, test, pair_num, alloc_idx)
+            try:
+                USER_TIME[time_name] = user_paused_time
+            except:
+                user_paused_time = math.inf
+                USER_TIME[time_name] = user_paused_time
 
             # read robot states
             panda_state = readState(conn)
@@ -362,19 +375,19 @@ def main(ALLOCATION_PANDA, ALLOCATION_FETCH, test):
                 send2gripper(conn_gripper, 'o')
                 mover.open_gripper()
 
-        pair_num += 1
+        alloc_idx += 1
         # record user's choice after viewing each pair of allocations
         valid_inputs = ['1', '2', '3']
         user_choice  = None
         if test == 'legible':
             while user_choice not in valid_inputs:
                 user_choice = input("---Which tennis ball? ")
-            pair_name = 'pair_' + str(pair_num)
-            USER_CHOICE[pair_name] = user_choice
-        if pair_num == 4:
+            choice_name = '{}_{}_{}_{}'.format(test, test, pair_num, alloc_idx)
+            USER_CHOICE[choice_name] = user_choice
+        if alloc_idx == 4:
             print('[*] Task is finished!')
             print('Please answer the survey question...')
-        elif pair_num%2 == 0:
+        elif alloc_idx%2 == 0:
             print('Please answer the survey question...')
             show_next = input("---Next?")
         else:
