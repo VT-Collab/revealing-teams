@@ -8,8 +8,9 @@ from teleop import main as tele
 from utils.world import *
 
 
-task = sys.argv[1]
-test = sys.argv[2]
+test = sys.argv[1]
+task = sys.argv[2]
+user = sys.argv[3]
 
 def savedData(task, file):
     filename = "data/"+task+"/"+file+".pkl"
@@ -119,4 +120,4 @@ for gstar_idx in range(len(batch_allocation)):
     ALLOCATION_FETCH.append(allocation_fetch)
 
 # play trajectories
-tele(ALLOCATION_PANDA, ALLOCATION_FETCH, test, task)
+tele(ALLOCATION_PANDA, ALLOCATION_FETCH, test, task, user)

@@ -212,9 +212,10 @@ def robotAction(goal, cur_pos, action_scale, traj_length, waypoint, robot_workin
     return robot_action
 
 
-def main(ALLOCATION_PANDA, ALLOCATION_FETCH, test, task):
+def main(ALLOCATION_PANDA, ALLOCATION_FETCH, test, task, user):
     USER_TIME = {}
     USER_CHOICE = {}
+
     interface = Joystick()
 
     print('[*] Connecting to Fetch...')
@@ -233,10 +234,9 @@ def main(ALLOCATION_PANDA, ALLOCATION_FETCH, test, task):
     conn_gripper = connect2gripper(PORT_gripper)
     send2gripper(conn_gripper, 'o')
 
+
     # this loops iterates 2 pairs of subtask allocations
     for alloc_idx in range(len(ALLOCATION_PANDA)):
-        if (alloc_idx+1) % 2 == 0:
-            pair_num = alloc_idx
 
         allocation_panda = ALLOCATION_PANDA[alloc_idx]
         allocation_fetch = ALLOCATION_FETCH[alloc_idx]
@@ -276,17 +276,20 @@ def main(ALLOCATION_PANDA, ALLOCATION_FETCH, test, task):
 
         print('[*] Starting the allocation ' + str(alloc_idx+1))
         alloc_start_time = time.time()
+        valid_inputs = ['1', '2', '3']
+        user_paused_time = None
+        user_choice  = None
         while panda_working or fetch_working:
 
             # joystick control for the user to pause/continue the robots
             A_pressed, Start_pressed = interface.input()
-            if A_pressed and not pause:
+            if A_pressed and not pause and not user_paused_time:
                 pause = True
                 last_time = time.time()
-                user_paused_time = time.time() - alloc_start_time
-                print('User paused time: ',user_paused_time)
-
                 print('---Task paused!')
+                # measure user time
+                user_paused_time = time.time() - alloc_start_time
+                print('time: ', user_paused_time)
             if Start_pressed and pause:
                 curr_time = time.time()
                 if curr_time - last_time >= sample_time:
@@ -294,16 +297,22 @@ def main(ALLOCATION_PANDA, ALLOCATION_FETCH, test, task):
                     pause = False
                     print("---Task continues!")
 
-            # store the user time
-            # image_name = '{}_{}_{}_{}.png'.format('alloc', str(idx+1), 'frame', str(step+1))
-            # pygame.image.save(game.screen, '{}/{}'.format('screenshots/'+folder, image_name))
 
-            time_name = '{}_{}_{}_{}'.format(test, test, pair_num, alloc_idx)
-            try:
-                USER_TIME[time_name] = user_paused_time
-            except:
-                user_paused_time = math.inf
-                USER_TIME[time_name] = user_paused_time
+            # record the user time and prediction
+            if alloc_idx < 2:
+                pair_num = 1
+                if alloc_idx < 1:
+                    alloc_num = 1
+                else:
+                    alloc_num = 2
+            else:
+                pair_num = 2
+                if alloc_idx < 3:
+                    alloc_num = 1
+                else:
+                    alloc_num = 2
+            time_name = '{}_{}_{}_{}'.format(test, task, pair_num, alloc_num)
+            USER_TIME[time_name] = user_paused_time
 
             # read robot states
             panda_state = readState(conn)
@@ -375,24 +384,26 @@ def main(ALLOCATION_PANDA, ALLOCATION_FETCH, test, task):
                 send2gripper(conn_gripper, 'o')
                 mover.open_gripper()
 
-        alloc_idx += 1
-        # record user's choice after viewing each pair of allocations
-        valid_inputs = ['1', '2', '3']
-        user_choice  = None
-        if test == 'legible':
-            while user_choice not in valid_inputs:
-                user_choice = input("---Which tennis ball? ")
-            choice_name = '{}_{}_{}_{}'.format(test, test, pair_num, alloc_idx)
-            USER_CHOICE[choice_name] = user_choice
-        if alloc_idx == 4:
+
+        # record user's choice after pausing the task
+        while user_choice not in valid_inputs:
+            user_choice = input("---Which tennis ball? ")
+        choice_name = '{}_{}_{}_{}'.format(test, task, pair_num, alloc_num)
+        USER_CHOICE[choice_name] = int(user_choice)
+
+        if alloc_idx + 1 == 4:
             print('[*] Task is finished!')
-            print('Please answer the survey question...')
-        elif alloc_idx%2 == 0:
-            print('Please answer the survey question...')
+            print('---Please answer the survey question...')
+        elif alloc_idx + 1 == 2:
+            print('---Please answer the survey question...')
             show_next = input("---Next?")
         else:
             show_next = input("---Next?")
         print()
+
+    # store user's data
+    pickle.dump(USER_TIME, open('{}_{}_{}_{}'.format('data/user_study/time', user, test, task), "wb"))
+    pickle.dump(USER_CHOICE, open('{}_{}_{}_{}'.format('data/user_study/choice', user, test, task), "wb"))
 
 
 if __name__ == "__main__":
