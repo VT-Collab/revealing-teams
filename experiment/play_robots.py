@@ -31,7 +31,7 @@ batch_allocation = np.empty([4, 4])
 if test == 'legible':
     if task == 'task1':
         # pairs in the batch: (legible, illegible), (illegible, legible)
-        batch_allocation = np.concatenate((scores[7:],scores[6:7],scores[2:3],scores[5:6]))
+        batch_allocation = np.concatenate((scores[7:],scores[6:7],scores[2:3],scores[7:]))
     elif task == 'task2':
         # pairs in the batch: (legible, illegible), (legible, illegible)
         batch_allocation = np.concatenate((scores[1:2],scores[2:3],scores[7:],scores[6:7]))
