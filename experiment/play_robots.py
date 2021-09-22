@@ -20,7 +20,7 @@ def savedData(task, file):
 # import score and allocation saved data
 allocations = savedData(task,'allocations')
 scores = savedData(task,'scores')
-print(scores)
+# print(scores)
 
 # import states saved data
 States_panda = savedData(task,'States_panda')
