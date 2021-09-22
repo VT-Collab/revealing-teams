@@ -328,7 +328,7 @@ def main(ALLOCATION_PANDA, ALLOCATION_FETCH, test, task, user):
                     panda_waypoint += 1
                     if panda_waypoint == panda_traj_length-2 and panda_working:
                         send2gripper(conn_gripper, 'c')
-                        time.sleep(1)
+                        time.sleep(0.6)
                     elif panda_waypoint == panda_traj_length-1:
                         panda_action_scale = 0.3
                     elif panda_waypoint == panda_traj_length:
@@ -353,7 +353,7 @@ def main(ALLOCATION_PANDA, ALLOCATION_FETCH, test, task, user):
                     if fetch_waypoint == fetch_traj_length-2 and fetch_working:
                         fetch_action_scale = 0.06
                         mover.close_gripper()
-                        time.sleep(0.6)
+                        time.sleep(0.5)
                     if fetch_waypoint == fetch_traj_length-1:
                         fetch_action_scale = 0.3
                         fetch_threshold = 0.1
@@ -402,8 +402,8 @@ def main(ALLOCATION_PANDA, ALLOCATION_FETCH, test, task, user):
         print()
 
     # store user's data
-    pickle.dump(USER_TIME, open('{}_{}_{}_{}'.format('data/user_study/time', user, test, task), "wb"))
-    pickle.dump(USER_CHOICE, open('{}_{}_{}_{}'.format('data/user_study/choice', user, test, task), "wb"))
+    pickle.dump(USER_TIME, open('{}_{}_{}_{}.pkl'.format('data/user_study/time', user, test, task), "wb"))
+    pickle.dump(USER_CHOICE, open('{}_{}_{}_{}.pkl'.format('data/user_study/choice', user, test, task), "wb"))
 
 
 if __name__ == "__main__":
