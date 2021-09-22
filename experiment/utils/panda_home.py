@@ -59,7 +59,7 @@ def main(conn):
 
     while dist > 0.02 and elapsed_time < total_time:
         state = np.asarray(utils.readState(conn)['q'].tolist())
-        qdot = np.clip(home1 - state, -0.15, 0.15)
+        qdot = np.clip(home1 - state, -0.1, 0.1)
         utils.send2robot(conn, qdot)
         dist = np.linalg.norm(state - home1)
         elapsed_time = time.time() - start_time

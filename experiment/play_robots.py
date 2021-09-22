@@ -8,9 +8,9 @@ from teleop import main as tele
 from utils.world import *
 
 
-test = sys.argv[1]
-task = sys.argv[2]
-user = sys.argv[3]
+user = sys.argv[1]
+test = sys.argv[2]
+task = sys.argv[3]
 
 def savedData(task, file):
     filename = "data/"+task+"/"+file+".pkl"
@@ -20,6 +20,7 @@ def savedData(task, file):
 # import score and allocation saved data
 allocations = savedData(task,'allocations')
 scores = savedData(task,'scores')
+print(scores)
 
 # import states saved data
 States_panda = savedData(task,'States_panda')

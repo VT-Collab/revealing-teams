@@ -242,7 +242,10 @@ def main(ALLOCATION_PANDA, ALLOCATION_FETCH, test, task, user):
         allocation_fetch = ALLOCATION_FETCH[alloc_idx]
 
         # send robots to home positions
-        mover.send_joint(fetch_home, fetch_home_t)
+        if test == 'fair' and task == 'task2' and alloc_idx == 2:
+            pass
+        else:
+            mover.send_joint(fetch_home, fetch_home_t)
         send_panda_home(conn)
 
         # trajectories of robots
@@ -402,8 +405,8 @@ def main(ALLOCATION_PANDA, ALLOCATION_FETCH, test, task, user):
         print()
 
     # store user's data
-    pickle.dump(USER_TIME, open('{}_{}_{}_{}.pkl'.format('data/user_study/time', user, test, task), "wb"))
-    pickle.dump(USER_CHOICE, open('{}_{}_{}_{}.pkl'.format('data/user_study/choice', user, test, task), "wb"))
+    pickle.dump(USER_TIME, open('{}_{}_{}_{}.pkl'.format('data/user_study/' + user,'time', test, task), "wb"))
+    pickle.dump(USER_CHOICE, open('{}_{}_{}_{}.pkl'.format('data/user_study/' + user, 'choice', test, task), "wb"))
 
 
 if __name__ == "__main__":
