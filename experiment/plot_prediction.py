@@ -18,11 +18,8 @@ user_ans_task2 = np.empty([users_n, 4])
 for user_idx in range(users_n):
     for task in tasks:
         answers = []
-        print('User:', user_idx, '/ Task:', task)
         filename = '{}/{}_{}_{}_{}.pkl'.format('data/user_study', 'user'+str(user_idx), measure[0], 'legible', task)
         data = pickle.load(open(filename, "rb"))
-        print(data)
-        print()
         for key in data.keys():
             answers.append(data[key])
         if task == 'task1':
@@ -52,4 +49,5 @@ plt.bar(X_axis + 0.2, illegible, 0.4, label = 'illegible')
 plt.xticks(X_axis, X)
 plt.ylabel("Number of Correct Predictions")
 plt.legend()
-plt.show()
+plt.savefig('user_prediction_avg.svg')
+# plt.show()
