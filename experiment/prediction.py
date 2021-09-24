@@ -5,19 +5,19 @@ import sys
 import matplotlib.pyplot as plt
 
 
-users_n = 4
+users_n = 3
 measure = ['choice', 'time']
 tasks = ['task1', 'task2']
 
 user_ball_legible_task1 = np.array([1,2,2,1])
-user_ball_legible_task2 = np.array([1,2,3,2])
+user_ball_legible_task2 = np.array([3,2,1,2])
+# user_ball_legible_task2 = np.array([1,2,3,2])
 
 user_ans_task1 = np.empty([users_n, 4])
 user_ans_task2 = np.empty([users_n, 4])
 
 for user_idx in range(users_n):
     for task in tasks:
-        print('User:',user_idx, 'Task:', task, '\n')
         answers = []
         filename = '{}/{}_{}_{}_{}.pkl'.format('data/user_study', 'user'+str(user_idx), measure[0], 'legible', task)
         data = pickle.load(open(filename, "rb"))
