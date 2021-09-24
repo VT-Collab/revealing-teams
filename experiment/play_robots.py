@@ -20,8 +20,8 @@ def savedData(task, file):
 # import score and allocation saved data
 allocations = savedData(task,'allocations')
 scores = savedData(task,'scores')
-# print(scores)
-
+print(scores)
+x
 # import states saved data
 States_panda = savedData(task,'States_panda')
 States_fetch = savedData(task,'States_fetch')
@@ -31,10 +31,10 @@ batch_allocation = np.empty([4, 4])
 if test == 'legible':
     if task == 'task1':
         # pairs in the batch: (legible, illegible), (illegible, legible)
-        batch_allocation = np.concatenate((scores[7:],scores[6:7],scores[2:3],scores[7:]))
+        batch_allocation = np.concatenate((scores[7:],scores[6:7], scores[2:3],scores[7:]))
     elif task == 'task2':
         # pairs in the batch: (legible, illegible), (legible, illegible)
-        batch_allocation = np.concatenate((scores[1:2],scores[2:3],scores[7:],scores[6:7]))
+        batch_allocation = np.concatenate((scores[7:],scores[6:7], scores[1:2],scores[2:3]))
     else:
         print('WRONG TASK NUMBER!!!')
 elif test == 'fair':
