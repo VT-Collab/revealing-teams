@@ -5,7 +5,7 @@ import sys
 import matplotlib.pyplot as plt
 
 
-users_n = 4
+users_n = 7
 measure = ['choice', 'time']
 tasks = ['task1', 'task2']
 
@@ -31,7 +31,6 @@ time_illegible_task1 = np.array([np.mean(user_time_task1[:,1], axis=0), np.mean(
 
 avg_time_legible_task1 = np.mean(time_legible_task1)
 avg_time_illegible_task1 = np.mean(time_illegible_task1)
-
 
 time_legible_task2 = np.array([np.mean(user_time_task2[:,0], axis=0), np.mean(user_time_task2[:,2], axis=0)])
 time_illegible_task2 = np.array([np.mean(user_time_task2[:,1], axis=0), np.mean(user_time_task2[:,3], axis=0)])

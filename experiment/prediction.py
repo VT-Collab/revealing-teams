@@ -5,13 +5,12 @@ import sys
 import matplotlib.pyplot as plt
 
 
-users_n = 3
+users_n = 7
 measure = ['choice', 'time']
 tasks = ['task1', 'task2']
 
 user_ball_legible_task1 = np.array([1,2,2,1])
-user_ball_legible_task2 = np.array([3,2,1,2])
-# user_ball_legible_task2 = np.array([1,2,3,2])
+user_ball_legible_task2 = np.array([1,2,3,2])
 
 user_ans_task1 = np.empty([users_n, 4])
 user_ans_task2 = np.empty([users_n, 4])
@@ -27,7 +26,6 @@ for user_idx in range(users_n):
             user_ans_task1[user_idx] = answers
         elif task == 'task2':
             user_ans_task2[user_idx] = answers
-
 
 boolarr_task1 = np.equal(user_ans_task1, user_ball_legible_task1)
 boolarr_task2 = np.equal(user_ans_task2, user_ball_legible_task2)
