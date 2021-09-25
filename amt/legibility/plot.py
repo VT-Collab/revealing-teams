@@ -60,6 +60,7 @@ def plot_prediction(data, case):
     plt.bar(X_axis - 0.2, data[0,:], 0.4, label = 'legible')
     plt.bar(X_axis + 0.2, data[1,:], 0.4, label = 'illegible')
     plt.xticks(X_axis, X)
+    plt.ylim([0,100])
     # plt.xlabel("Scenes")
     plt.ylabel("Number of Correct Predictions")
     if case == 'grid':
@@ -69,13 +70,13 @@ def plot_prediction(data, case):
     plt.legend()
 
 
-def plot_join(join_grid, join_oc, response_n):
+def plot_join(join_grid, join_oc):
     plt.figure()
     X = ['Grid-world', 'Overcooked']
     X_axis = np.arange(len(X))
     want_legible = np.array([join_grid, join_oc])
-    want_illegible = np.array([response_n-join_grid,
-                            response_n-join_oc])
+    want_illegible = np.array([1-join_grid,
+                            1-join_oc])
 
     plt.bar(X_axis - 0.2, want_legible, 0.4, label = 'legible')
     plt.bar(X_axis + 0.2, want_illegible, 0.4, label = 'illegible')
@@ -89,13 +90,15 @@ df_grid, df_oc = importData('AMT.xlsx', 72, 'A:BZ')
 df_ref_grid, df_ref_oc = importData('Survey_Qs_legibility.xlsx', 5, 'A:I')
 
 def main():
+    participants_n = 55
+    qs_per_scene = 3
+    total_n_qs = participants_n*qs_per_scene
     # separate participants' answers
     grid_parts = parter(df_grid)
     oc_parts = parter(df_oc)
 
     # compute the total number of participants
     col_sc = getColumn(grid_parts[0])
-    response_n = np.size(grid_parts[0][col_sc[0:3]].to_numpy())
 
     preds_grid = np.empty((4,3))
     preds_oc = np.empty((4,3))
@@ -108,12 +111,11 @@ def main():
         for i in range(len(cols)):
             # every three question is a scene
             if idx != 4 and i%3 == 0:
-                correct_pred.append(matcher(part[cols[i:i+3]], idx, 'pred_grid'))
+                correct_pred.append(matcher(part[cols[i:i+3]], idx, 'pred_grid')/total_n_qs*100)
             elif idx == 4 and i%3 == 0:
-                join_grid = matcher(part[cols[i:i+3]], idx, 'join_grid')
+                join_grid = matcher(part[cols[i:i+3]], idx, 'join_grid')/total_n_qs
         if idx != 4:
             preds_grid[idx] = correct_pred
-
     # iterate through different parts of overcoked questions
     for idx, part in enumerate(oc_parts):
         correct_pred = []
@@ -122,17 +124,15 @@ def main():
         for i in range(len(cols)):
             # every three question is a scene
             if idx != 4 and i%3 == 0:
-                correct_pred.append(matcher(part[cols[i:i+3]], idx, 'pred_oc'))
+                correct_pred.append(matcher(part[cols[i:i+3]], idx, 'pred_oc')/total_n_qs*100)
             elif idx == 4 and i%3 == 0:
-                join_oc = matcher(part[cols[i:i+3]], idx, 'join_oc')
+                join_oc = matcher(part[cols[i:i+3]], idx, 'join_oc')/total_n_qs
         if idx != 4:
             preds_oc[idx] = correct_pred
-
 
     # average predictions over all scenes
     pred_grid = Avg(preds_grid, 'grid')
     pred_oc = Avg(preds_oc, 'oc')
-
 
     # plotting predictions
     plot_prediction(pred_grid, 'grid')
@@ -140,7 +140,7 @@ def main():
     plot_prediction(pred_oc, 'oc')
     plt.savefig('overcooked.svg')
     # plot preferences to join teams
-    plot_join(join_grid, join_oc, response_n)
+    plot_join(join_grid, join_oc)
     plt.savefig('user_preference.svg')
     plt.show()
 
