@@ -5,7 +5,7 @@ import sys
 import matplotlib.pyplot as plt
 
 
-users_n = 9
+users_n = 10
 measure = ['choice', 'time']
 tasks = ['task1', 'task2']
 
