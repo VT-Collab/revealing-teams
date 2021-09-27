@@ -5,7 +5,7 @@ import sys
 import matplotlib.pyplot as plt
 
 
-users_n = 7
+users_n = 9
 measure = ['choice', 'time']
 tasks = ['task1', 'task2']
 
@@ -13,7 +13,7 @@ user_time_task1 = np.empty([users_n, 4])
 user_time_task2 = np.empty([users_n, 4])
 
 
-for user_idx in range(users_n):
+for user_idx in range(1,users_n):
     for task in tasks:
         measured_times = []
         filename = '{}/{}_{}_{}_{}.pkl'.format('data/user_study', 'user'+str(user_idx), measure[1], 'legible', task)

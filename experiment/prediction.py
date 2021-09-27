@@ -5,7 +5,7 @@ import sys
 import matplotlib.pyplot as plt
 
 
-users_n = 7
+users_n = 9
 measure = ['choice', 'time']
 tasks = ['task1', 'task2']
 
@@ -15,7 +15,7 @@ user_ball_legible_task2 = np.array([1,2,3,2])
 user_ans_task1 = np.empty([users_n, 4])
 user_ans_task2 = np.empty([users_n, 4])
 
-for user_idx in range(users_n):
+for user_idx in range(1,users_n):
     for task in tasks:
         answers = []
         filename = '{}/{}_{}_{}_{}.pkl'.format('data/user_study', 'user'+str(user_idx), measure[0], 'legible', task)
