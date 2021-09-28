@@ -48,17 +48,23 @@ def Avg(array, case):
     if case == 'oc':
         array[[0,1]] = array[[1,0]]
     array[[0,2]] = array[[2,0]]
-    # compute avg score for legible and illegible parts
+    # compute avg and std score for legible and illegible parts
     avg_lg = np.average(array[0:2], axis=0)
-    avg_il = np.average(array[2:], axis=0)
-    return np.vstack((avg_lg, avg_il))
+    std_lg = np.std(array[0:2], axis=0)
 
-def plot_prediction(data, case):
+    avg_il = np.average(array[2:], axis=0)
+    std_il = np.std(array[2:], axis=0)
+
+    return np.vstack((avg_lg, avg_il)), np.vstack((std_lg, std_il))
+
+def plot_prediction(data_avg, data_std, case):
     plt.figure()
     X = ['Scene 1', 'Scene 2', 'Scene 3']
     X_axis = np.arange(len(X))
-    plt.bar(X_axis - 0.2, data[0,:], 0.4, label = 'legible')
-    plt.bar(X_axis + 0.2, data[1,:], 0.4, label = 'illegible')
+    plt.bar(X_axis - 0.2, data_avg[0,:], yerr=data_std[0,:],
+            width=0.4, label = 'legible')
+    plt.bar(X_axis + 0.2, data_avg[1,:], yerr=data_std[1,:],
+            width=0.4, label = 'illegible')
     plt.xticks(X_axis, X)
     plt.ylim([0,100])
     # plt.xlabel("Scenes")
@@ -70,29 +76,34 @@ def plot_prediction(data, case):
     plt.legend()
 
 
-def plot_join(join_grid, join_oc):
+def plot_join(join_grid, join_oc, participants_n):
     plt.figure()
+    print('Grid percentage: ',join_grid/participants_n)
+    print('Overcooked percentage: ',join_oc/participants_n)
     X = ['Grid-world', 'Overcooked']
     X_axis = np.arange(len(X))
     want_legible = np.array([join_grid, join_oc])
-    want_illegible = np.array([1-join_grid,
-                            1-join_oc])
+    want_illegible = np.array([55-join_grid,
+                            55-join_oc])
 
     plt.bar(X_axis - 0.2, want_legible, 0.4, label = 'legible')
     plt.bar(X_axis + 0.2, want_illegible, 0.4, label = 'illegible')
     plt.xticks(X_axis, X)
+    plt.ylim([0,55])
     plt.ylabel("Number of Participants")
     plt.legend()
 
 
 # import the data
-df_grid, df_oc = importData('AMT.xlsx', 72, 'A:BZ')
+df_grid, df_oc = importData('AMT.xlsx', 51, 'A:BZ')
 df_ref_grid, df_ref_oc = importData('Survey_Qs_legibility.xlsx', 5, 'A:I')
 
 def main():
+
     participants_n = 55
     qs_per_scene = 3
     total_n_qs = participants_n*qs_per_scene
+
     # separate participants' answers
     grid_parts = parter(df_grid)
     oc_parts = parter(df_oc)
@@ -113,9 +124,11 @@ def main():
             if idx != 4 and i%3 == 0:
                 correct_pred.append(matcher(part[cols[i:i+3]], idx, 'pred_grid')/total_n_qs*100)
             elif idx == 4 and i%3 == 0:
-                join_grid = matcher(part[cols[i:i+3]], idx, 'join_grid')/total_n_qs
+                join_grid = matcher(part[cols[i:i+3]], idx, 'join_grid')/3
         if idx != 4:
             preds_grid[idx] = correct_pred
+
+
     # iterate through different parts of overcoked questions
     for idx, part in enumerate(oc_parts):
         correct_pred = []
@@ -126,21 +139,21 @@ def main():
             if idx != 4 and i%3 == 0:
                 correct_pred.append(matcher(part[cols[i:i+3]], idx, 'pred_oc')/total_n_qs*100)
             elif idx == 4 and i%3 == 0:
-                join_oc = matcher(part[cols[i:i+3]], idx, 'join_oc')/total_n_qs
+                join_oc = matcher(part[cols[i:i+3]], idx, 'join_oc')/3
         if idx != 4:
             preds_oc[idx] = correct_pred
 
     # average predictions over all scenes
-    pred_grid = Avg(preds_grid, 'grid')
-    pred_oc = Avg(preds_oc, 'oc')
+    avg_pred_grid, std_pred_grid = Avg(preds_grid, 'grid')
+    avg_pred_oc, std_pred_oc = Avg(preds_oc, 'oc')
 
     # plotting predictions
-    plot_prediction(pred_grid, 'grid')
+    plot_prediction(avg_pred_grid, std_pred_grid, 'grid')
     plt.savefig('grid-world.svg')
-    plot_prediction(pred_oc, 'oc')
+    plot_prediction(avg_pred_oc, std_pred_oc, 'oc')
     plt.savefig('overcooked.svg')
     # plot preferences to join teams
-    plot_join(join_grid, join_oc)
+    plot_join(join_grid, join_oc, participants_n)
     plt.savefig('user_preference.svg')
     plt.show()
 
