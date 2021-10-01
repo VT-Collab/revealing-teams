@@ -83,13 +83,13 @@ def plot_join(join_grid, join_oc, participants_n):
     X = ['Grid-world', 'Overcooked']
     X_axis = np.arange(len(X))
     want_legible = np.array([join_grid, join_oc])
-    want_illegible = np.array([55-join_grid,
-                            55-join_oc])
+    want_illegible = np.array([50-join_grid,
+                            50-join_oc])
 
     plt.bar(X_axis - 0.2, want_legible, 0.4, label = 'legible')
     plt.bar(X_axis + 0.2, want_illegible, 0.4, label = 'illegible')
     plt.xticks(X_axis, X)
-    plt.ylim([0,55])
+    plt.ylim([0,50])
     plt.ylabel("Number of Participants")
     plt.legend()
 
@@ -100,7 +100,7 @@ df_ref_grid, df_ref_oc = importData('Survey_Qs_legibility.xlsx', 5, 'A:I')
 
 def main():
 
-    participants_n = 55
+    participants_n = 50
     qs_per_scene = 3
     total_n_qs = participants_n*qs_per_scene
 

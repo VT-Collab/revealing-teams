@@ -49,17 +49,18 @@ def plot_join(join_grid, join_oc, response_n, case):
     plt.title(case)
     plt.legend()
 
-def plot_join_avg(join_grid, join_oc, response_n):
+def plot_join_avg(join_grid, join_oc):
     plt.figure()
     X = ['Grid-world', 'Overcooked']
     X_axis = np.arange(len(X))
     want_legible = np.array([join_grid, join_oc])
-    want_illegible = np.array([response_n-join_grid,
-                            response_n-join_oc])
+    want_illegible = np.array([50-join_grid,
+                            50-join_oc])
 
     plt.bar(X_axis - 0.2, want_legible, 0.4, label = 'preferred fairness')
     plt.bar(X_axis + 0.2, want_illegible, 0.4, label = 'preferred unfairness')
     plt.xticks(X_axis, X)
+    plt.ylim([0,50])
     plt.ylabel("Number of Tasks")
     plt.legend()
 
@@ -73,19 +74,17 @@ df_ref_grid, df_ref_oc = importData('Survey_Qs_fairness.xlsx', 2, 'A:J')
 def main():
     # compute the total number of participants
     col_sc = getColumn(df_grid)
-    response_n = np.size(df_grid[col_sc].to_numpy())
 
     # count the number of participants willing to join the fair team
-    join_grid = matcher(df_grid, 'join_grid')
-    join_oc = matcher(df_oc, 'join_oc')
+    join_grid = matcher(df_grid, 'join_grid')/8
+    join_oc = matcher(df_oc, 'join_oc')/8
 
     # plotting predictions
     # plot_join(join_grid, join_oc, response_n, 'Grid-world')
     # plt.savefig('user_preference_grid.svg')
     # plot_join(join_grid, join_oc, response_n, 'Overcooked')
     # plt.savefig('user_preference_oc.svg')
-    print(response_n)
-    plot_join_avg(join_grid,join_oc, response_n)
+    plot_join_avg(join_grid,join_oc)
     plt.savefig('user_preference_avg.svg')
     plt.show()
 
