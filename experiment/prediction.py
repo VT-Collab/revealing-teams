@@ -33,8 +33,8 @@ boolarr_task2 = np.equal(user_ans_task2, user_ball_legible_task2)
 ########################################################
 #averaged time across users for each pair of allocations
 ########################################################
-correct_pred_task1 = np.count_nonzero(boolarr_task1, axis=0)
-correct_pred_task2 = np.count_nonzero(boolarr_task2, axis=0)
+correct_pred_task1 = np.count_nonzero(boolarr_task1, axis=0)*100/11
+correct_pred_task2 = np.count_nonzero(boolarr_task2, axis=0)*100/11
 ########################################################
 #averaged time across users for each pair of allocations
 ########################################################
@@ -43,17 +43,17 @@ correct_pred_task2 = np.count_nonzero(boolarr_task2, axis=0)
 ########################################################
 # averaged time across all legible/illegible allocations
 ########################################################
-correct_pred_legible_task1 = correct_pred_task1[0] + correct_pred_task1[3]
-correct_pred_illegible_task1 = correct_pred_task1[1] + correct_pred_task1[2]
+correct_pred_legible_task1 = (correct_pred_task1[0] + correct_pred_task1[3])/2
+correct_pred_illegible_task1 = (correct_pred_task1[1] + correct_pred_task1[2])/2
 
-correct_pred_legible_task2 = correct_pred_task2[0] + correct_pred_task2[2]
-correct_pred_illegible_task2 = correct_pred_task2[1] + correct_pred_task2[3]
+correct_pred_legible_task2 = (correct_pred_task2[0] + correct_pred_task2[2])/2
+correct_pred_illegible_task2 = (correct_pred_task2[1] + correct_pred_task2[3])/2
 ########################################################
 # averaged time across all legible/illegible allocations
 ########################################################
 
 
-## plot users' correct predictions across all legible/illegible allocations
+# # plot users' correct predictions across all legible/illegible allocations
 # plt.figure()
 # X = ['Task 1', 'Task 2']
 # X_axis = np.arange(len(X))
@@ -64,6 +64,7 @@ correct_pred_illegible_task2 = correct_pred_task2[1] + correct_pred_task2[3]
 # plt.bar(X_axis + 0.2, illegible, 0.4, label = 'illegible')
 # plt.xticks(X_axis, X)
 # plt.ylabel("Number of Correct Predictions")
+# plt.ylim([0,100])
 # plt.legend()
 # plt.savefig('user_prediction.svg')
 # plt.show()
@@ -82,6 +83,7 @@ plt.bar(X_axis - 0.2, legible, 0.4, label = 'legible')
 plt.bar(X_axis + 0.2, illegible, 0.4, label = 'illegible')
 plt.xticks(X_axis, X)
 plt.ylabel("Number of Correct Predictions")
+plt.ylim([0,100])
 plt.legend()
 plt.savefig('user_prediction_pair.svg')
 plt.show()
