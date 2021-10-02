@@ -51,34 +51,34 @@ mean_time_illegible_task2 = np.mean(np.array([mean_user_time_task2[1], mean_user
 ########################################################
 
 
-# # plot averaged time across all legible/illegible allocations
-# plt.figure()
-# X = ['Task 1', 'Task 2']
-# X_axis = np.arange(len(X))
-# avg_legible = np.array([mean_time_legible_task1, mean_time_legible_task2])
-# avg_illegible = np.array([mean_time_illegible_task1, mean_time_illegible_task2])
-# plt.bar(X_axis - 0.2, avg_legible, 0.4, label = 'legible')
-# plt.bar(X_axis + 0.2, avg_illegible, 0.4, label = 'illegible')
-# plt.xticks(X_axis, X)
-# plt.ylabel("Prediction Time [s]")
-# plt.legend()
-# plt.savefig('user_time_avg.svg')
-# # plt.show()
-
-
-# plot averaged time across users for each pair of allocations
+# plot averaged time across all legible/illegible allocations
 plt.figure()
-X = ['Pair 1', 'Pair 2', 'Pair 3', 'Pair 4']
+X = ['Task 1', 'Task 2']
 X_axis = np.arange(len(X))
-legible = np.array([pair_mean_user_time_task1[0], pair_mean_user_time_task1[3],
-                    pair_mean_user_time_task2[0], pair_mean_user_time_task2[2]])
-illegible = np.array([pair_mean_user_time_task1[1], pair_mean_user_time_task1[2],
-                    pair_mean_user_time_task2[1], pair_mean_user_time_task2[3]])
-
-plt.bar(X_axis - 0.2, legible, 0.4, label = 'legible')
-plt.bar(X_axis + 0.2, illegible, 0.4, label = 'illegible')
+avg_legible = np.array([mean_time_legible_task1, mean_time_legible_task2])
+avg_illegible = np.array([mean_time_illegible_task1, mean_time_illegible_task2])
+plt.bar(X_axis - 0.2, avg_legible, 0.4, label = 'legible')
+plt.bar(X_axis + 0.2, avg_illegible, 0.4, label = 'illegible')
 plt.xticks(X_axis, X)
 plt.ylabel("Prediction Time [s]")
 plt.legend()
-plt.savefig('user_time_avg_pair.svg')
-plt.show()
+plt.savefig('user_time_avg.svg')
+# plt.show()
+
+
+# # plot averaged time across users for each pair of allocations
+# plt.figure()
+# X = ['Pair 1', 'Pair 2', 'Pair 3', 'Pair 4']
+# X_axis = np.arange(len(X))
+# legible = np.array([pair_mean_user_time_task1[0], pair_mean_user_time_task1[3],
+#                     pair_mean_user_time_task2[0], pair_mean_user_time_task2[2]])
+# illegible = np.array([pair_mean_user_time_task1[1], pair_mean_user_time_task1[2],
+#                     pair_mean_user_time_task2[1], pair_mean_user_time_task2[3]])
+#
+# plt.bar(X_axis - 0.2, legible, 0.4, label = 'legible')
+# plt.bar(X_axis + 0.2, illegible, 0.4, label = 'illegible')
+# plt.xticks(X_axis, X)
+# plt.ylabel("Prediction Time [s]")
+# plt.legend()
+# plt.savefig('user_time_avg_pair.svg')
+# plt.show()

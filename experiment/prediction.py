@@ -16,7 +16,6 @@ user_ans_task1 = np.empty([users_n, 4])
 user_ans_task2 = np.empty([users_n, 4])
 
 for user_idx in range(1,users_n+1):
-    print(user_idx)
     for task in tasks:
         answers = []
         filename = '{}/{}_{}_{}_{}.pkl'.format('data/user_study', 'user'+str(user_idx), measure[0], 'legible', task)
@@ -27,11 +26,10 @@ for user_idx in range(1,users_n+1):
             user_ans_task1[user_idx-1] = answers
         elif task == 'task2':
             user_ans_task2[user_idx-1] = answers
-print(user_ans_task1)
 boolarr_task1 = np.equal(user_ans_task1, user_ball_legible_task1)
 boolarr_task2 = np.equal(user_ans_task2, user_ball_legible_task2)
-print(boolarr_task1)
-print(boolarr_task2)
+
+
 ########################################################
 #averaged time across users for each pair of allocations
 ########################################################
@@ -86,4 +84,4 @@ plt.xticks(X_axis, X)
 plt.ylabel("Number of Correct Predictions")
 plt.legend()
 plt.savefig('user_prediction_pair.svg')
-# plt.show()
+plt.show()
