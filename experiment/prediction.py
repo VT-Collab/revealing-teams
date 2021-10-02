@@ -33,8 +33,8 @@ boolarr_task2 = np.equal(user_ans_task2, user_ball_legible_task2)
 ########################################################
 #averaged time across users for each pair of allocations
 ########################################################
-correct_pred_task1 = np.count_nonzero(boolarr_task1, axis=0)*100/11
-correct_pred_task2 = np.count_nonzero(boolarr_task2, axis=0)*100/11
+correct_pred_task1 = np.count_nonzero(boolarr_task1, axis=0)*100/users_n
+correct_pred_task2 = np.count_nonzero(boolarr_task2, axis=0)*100/users_n
 ########################################################
 #averaged time across users for each pair of allocations
 ########################################################
@@ -43,22 +43,46 @@ correct_pred_task2 = np.count_nonzero(boolarr_task2, axis=0)*100/11
 ########################################################
 # averaged time across all legible/illegible allocations
 ########################################################
-correct_pred_legible_task1 = (correct_pred_task1[0] + correct_pred_task1[3])/2
-correct_pred_illegible_task1 = (correct_pred_task1[1] + correct_pred_task1[2])/2
-
-correct_pred_legible_task2 = (correct_pred_task2[0] + correct_pred_task2[2])/2
-correct_pred_illegible_task2 = (correct_pred_task2[1] + correct_pred_task2[3])/2
+correct_pred_legible = np.array([[correct_pred_task1[0],correct_pred_task1[3]]
+                                ,[correct_pred_task2[0],correct_pred_task2[2]]])
+correct_pred_illegible = np.array([[correct_pred_task1[1],correct_pred_task1[2]]
+                                ,[correct_pred_task2[1],correct_pred_task2[3]]])
+# mean over pairs in each task
+mean_correct_pred_legible = np.average(correct_pred_legible, axis=1)
+mean_correct_pred_illegible = np.average(correct_pred_illegible, axis=1)
+# SEM over pairs in each task
+SEM_correct_pred_legible = np.std(correct_pred_legible, axis=1)/np.sqrt(2)
+SEM_correct_pred_illegible = np.std(correct_pred_illegible, axis=1)/np.sqrt(2)
 ########################################################
 # averaged time across all legible/illegible allocations
 ########################################################
 
 
-# # plot users' correct predictions across all legible/illegible allocations
+# plot users' correct predictions across all legible/illegible allocations
+plt.figure()
+X = ['Task 1', 'Task 2']
+X_axis = np.arange(len(X))
+legible = np.array([mean_correct_pred_legible[0], mean_correct_pred_legible[1]])
+illegible = np.array([mean_correct_pred_illegible[0], mean_correct_pred_illegible[1]])
+
+plt.bar(X_axis - 0.2, legible, yerr=SEM_correct_pred_legible, width=0.4, label = 'legible')
+plt.bar(X_axis + 0.2, illegible, yerr=SEM_correct_pred_illegible, width=0.4, label = 'illegible')
+plt.xticks(X_axis, X)
+plt.ylabel("Number of Correct Predictions")
+plt.ylim([0,100])
+plt.legend()
+plt.savefig('user_prediction.svg')
+# plt.show()
+
+
+# # plot users' correct predictions across users for each pair of allocations
 # plt.figure()
-# X = ['Task 1', 'Task 2']
+# X = ['Pair 1', 'Pair 2', 'Pair 3', 'Pair 4']
 # X_axis = np.arange(len(X))
-# legible = np.array([correct_pred_legible_task1, correct_pred_legible_task2])
-# illegible = np.array([correct_pred_illegible_task1, correct_pred_illegible_task2])
+# legible = np.array([correct_pred_task1[0], correct_pred_task1[3],
+#                     correct_pred_task2[0], correct_pred_task2[2]])
+# illegible = np.array([correct_pred_task1[1], correct_pred_task1[2],
+#                     correct_pred_task2[1], correct_pred_task2[3]])
 #
 # plt.bar(X_axis - 0.2, legible, 0.4, label = 'legible')
 # plt.bar(X_axis + 0.2, illegible, 0.4, label = 'illegible')
@@ -66,24 +90,5 @@ correct_pred_illegible_task2 = (correct_pred_task2[1] + correct_pred_task2[3])/2
 # plt.ylabel("Number of Correct Predictions")
 # plt.ylim([0,100])
 # plt.legend()
-# plt.savefig('user_prediction.svg')
+# plt.savefig('user_prediction_pair.svg')
 # plt.show()
-
-
-# plot users' correct predictions across users for each pair of allocations
-plt.figure()
-X = ['Pair 1', 'Pair 2', 'Pair 3', 'Pair 4']
-X_axis = np.arange(len(X))
-legible = np.array([correct_pred_task1[0], correct_pred_task1[3],
-                    correct_pred_task2[0], correct_pred_task2[2]])
-illegible = np.array([correct_pred_task1[1], correct_pred_task1[2],
-                    correct_pred_task2[1], correct_pred_task2[3]])
-
-plt.bar(X_axis - 0.2, legible, 0.4, label = 'legible')
-plt.bar(X_axis + 0.2, illegible, 0.4, label = 'illegible')
-plt.xticks(X_axis, X)
-plt.ylabel("Number of Correct Predictions")
-plt.ylim([0,100])
-plt.legend()
-plt.savefig('user_prediction_pair.svg')
-plt.show()
